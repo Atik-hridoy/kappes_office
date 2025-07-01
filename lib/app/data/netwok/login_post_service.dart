@@ -13,7 +13,7 @@ class LoginPostService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
+        body: ({
           'email': email,
           'password': password,
         }),
