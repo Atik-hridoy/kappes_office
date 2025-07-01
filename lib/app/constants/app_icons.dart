@@ -1,0 +1,66 @@
+abstract class AppIcons{
+  static const String google = "assets/icons/google _icon.png";
+  static const String category = "assets/icons/category-min.png";
+  static const String favourite = "assets/icons/favourite-min.png";
+  static const String home = "assets/icons/home-min.png";
+  static const String message = "assets/icons/message-min.png";
+  static const String person = "assets/icons/person-min.png";
+  static const String shopByProvince = "assets/icons/shopByProvince-min.png";
+  static const String shopByTerritory = "assets/icons/shopByTerritory-min.png";
+  static const String shopByStore = "assets/icons/shopByStore-min.png";
+  static const String deals = "assets/icons/deals-min.png";
+  static const String cart = "assets/icons/cart-min.png";
+  static const String notification = "assets/icons/bell_icon-min.png";
+  static const String notification2 = "assets/icons/bell_icon2.png";
+  static const String search = "assets/icons/search-min.png";
+  static const String filter = "assets/icons/filter-min.png";
+  static const String arrow = "assets/icons/arrow-min.png";
+  static const String sort = "assets/icons/sort-min.png";
+  static const String filter2 = "assets/icons/filter2-min.png";
+  static const String share = "assets/icons/share-min.png";
+  static const String follow = "assets/icons/follow_store.png";
+  static const String follow2 = "assets/icons/followIcon-min.png";
+  static const String cancel = "assets/icons/cancel-min.png";
+  static const String edit = "assets/icons/edit-min.png";
+  static const String marker = "assets/icons/marker-min.png";
+  static const String phone = "assets/icons/phone-min.png";
+  static const String ticket = "assets/icons/ticket-min.png";
+  static const String done = "assets/icons/done (2)-min.png";
+  static const String package = "assets/icons/package-min.png";
+  static const String facebookIcon = "assets/icons/facebook-min.png";
+  static const String instagramIcon = "assets/icons/instagram-min.png";
+  static const String youtubeIcon = "assets/icons/youtube-min.png";
+  static const String networkIcon = "assets/icons/network.png";
+  static const String pieIcon = "assets/icons/pie-min.png";
+  static const String copyIcon = "assets/icons/copy-min.png";
+  static const String sendMessage = "assets/icons/send_message-min.png";
+  static const String emoji = "assets/icons/emoji.png";
+  static const String editProfile = "assets/icons/edit_profile-min.png";
+  static const String myOrder = "assets/icons/my_order-min.png";
+  static const String changePassword = "assets/icons/change_password-min.png";
+  static const String helpAndSupport = "assets/icons/help_and_support-min.png";
+  static const String privacyAndData = "assets/icons/privacy_and_data-min.png";
+  static const String termsAndConditions = "assets/icons/terms_and_conditions-min.png";
+  static const String aboutThisApp = "assets/icons/about_this_app-min.png";
+  static const String language = "assets/icons/language-min.png";
+  static const String logOut = "assets/icons/logOut-min.png";
+  static const String supportPhone = "assets/icons/support_phone-min.png";
+  static const String supportMail = "assets/icons/support_mail-min.png";
+  static const String camera = "assets/icons/camera-min.png";
+
+  /// dev icons
+  static const String category1 = "assets/dev_icons/category(1)-min.png";
+  static const String category2 = "assets/dev_icons/category(2)-min.png";
+  static const String category3 = "assets/dev_icons/category(3)-min.png";
+  static const String category4 = "assets/dev_icons/category(4)-min.png";
+  static const String category5 = "assets/dev_icons/category(5)-min.png";
+  static const String category6 = "assets/dev_icons/category(6)-min.png";
+  static const String category7 = "assets/dev_icons/category(7)-min.png";
+  static const String category8 = "assets/dev_icons/category(8)-min.png";
+  static const String category9 = "assets/dev_icons/category(9)-min.png";
+  static const String category10 = "assets/dev_icons/category(10)-min.png";
+  static const String category11 = "assets/dev_icons/category(11)-min.png";
+  static const String category12 = "assets/dev_icons/category(12)-min.png";
+  static const String category13 = "assets/dev_icons/category(13)-min.png";
+
+}
