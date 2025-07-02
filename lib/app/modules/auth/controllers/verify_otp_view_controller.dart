@@ -1,14 +1,14 @@
+// File: lib/app/modules/auth/controllers/verify_otp_view_controller.dart
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/verify_signup_service.dart';
 import 'package:canuck_mall/app/data/netwok/forget_password_service.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 
 class VerifyOtpViewController extends GetxController {
-  // 2 minutes in seconds
   var remaining = 120.obs;
   Timer? _timer;
 
-  // Add OTP and error state
   RxString otpCode = ''.obs;
   RxString errorMessage = ''.obs;
   RxString email = ''.obs;
@@ -41,22 +41,22 @@ class VerifyOtpViewController extends GetxController {
       errorMessage.value = 'OTP must be a number';
       return false;
     }
+
     if (from == 'forgot') {
-      // Use forget password OTP verification
       final result = await _forgetPasswordService.verifyOtp(email: email.value, otp: otpInt);
       if (result['success'] == true && result['token'] != null) {
         token.value = result['token'];
-        // Navigate to reset password, pass token
-        Get.toNamed('/reset-password', arguments: {'token': token.value});
+        Get.toNamed(Routes.resetPassword, arguments: {'token': token.value});
         return true;
       } else {
         errorMessage.value = result['message'] ?? 'Invalid OTP';
         return false;
       }
     } else {
-      // ...existing code for signup OTP...
       final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
       if (result['success'] == true) {
+        Get.snackbar('Success', 'Your email is now verified.');
+        Get.offAllNamed(Routes.login);
         return true;
       } else {
         errorMessage.value = result['message'] ?? 'Invalid OTP';
@@ -69,13 +69,13 @@ class VerifyOtpViewController extends GetxController {
   void onInit() {
     super.onInit();
     startTimer();
-    // Get email and from arguments if available
+
     final args = Get.arguments;
-    if (args != null && args['email'] != null) {
-      email.value = args['email'];
-    }
-    if (args != null && args['from'] != null) {
-      from = args['from'];
+    if (args is Map<String, dynamic>) {
+      if (args['email'] != null) email.value = args['email'];
+      if (args['from'] != null) from = args['from'];
+    } else if (args is String) {
+      email.value = args;
     }
   }
 

@@ -4,7 +4,7 @@ abstract class AppUrls {
   // Auth endpoints
   static const String verifyEmail = '/auth/verify-email';
   static const String login = '/auth/login';
-  static const String signUp = '/auth/signup';
+  static const String signUp = '/users';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
 
@@ -12,6 +12,7 @@ abstract class AppUrls {
   static const String products = '/products';
   static const String categories = '/categories';
   static const String stores = '/stores';
+  static const String recommendedProducts = '/product/recommended';
 
   // User endpoints
   static const String profile = '/user/profile';

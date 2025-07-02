@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
-class SingUpView extends GetView<SignUpViewController> {
-  const SingUpView({super.key});
+class SignUpView extends GetView<SignUpViewController> {
+  const SignUpView({super.key});
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -61,6 +61,7 @@ class SingUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
+                    controller: controller.fullNameController,
                     decoration: InputDecoration(
                       hintText: AppStaticKey.enterYourFullName,
                     ),
@@ -79,6 +80,7 @@ class SingUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
+                    controller: controller.emailController,
                     decoration: InputDecoration(
                       hintText: AppStaticKey.enterYourEmailAddress,
                     ),
@@ -204,10 +206,11 @@ class SingUpView extends GetView<SignUpViewController> {
                   /// remember me, forgot password, sign in button....
                   SizedBox(height: AppSize.height(height: 3.0)),
                   AppCommonButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (!formKey.currentState!.validate()) {
                         return;
                       }
+                      await controller.signUp();
                     },
                     title: AppStaticKey.signUp,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(

@@ -18,8 +18,6 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -68,7 +66,7 @@ class LoginView extends GetView<LoginController> {
                   ),
                   SizedBox(height: AppSize.height(height: 0.5)),
                   TextFormField(
-                    controller: emailController,
+                    controller: controller.emailController,
                     decoration: InputDecoration(
                       hintText: AppStaticKey.enterYourEmailAddress,
                     ),
@@ -93,7 +91,7 @@ class LoginView extends GetView<LoginController> {
                   SizedBox(height: AppSize.height(height: 0.5)),
                   Obx(
                     () => TextFormField(
-                      controller: passwordController,
+                      controller: controller.passwordController,
                       obscureText: !controller.isPasswordVisible.value,
                       decoration: InputDecoration(
                         hintText: AppStaticKey.enterPassword,
@@ -177,9 +175,7 @@ class LoginView extends GetView<LoginController> {
                       if (!formKey.currentState!.validate()) {
                         return;
                       }
-                      final email = emailController.text.trim();
-                      final password = passwordController.text;
-                      final success = await controller.login(email, password);
+                      final success = await controller.login();
                       if (success) {
                         Get.offAllNamed(Routes.bottomNav);
                       } else {
