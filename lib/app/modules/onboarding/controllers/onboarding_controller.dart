@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:canuck_mall/app/utils/app_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

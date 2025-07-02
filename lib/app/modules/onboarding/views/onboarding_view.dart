@@ -5,7 +5,6 @@ import 'package:canuck_mall/app/modules/onboarding/views/onboarding_page_two_vie
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/utils/app_utils.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

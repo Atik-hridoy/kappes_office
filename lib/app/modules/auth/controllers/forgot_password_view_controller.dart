@@ -27,10 +27,10 @@ class ForgotPasswordViewController extends GetxController {
       final result = await _service.requestOtp(email: email);
       isLoading.value = false;
       debugPrint('ForgotPasswordViewController.resetPassword result: $result');
-      if (result != null && result is Map && result['success'] == true) {
+      if (result is Map && result['success'] == true) {
         Get.toNamed('/verify-otp', arguments: {'email': email, 'from': 'forgot'});
       } else {
-        final msg = (result is Map && result['message'] != null)
+        final msg = (result['message'] != null)
             ? result['message']
             : 'Failed to send OTP';
         Get.snackbar('Error', msg);

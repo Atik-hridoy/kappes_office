@@ -1,28 +1,47 @@
+/// lib/app/modules/auth/controllers/login_controller.dart
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/login_post_service.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class LoginController extends GetxController {
- RxBool isRemember = false.obs;
- RxBool isPasswordVisible = false.obs;
- RxBool isLoading = false.obs;
- RxString errorMessage = ''.obs;
- RxMap<String, dynamic> user = <String, dynamic>{}.obs;
- RxString token = ''.obs;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final isLoading = false.obs;
+  final loginService = LoginPostService();
 
- final LoginPostService _loginService = LoginPostService();
-
- Future<bool> login(String email, String password) async {
-  isLoading.value = true;
-  errorMessage.value = '';
-  final result = await _loginService.login(email: email, password: password);
-  isLoading.value = false;
-  if (result['success'] == true) {
-   user.value = result['user'] ?? {};
-   token.value = result['token'] ?? '';
-   return true;
-  } else {
-   errorMessage.value = result['message'] ?? 'Login failed';
-   return false;
+  Future<void> login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      Get.snackbar('Error', 'Email and password are required');
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await loginService.login(
+        email: email,
+        password: password,
+      );
+      if (response['success'] == true) {
+        // Handle successful login (e.g., save token, navigate)
+        Get.snackbar('Success', 'Login successful');
+      } else {
+        Get.snackbar('Login Failed', response['message'] ?? 'Unknown error');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
- }
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
 }
+
