@@ -13,7 +13,7 @@ import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/reset_password_view.dart';
-import '../modules/auth/views/singup_view.dart';
+import '../modules/auth/views/signup_view.dart';
 import '../modules/auth/views/verify_otp_view.dart';
 import '../modules/bottom_nav/bindings/bottom_nav_binding.dart';
 import '../modules/bottom_nav/views/bottom_nav_view.dart';
@@ -94,7 +94,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.signUP,
-      page: () => const SingUpView(),
+      page: () => const SignUpView(),
       binding: AuthBinding(),
     ),
     GetPage(

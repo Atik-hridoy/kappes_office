@@ -1,33 +1,47 @@
-import 'package:http/http.dart' as http;
+// File: lib/app/data/netwok/signup_post_service.dart
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class SignUpPostService {
-  final String baseUrl = 'http://10.0.60.110:7000/api/v1';
-
   Future<Map<String, dynamic>> signUp({
-    required String name,
+    required String fullName,
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse('$baseUrl/users');
+    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.signUp}');
+
     try {
       final response = await http.post(
         url,
-
-        body: ({
-          'full_name': name,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'full_name': fullName,
           'email': email,
           'password': password,
         }),
       );
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return {'success': true, ...jsonDecode(response.body)};
-      } else {
+
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return {'success': false, 'message': data['message'] ?? 'Sign up failed'};
+        return {
+          'success': true,
+          'data': data,
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': error['message'] ?? 'Signup failed',
+        };
       }
     } catch (e) {
-      return {'success': false, 'message': 'Network error: $e'};
+      return {
+        'success': false,
+        'message': 'Exception: $e',
+      };
     }
   }
 }
