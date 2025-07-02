@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/verify_signup_service.dart';
-import 'package:canuck_mall/app/data/netwok/forget_password_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 
 class VerifyOtpViewController extends GetxController {
@@ -16,7 +15,6 @@ class VerifyOtpViewController extends GetxController {
   String from = '';
 
   final VerifySignupService _verifySignupService = VerifySignupService();
-  final ForgetPasswordService _forgetPasswordService = ForgetPasswordService();
 
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -42,26 +40,14 @@ class VerifyOtpViewController extends GetxController {
       return false;
     }
 
-    if (from == 'forgot') {
-      final result = await _forgetPasswordService.verifyOtp(email: email.value, otp: otpInt);
-      if (result['success'] == true && result['token'] != null) {
-        token.value = result['token'];
-        Get.toNamed(Routes.resetPassword, arguments: {'token': token.value});
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Invalid OTP';
-        return false;
-      }
+    final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
+    if (result['success'] == true) {
+      Get.snackbar('Success', 'Your email is now verified.');
+      Get.offAllNamed(Routes.login);
+      return true;
     } else {
-      final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
-      if (result['success'] == true) {
-        Get.snackbar('Success', 'Your email is now verified.');
-        Get.offAllNamed(Routes.login);
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Invalid OTP';
-        return false;
-      }
+      errorMessage.value = result['message'] ?? 'Invalid OTP';
+      return false;
     }
   }
 

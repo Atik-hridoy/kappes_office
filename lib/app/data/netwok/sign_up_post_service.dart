@@ -7,6 +7,7 @@ class SignUpPostService {
   Future<Map<String, dynamic>> signUp({
     required String fullName,
     required String email,
+    required String phone,
     required String password,
   }) async {
     final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.signUp}');
@@ -20,6 +21,7 @@ class SignUpPostService {
         body: jsonEncode({
           'full_name': fullName,
           'email': email,
+          'phone': phone,
           'password': password,
         }),
       );
@@ -45,3 +47,7 @@ class SignUpPostService {
     }
   }
 }
+
+
+
+
