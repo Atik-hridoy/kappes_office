@@ -11,7 +11,8 @@ import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class VerifyOtpView extends GetView<VerifyOtpViewController> {
-  const VerifyOtpView({super.key});
+  final String email;
+  const VerifyOtpView({super.key,required this.email});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,58 +58,28 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
                   animationType: AnimationType.fade,
                   keyboardType: TextInputType.number,
                   cursorColor: AppColors.primary,
-                  textStyle: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w500),
-                  pinTheme: PinTheme(
-                    shape: PinCodeFieldShape.box,
-                    borderRadius: BorderRadius.circular(5),
-                    fieldHeight: 55,
-                    fieldWidth: 55,
-                    activeColor: Colors.grey.shade200,
-                    selectedColor: AppColors.primary,
-                    inactiveColor: Colors.grey.shade200,
-                    activeFillColor: AppColors.white,
-                    selectedFillColor: AppColors.white,
-                    inactiveFillColor: AppColors.white,
-                  ),
-                  animationDuration: Duration(milliseconds: 300),
-                  backgroundColor: Colors.transparent,
-                  enableActiveFill: true,
-                  // errorAnimationController: errorController,
-                  // controller: textEditingController,
-                  onCompleted: (v) {
-                    // print("Completed");
-                  },
-                  onChanged: (value) {
-                    // print(value);
-                  },
-                  beforeTextPaste: (text) {
-                    // print("Allowing to paste $text");
-                    return true;
-                  },
+                  textStyle: Theme.of(context).textTheme.titleLarge,
                   appContext: context,
+                  onChanged: (value) {
+                    controller.otpCode.value = value;
+                  },
                 ),
               ),
-              SizedBox(height: AppSize.height(height: 1.0)),
-              AppText(
-                title: AppStaticKey.codeHasBeenSentToYourEmail,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              SizedBox(height: AppSize.height(height: 2.0)),
-              Obx(
-                () => AppText(
-                  title: "${AppStaticKey.resendIn} ${controller.formattedTime}",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              Obx(() => controller.errorMessage.value.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        controller.errorMessage.value,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    )
+                  : SizedBox.shrink()),
               SizedBox(height: AppSize.height(height: 3.0)),
               AppCommonButton(
-                onPressed: () {
-                  Get.toNamed(Routes.resetPassword);
+                onPressed: () async {
+                    controller.email.value = email;
+
+                  await controller.verifyOtp();
                 },
                 title: AppStaticKey.verify,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(

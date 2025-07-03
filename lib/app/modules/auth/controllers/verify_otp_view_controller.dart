@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/verify_signup_service.dart';
-import 'package:canuck_mall/app/data/netwok/forget_password_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 
 class VerifyOtpViewController extends GetxController {
@@ -16,7 +15,6 @@ class VerifyOtpViewController extends GetxController {
   String from = '';
 
   final VerifySignupService _verifySignupService = VerifySignupService();
-  final ForgetPasswordService _forgetPasswordService = ForgetPasswordService();
 
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -35,33 +33,39 @@ class VerifyOtpViewController extends GetxController {
   }
 
   Future<bool> verifyOtp() async {
+    print('[OTP] Starting verification');
     errorMessage.value = '';
-    final otpInt = int.tryParse(otpCode.value);
-    if (otpInt == null) {
-      errorMessage.value = 'OTP must be a number';
+    print('[OTP] Entered code: '
+        '"${otpCode.value}"');
+    if (otpCode.value.isEmpty) {
+      errorMessage.value = 'OTP is required';
+      print('[OTP] Error: OTP is required');
       return false;
     }
-
-    if (from == 'forgot') {
-      final result = await _forgetPasswordService.verifyOtp(email: email.value, otp: otpInt);
-      if (result['success'] == true && result['token'] != null) {
-        token.value = result['token'];
-        Get.toNamed(Routes.resetPassword, arguments: {'token': token.value});
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Invalid OTP';
-        return false;
-      }
+    if (email.value.isEmpty) {
+      errorMessage.value = 'Email is required';
+      print('[OTP] Error: Email is required');
+      return false;
+    }
+    final otpInt = int.tryParse(otpCode.value);
+    print('[OTP] Parsed int: $otpInt');
+    if (otpInt == null) {
+      errorMessage.value = 'OTP must be a number';
+      print('[OTP] Error: OTP must be a number');
+      return false;
+    }
+    print('[OTP] Calling verifyOtp with email: ${email.value}, otp: $otpInt');
+    final result = await _verifySignupService.verifyOtp(email: email.value, otp: otpInt);
+    print('[OTP] Backend result: $result');
+    if (result['success'] == true) {
+      Get.snackbar('Success', 'Your email is now verified.');
+      print('[OTP] Success: Email verified, navigating to login');
+      Get.offAllNamed(Routes.login);
+      return true;
     } else {
-      final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
-      if (result['success'] == true) {
-        Get.snackbar('Success', 'Your email is now verified.');
-        Get.offAllNamed(Routes.login);
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Invalid OTP';
-        return false;
-      }
+      errorMessage.value = result['message'] ?? 'Invalid OTP';
+      print('[OTP] Error: ${errorMessage.value}');
+      return false;
     }
   }
 
@@ -72,11 +76,15 @@ class VerifyOtpViewController extends GetxController {
 
     final args = Get.arguments;
     if (args is Map<String, dynamic>) {
-      if (args['email'] != null) email.value = args['email'];
+      if (args['email'] != null) {
+        email.value = args['email'];
+        // Also set otp input if needed
+      }
       if (args['from'] != null) from = args['from'];
     } else if (args is String) {
       email.value = args;
     }
+    print('[OTP] onInit: email=${email.value}, from=$from');
   }
 
   @override

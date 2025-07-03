@@ -1,6 +1,9 @@
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/forget_password_service.dart';
+
+import '../views/verify_otp_view.dart';
 
 class ForgotPasswordViewController extends GetxController {
   final ForgetPasswordService _service = ForgetPasswordService();
@@ -26,9 +29,11 @@ class ForgotPasswordViewController extends GetxController {
       isLoading.value = true;
       final result = await _service.requestOtp(email: email);
       isLoading.value = false;
-      debugPrint('ForgotPasswordViewController.resetPassword result: $result');
-      if (result is Map && result['success'] == true) {
-        Get.toNamed('/verify-otp', arguments: {'email': email, 'from': 'forgot'});
+       debugPrint('ForgotPasswordViewController.resetPassword result: $result');
+      debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
+      if (result['success'] == true) {
+        debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
+       Get.to(VerifyOtpView(email: email,));
       } else {
         final msg = (result['message'] != null)
             ? result['message']

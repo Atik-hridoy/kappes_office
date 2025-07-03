@@ -104,7 +104,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.verifyOtp,
-      page: () => const VerifyOtpView(),
+      page: () => const VerifyOtpView(email: '',),
       binding: AuthBinding(),
       transition: Transition.rightToLeft,
     ),

@@ -8,6 +8,7 @@ class SignUpViewController extends GetxController {
   final emailController = TextEditingController();
   final passwordTextEditingController = TextEditingController();
   final confirmPasswordIsIncorrect = TextEditingController();
+  final phoneController = TextEditingController();
 
   final isPasswordVisible = false.obs;
   final isConfirmPasswordVisible = false.obs;
@@ -45,10 +46,8 @@ class SignUpViewController extends GetxController {
       print('Signup response: $result');
 
       if (result['success'] == true) {
-        final userId = result['data']['userId'] ?? '';
-        print('userId: $userId');
         Get.snackbar('Success', 'Account created. OTP sent.');
-        Get.toNamed(Routes.verifyOtp, arguments: userId);
+        Get.toNamed(Routes.verifyOtp, arguments: {'email': email, 'phone': phoneController.text});
       } else {
         errorMessage.value = result['message'] ?? 'Signup failed';
         Get.snackbar('Signup Failed', errorMessage.value);
@@ -65,6 +64,7 @@ class SignUpViewController extends GetxController {
   void onClose() {
     fullNameController.dispose();
     emailController.dispose();
+    phoneController.dispose();
     passwordTextEditingController.dispose();
     confirmPasswordIsIncorrect.dispose();
     super.onClose();

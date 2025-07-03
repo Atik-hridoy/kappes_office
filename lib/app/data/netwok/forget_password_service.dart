@@ -1,11 +1,15 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class ForgetPasswordService {
-  final String baseUrl = 'http://10.0.60.110:7000/api/v1';
-
+  // Accepts only email for OTP request
   Future<Map<String, dynamic>> requestOtp({required String email}) async {
-    final url = Uri.parse('$baseUrl/auth/forget-password');
+    final url = Uri.parse(AppUrls.baseUrl + AppUrls.forgotPassword);
+    if (email.isEmpty) {
+      return {'success': false, 'message': 'Email is required'};
+    }
+    final body = {'email': email};
     try {
       final response = await http.post(
         url,
@@ -13,7 +17,7 @@ class ForgetPasswordService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({'email': email}),
+        body: jsonEncode(body),
       );
       if (response.statusCode == 200) {
         return {'success': true, ...jsonDecode(response.body)};
@@ -26,8 +30,13 @@ class ForgetPasswordService {
     }
   }
 
+  // Accepts only email for OTP verification
   Future<Map<String, dynamic>> verifyOtp({required String email, required int otp}) async {
-    final url = Uri.parse('$baseUrl/auth/verify-email');
+    final url = Uri.parse(AppUrls.baseUrl + AppUrls.verifyEmail);
+    if (email.isEmpty) {
+      return {'success': false, 'message': 'Email is required'};
+    }
+    final body = {'email': email, 'oneTimeCode': otp};
     try {
       final response = await http.post(
         url,
@@ -35,7 +44,7 @@ class ForgetPasswordService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({'email': email, 'oneTimeCode': otp}),
+        body: jsonEncode(body),
       );
       if (response.statusCode == 200) {
         return {'success': true, ...jsonDecode(response.body)};
@@ -49,7 +58,7 @@ class ForgetPasswordService {
   }
 
   Future<Map<String, dynamic>> resetPassword({required String token, required String newPassword, required String confirmPassword}) async {
-    final url = Uri.parse('$baseUrl/auth/reset-password');
+    final url = Uri.parse(AppUrls.baseUrl + AppUrls.resetPassword);
     try {
       final response = await http.put(
         url,
