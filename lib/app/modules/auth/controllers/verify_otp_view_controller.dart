@@ -54,8 +54,8 @@ class VerifyOtpViewController extends GetxController {
       print('[OTP] Error: OTP must be a number');
       return false;
     }
-    print('[OTP] Calling verifyEmail with email: ${email.value}, otp: $otpInt');
-    final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
+    print('[OTP] Calling verifyOtp with email: ${email.value}, otp: $otpInt');
+    final result = await _verifySignupService.verifyOtp(email: email.value, otp: otpInt);
     print('[OTP] Backend result: $result');
     if (result['success'] == true) {
       Get.snackbar('Success', 'Your email is now verified.');
@@ -76,11 +76,15 @@ class VerifyOtpViewController extends GetxController {
 
     final args = Get.arguments;
     if (args is Map<String, dynamic>) {
-      if (args['email'] != null) email.value = args['email'];
+      if (args['email'] != null) {
+        email.value = args['email'];
+        // Also set otp input if needed
+      }
       if (args['from'] != null) from = args['from'];
     } else if (args is String) {
       email.value = args;
     }
+    print('[OTP] onInit: email=${email.value}, from=$from');
   }
 
   @override

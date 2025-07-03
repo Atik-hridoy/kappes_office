@@ -4,12 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class VerifySignupService {
-  Future<Map<String, dynamic>> verifyEmail({
+  /// Central OTP verification for both signup and forgot password
+  /// Always send email and oneTimeCode to backend
+  Future<Map<String, dynamic>> verifyOtp({
     required String email,
     required int otp,
   }) async {
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/verify-email');
-
+    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.verifyEmail}');
     try {
       final response = await http.post(
         url,

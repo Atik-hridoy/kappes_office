@@ -2,10 +2,10 @@ abstract class AppUrls {
   static const String baseUrl = 'http://10.0.60.110:7000/api/v1';
 
   // Auth endpoints
-  static const String verifyEmail = '/auth/verify-email'; // already correct for /api/v1/auth/verify-email
+  static const String verifyEmail = '/auth/verify-email'; 
   static const String login = '/auth/login';
   static const String signUp = '/users';
-  static const String forgotPassword = '/auth/forgot-password';
+  static const String forgotPassword = '/auth/forget-password';
   static const String resetPassword = '/auth/reset-password';
 
   // Product endpoints

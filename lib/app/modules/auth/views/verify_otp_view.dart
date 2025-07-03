@@ -11,7 +11,8 @@ import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class VerifyOtpView extends GetView<VerifyOtpViewController> {
-  const VerifyOtpView({super.key});
+  final String email;
+  const VerifyOtpView({super.key,required this.email});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,10 +77,8 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
               SizedBox(height: AppSize.height(height: 3.0)),
               AppCommonButton(
                 onPressed: () async {
-                  final args = Get.arguments;
-                  if (args is Map && args['email'] != null) {
-                    controller.email.value = args['email'];
-                  }
+                    controller.email.value = email;
+
                   await controller.verifyOtp();
                 },
                 title: AppStaticKey.verify,
