@@ -1,4 +1,5 @@
 import 'package:canuck_mall/app/data/netwok/sign_up_post_service.dart';
+import 'package:canuck_mall/app/modules/auth/views/verify_otp_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
@@ -47,7 +48,7 @@ class SignUpViewController extends GetxController {
 
       if (result['success'] == true) {
         Get.snackbar('Success', 'Account created. OTP sent.');
-        Get.toNamed(Routes.verifyOtp, arguments: {'email': email, 'phone': phoneController.text});
+        Get.to(VerifyOtpView(email: email));
       } else {
         errorMessage.value = result['message'] ?? 'Signup failed';
         Get.snackbar('Signup Failed', errorMessage.value);

@@ -33,7 +33,7 @@ class ForgotPasswordViewController extends GetxController {
       debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
       if (result['success'] == true) {
         debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
-       Get.to(VerifyOtpView(email: email,));
+       Get.to(VerifyOtpView(email: email,isForgetPassword: true,));
       } else {
         final msg = (result['message'] != null)
             ? result['message']

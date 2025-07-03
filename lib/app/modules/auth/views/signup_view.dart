@@ -205,19 +205,24 @@ class SignUpView extends GetView<SignUpViewController> {
 
                   /// remember me, forgot password, sign in button....
                   SizedBox(height: AppSize.height(height: 3.0)),
-                  AppCommonButton(
-                    onPressed: () async {
-                      if (!formKey.currentState!.validate()) {
-                        return;
-                      }
-                      await controller.signUp();
-                    },
-                    title: AppStaticKey.signUp,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
-                    ),
-                  ),
+                  Obx(() {
+                    if (controller.isLoading.value) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return AppCommonButton(
+                      onPressed: () async {
+                        if (!formKey.currentState!.validate()) {
+                          return;
+                        }
+                        await controller.signUp();
+                      },
+                      title: AppStaticKey.signUp,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                      ),
+                    );
+                  }),
                   SizedBox(height: AppSize.height(height: 1.0)),
                   Center(
                     child: AppText(

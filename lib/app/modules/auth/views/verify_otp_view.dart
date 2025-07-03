@@ -12,7 +12,8 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 class VerifyOtpView extends GetView<VerifyOtpViewController> {
   final String email;
-  const VerifyOtpView({super.key,required this.email});
+  final bool isForgetPassword;
+  const VerifyOtpView({super.key,required this.email,this.isForgetPassword = false});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +79,7 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
               AppCommonButton(
                 onPressed: () async {
                     controller.email.value = email;
+                    controller.isForgetPassword.value = isForgetPassword;
 
                   await controller.verifyOtp();
                 },

@@ -13,6 +13,7 @@ class VerifyOtpViewController extends GetxController {
   RxString email = ''.obs;
   RxString token = ''.obs;
   String from = '';
+  RxBool isForgetPassword = false.obs;
 
   final VerifySignupService _verifySignupService = VerifySignupService();
 
@@ -60,7 +61,11 @@ class VerifyOtpViewController extends GetxController {
     if (result['success'] == true) {
       Get.snackbar('Success', 'Your email is now verified.');
       print('[OTP] Success: Email verified, navigating to login');
-      Get.offAllNamed(Routes.login);
+      if(isForgetPassword.value) {
+        Get.offAllNamed(Routes.resetPassword);
+      } else {
+        Get.offAllNamed(Routes.login);
+      }
       return true;
     } else {
       errorMessage.value = result['message'] ?? 'Invalid OTP';
