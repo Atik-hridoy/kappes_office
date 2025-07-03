@@ -90,6 +90,13 @@ assets/
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+## Snap Shots
+
+![Screenshot_20250703_112642](https://github.com/user-attachments/assets/93798154-eccb-4d2d-92cb-43252a84f83a)
+![Screenshot_20250703_112630](https://github.com/user-attachments/assets/51b38684-f870-4d12-afa5-2f1c1060c168)
+![Screenshot_20250703_112557](https://github.com/user-attachments/assets/7aa00e50-6767-481a-bffe-38ee91d72978)
+![Screenshot_20250703_112500](https://github.com/user-attachments/assets/0208c80e-f073-448d-9d17-41eeda5df515)
+
 
 ## License
 [MIT](LICENSE)
