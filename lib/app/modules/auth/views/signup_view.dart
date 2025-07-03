@@ -103,20 +103,23 @@ class SignUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   IntlPhoneField(
-                      decoration: const InputDecoration(
-                        hintText: AppStaticKey.enterYourPhoneNumber,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(),
-                        ),
+                    controller: controller.phoneController,
+                    decoration: const InputDecoration(
+                      hintText: AppStaticKey.enterYourPhoneNumber,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(),
                       ),
-                      initialCountryCode: 'CA',
-                      onChanged: (phone) {},
-                      validator: (value) {
-                        if (value == null || value.number.isEmpty) {
-                          return AppStaticKey.thisFieldCannotBeEmpty;
-                        }
-                        return null;
+                    ),
+                    initialCountryCode: 'CA',
+                    onChanged: (phone) {
+                      controller.phoneController.text = phone.completeNumber;
+                    },
+                    validator: (value) {
+                      if (value == null || value.number.isEmpty) {
+                        return AppStaticKey.thisFieldCannotBeEmpty;
                       }
+                      return null;
+                    }
                   ),
 
                   /// password

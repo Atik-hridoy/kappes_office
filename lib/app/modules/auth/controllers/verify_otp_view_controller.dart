@@ -33,20 +33,38 @@ class VerifyOtpViewController extends GetxController {
   }
 
   Future<bool> verifyOtp() async {
+    print('[OTP] Starting verification');
     errorMessage.value = '';
-    final otpInt = int.tryParse(otpCode.value);
-    if (otpInt == null) {
-      errorMessage.value = 'OTP must be a number';
+    print('[OTP] Entered code: '
+        '"${otpCode.value}"');
+    if (otpCode.value.isEmpty) {
+      errorMessage.value = 'OTP is required';
+      print('[OTP] Error: OTP is required');
       return false;
     }
-
+    if (email.value.isEmpty) {
+      errorMessage.value = 'Email is required';
+      print('[OTP] Error: Email is required');
+      return false;
+    }
+    final otpInt = int.tryParse(otpCode.value);
+    print('[OTP] Parsed int: $otpInt');
+    if (otpInt == null) {
+      errorMessage.value = 'OTP must be a number';
+      print('[OTP] Error: OTP must be a number');
+      return false;
+    }
+    print('[OTP] Calling verifyEmail with email: ${email.value}, otp: $otpInt');
     final result = await _verifySignupService.verifyEmail(email: email.value, otp: otpInt);
+    print('[OTP] Backend result: $result');
     if (result['success'] == true) {
       Get.snackbar('Success', 'Your email is now verified.');
+      print('[OTP] Success: Email verified, navigating to login');
       Get.offAllNamed(Routes.login);
       return true;
     } else {
       errorMessage.value = result['message'] ?? 'Invalid OTP';
+      print('[OTP] Error: ${errorMessage.value}');
       return false;
     }
   }

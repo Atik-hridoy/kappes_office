@@ -6,9 +6,9 @@ import 'package:canuck_mall/app/routes/app_pages.dart';
 class SignUpViewController extends GetxController {
   final fullNameController = TextEditingController();
   final emailController = TextEditingController();
-  final phoneController = TextEditingController();
   final passwordTextEditingController = TextEditingController();
   final confirmPasswordIsIncorrect = TextEditingController();
+  final phoneController = TextEditingController();
 
   final isPasswordVisible = false.obs;
   final isConfirmPasswordVisible = false.obs;
@@ -20,11 +20,10 @@ class SignUpViewController extends GetxController {
   Future<void> signUp() async {
     final fullName = fullNameController.text.trim();
     final email = emailController.text.trim();
-    final phone = phoneController.text.trim();
     final password = passwordTextEditingController.text.trim();
     final confirmPassword = confirmPasswordIsIncorrect.text.trim();
 
-    if (fullName.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       errorMessage.value = 'All fields are required';
       Get.snackbar('Error', errorMessage.value);
       return;
@@ -41,7 +40,6 @@ class SignUpViewController extends GetxController {
       final result = await signupService.signUp(
         fullName: fullName,
         email: email,
-        phone: phone,
         password: password,
       );
 
@@ -49,7 +47,7 @@ class SignUpViewController extends GetxController {
 
       if (result['success'] == true) {
         Get.snackbar('Success', 'Account created. OTP sent.');
-        Get.toNamed(Routes.verifyOtp, arguments: {'email': email});
+        Get.toNamed(Routes.verifyOtp, arguments: {'email': email, 'phone': phoneController.text});
       } else {
         errorMessage.value = result['message'] ?? 'Signup failed';
         Get.snackbar('Signup Failed', errorMessage.value);

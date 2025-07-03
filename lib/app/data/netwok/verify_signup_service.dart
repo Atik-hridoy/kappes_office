@@ -8,7 +8,7 @@ class VerifySignupService {
     required String email,
     required int otp,
   }) async {
-    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.verifyEmail}');
+    final url = Uri.parse('${AppUrls.baseUrl}/auth/verify-email');
 
     try {
       final response = await http.post(
@@ -18,7 +18,7 @@ class VerifySignupService {
         },
         body: jsonEncode({
           'email': email,
-          'otp': otp,
+          'oneTimeCode': otp,
         }),
       );
 
