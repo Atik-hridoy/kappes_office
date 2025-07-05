@@ -1,46 +1,37 @@
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/data/netwok/profile/profile_view_get_service.dart';
+import '../../../data/netwok/profile/profile_service.dart';
 
 class ProfileController extends GetxController {
-  // User profile data
-  final RxString name = ''.obs;
-  final RxString email = ''.obs;
-  final RxString profileImage = ''.obs;
-  final RxBool isLoading = false.obs;
-  final RxString error = ''.obs;
-
-  late final ProfileViewGetService _profileService;
+  var name = ''.obs;
+  var email = ''.obs;
+  var isLoading = false.obs;
 
   @override
   void onInit() {
+    fetchProfile();
     super.onInit();
-    // You may want to fetch token from storage here
-    _profileService = ProfileViewGetService(
-      baseUrl: 'http://10.0.60.110:7000',
-      // token: 'your_token',
-    );
-    fetchUserProfile();
   }
 
-  Future<void> fetchUserProfile() async {
-    isLoading.value = true;
-    error.value = '';
+  Future<void> fetchProfile() async {
     try {
-      final data = await _profileService.getProfileData();
-      name.value = data['name'] ?? '';
-      email.value = data['email'] ?? '';
-      profileImage.value = data['profileImage'] ?? '';
+      isLoading.value = true;
+      // String? token = await storage.read(key: 'access_token');
+      // if (token == null) {
+      //   Get.snackbar("Error", "No access token found. Please login again.");
+      //   isLoading.value = false;
+      //   return;
+      // }
+      final profileData = await ProfileService.getProfile(token: "");
+      if (profileData != null) {
+        name.value = profileData['full_name'] ?? '-';
+        email.value = profileData['email'] ?? '-';
+      } else {
+        Get.snackbar("Error", "Failed to load profile");
+      }
     } catch (e) {
-      error.value = e.toString();
+      Get.snackbar("Error", "Exception: $e");
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<void> logout() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 500));
-    isLoading.value = false;
-    // Add logout logic here
   }
 }

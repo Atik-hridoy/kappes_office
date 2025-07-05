@@ -47,6 +47,11 @@ class SignUpViewController extends GetxController {
       print('Signup response: $result');
 
       if (result['success'] == true) {
+        // Extract and store token if present
+        final token = result['data']['token'] ?? result['data']['access_token'];
+        // if (token != null) {
+        //   await storage.write(key: 'access_token', value: token);
+        // }
         Get.snackbar('Success', 'Account created. OTP sent.');
         Get.to(VerifyOtpView(email: email));
       } else {

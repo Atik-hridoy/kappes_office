@@ -23,6 +23,8 @@ class LoginPostService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        // Print token for debugging
+        print('Login Token: \\${data['token'] ?? data['access_token'] ?? 'No token in response'}');
         return {
           'success': true,
           'data': data,

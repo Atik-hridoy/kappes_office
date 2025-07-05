@@ -3,9 +3,9 @@ import 'package:canuck_mall/app/modules/error_screens/error_screen.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 
-import 'package:get/get.dart';
-
+import 'app/data/local/storage_service.dart';
 import 'app/routes/app_pages.dart';
 import 'app/themes/app_theme.dart';
 
@@ -17,6 +17,7 @@ void main() {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
+  LocalStorage.getAllPrefData();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp, // Lock to portrait mode
   ]).then((_) {

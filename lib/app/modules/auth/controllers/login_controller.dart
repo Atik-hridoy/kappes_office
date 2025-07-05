@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/login_post_service.dart';
@@ -26,6 +27,18 @@ class LoginController extends GetxController {
         password: password,
       );
       if (response['success'] == true) {
+        // Extract and store token if present
+        final token = response['data']['accessToken'] ;
+        print('LoginController: token used/saved: =======================>>>>>>>>>>>>\\${token ?? 'No token'}');
+        if (token != null) {
+          LocalStorage.token = token;
+          print("LocalStorage.token =====>>>> ${LocalStorage.token}");
+        }
+        // if (isRemember.value && token != null) {
+        //   await storage.write(key: 'remember_me', value: 'true');
+        // } else {
+        //   await storage.delete(key: 'remember_me');
+        // }
         errorMessage.value = '';
         Get.snackbar('Success', 'Login successful');
         return true;
@@ -50,4 +63,3 @@ class LoginController extends GetxController {
     super.onClose();
   }
 }
-
