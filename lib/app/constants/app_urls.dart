@@ -1,5 +1,5 @@
 abstract class AppUrls {
-  static const String baseUrl = 'http://10.0.60.110:7000/api/v1';
+  static const String baseUrl = 'http://10.10.7.112:7000/api/v1';
 
   // Auth endpoints
   static const String verifyEmail = '/auth/verify-email'; 

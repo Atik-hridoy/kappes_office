@@ -36,6 +36,8 @@ class SignUpViewController extends GetxController {
     }
 
     isLoading.value = true;
+    errorMessage.value = '';
+
     try {
       final result = await signupService.signUp(
         fullName: fullName,
@@ -43,7 +45,6 @@ class SignUpViewController extends GetxController {
         password: password,
       );
 
-      print('Signup response: $result');
 
       if (result['success'] == true) {
         Get.snackbar('Success', 'Account created. OTP sent.');
@@ -59,6 +60,16 @@ class SignUpViewController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
+
+  void toggleConfirmPasswordVisibility() {
+    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
+  }
+
+
 
   @override
   void onClose() {

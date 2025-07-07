@@ -43,8 +43,8 @@ class SignUpView extends GetView<SignUpViewController> {
                       width: AppSize.width(width: 70.0),
                       child: AppText(
                         title:
-                        AppStaticKey
-                            .joinUsToExploreTopCanadianMadeProductsExclusiveDealsAndGreatRewards,
+                            AppStaticKey
+                                .joinUsToExploreTopCanadianMadeProductsExclusiveDealsAndGreatRewards,
                         maxLine: 3,
                         textAlign: TextAlign.center,
                         style: Theme.of(
@@ -103,20 +103,18 @@ class SignUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   IntlPhoneField(
-                      decoration: const InputDecoration(
-                        hintText: AppStaticKey.enterYourPhoneNumber,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(),
-                        ),
-                      ),
-                      initialCountryCode: 'CA',
-                      onChanged: (phone) {},
-                      validator: (value) {
-                        if (value == null || value.number.isEmpty) {
-                          return AppStaticKey.thisFieldCannotBeEmpty;
-                        }
-                        return null;
+                    decoration: const InputDecoration(
+                      hintText: AppStaticKey.enterYourPhoneNumber,
+                      border: OutlineInputBorder(borderSide: BorderSide()),
+                    ),
+                    initialCountryCode: 'CA',
+                    onChanged: (phone) {},
+                    validator: (value) {
+                      if (value == null || value.number.isEmpty) {
+                        return AppStaticKey.thisFieldCannotBeEmpty;
                       }
+                      return null;
+                    },
                   ),
 
                   /// password
@@ -125,26 +123,26 @@ class SignUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Obx(
-                        () => TextFormField(
-                          controller: controller.passwordTextEditingController,
+                    () => TextFormField(
+                      controller: controller.passwordTextEditingController,
                       obscureText: !controller.isPasswordVisible.value,
                       decoration: InputDecoration(
                         hintText: AppStaticKey.enterPassword,
                         suffixIcon: InkWell(
                           onTap: () {
                             controller.isPasswordVisible.value =
-                            !controller.isPasswordVisible.value;
+                                !controller.isPasswordVisible.value;
                           },
                           child:
-                          controller.isPasswordVisible.value
-                              ? const Icon(
-                            Icons.visibility_outlined,
-                            color: AppColors.lightGray,
-                          )
-                              : const Icon(
-                            Icons.visibility_off_outlined,
-                            color: AppColors.lightGray,
-                          ),
+                              controller.isPasswordVisible.value
+                                  ? const Icon(
+                                    Icons.visibility_outlined,
+                                    color: AppColors.lightGray,
+                                  )
+                                  : const Icon(
+                                    Icons.visibility_off_outlined,
+                                    color: AppColors.lightGray,
+                                  ),
                         ),
                       ),
                       validator: (value) {
@@ -166,40 +164,40 @@ class SignUpView extends GetView<SignUpViewController> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Obx(
-                        () => TextFormField(
-                          controller: controller.confirmPasswordIsIncorrect,
+                    () => TextFormField(
+                      controller: controller.confirmPasswordIsIncorrect,
                       obscureText: !controller.isConfirmPasswordVisible.value,
                       decoration: InputDecoration(
                         hintText: AppStaticKey.enterPassword,
                         suffixIcon: InkWell(
                           onTap: () {
                             controller.isConfirmPasswordVisible.value =
-                            !controller.isConfirmPasswordVisible.value;
+                                !controller.isConfirmPasswordVisible.value;
                           },
                           child:
-                          controller.isConfirmPasswordVisible.value
-                              ? const Icon(
-                            Icons.visibility_outlined,
-                            color: AppColors.lightGray,
-                          )
-                              : const Icon(
-                            Icons.visibility_off_outlined,
-                            color: AppColors.lightGray,
-                          ),
+                              controller.isConfirmPasswordVisible.value
+                                  ? const Icon(
+                                    Icons.visibility_outlined,
+                                    color: AppColors.lightGray,
+                                  )
+                                  : const Icon(
+                                    Icons.visibility_off_outlined,
+                                    color: AppColors.lightGray,
+                                  ),
                         ),
                       ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return AppStaticKey.thisFieldCannotBeEmpty;
-                            } else if (value !=
-                                controller.passwordTextEditingController.text) {
-                              return AppStaticKey.confirmPasswordIsIncorrect;
-                            } else if (value.length < 8) {
-                              return AppStaticKey
-                                  .passwordMustBeAtLeastEightCharacters;
-                            }
-                            return null;
-                          },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return AppStaticKey.thisFieldCannotBeEmpty;
+                        } else if (value !=
+                            controller.passwordTextEditingController.text) {
+                          return AppStaticKey.confirmPasswordIsIncorrect;
+                        } else if (value.length < 8) {
+                          return AppStaticKey
+                              .passwordMustBeAtLeastEightCharacters;
+                        }
+                        return null;
+                      },
                     ),
                   ),
 
@@ -207,7 +205,7 @@ class SignUpView extends GetView<SignUpViewController> {
                   SizedBox(height: AppSize.height(height: 3.0)),
                   AppCommonButton(
                     onPressed: () async {
-                      if (!formKey.currentState!.validate()) {
+                      if (formKey.currentState?.validate() == false) {
                         return;
                       }
                       await controller.signUp();
@@ -242,10 +240,10 @@ class SignUpView extends GetView<SignUpViewController> {
                         children: [
                           TextSpan(
                             recognizer:
-                            TapGestureRecognizer()
-                              ..onTap = () {
-                                Get.offAllNamed(Routes.login);
-                              },
+                                TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Get.offAllNamed(Routes.login);
+                                  },
                             text: AppStaticKey.singIn,
                             style: Theme.of(
                               context,

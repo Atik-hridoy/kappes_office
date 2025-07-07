@@ -30,7 +30,7 @@ class ProfileView extends GetView<ProfileController> {
                   width: double.maxFinite,
                   height: AppSize.height(height: 25.0),
                 ),
-        
+
                 Positioned(
                   bottom: 0.0,
                   left: 0,
@@ -46,7 +46,7 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
                 ),
-        
+
                 /// circular image
                 Positioned(
                   bottom: 0.0,
@@ -81,19 +81,29 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ],
             ),
-        
-            SizedBox(height: AppSize.height(height: 1.0),),
-            Obx(() => AppText(
-              title: controller.name.value.isNotEmpty ? controller.name.value : '-',
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontSize: AppSize.height(height: 2.30),
-                fontWeight: FontWeight.w900
+
+            SizedBox(height: AppSize.height(height: 1.0)),
+            Obx(
+              () => AppText(
+                title:
+                    controller.name.value.isNotEmpty
+                        ? controller.name.value
+                        : '-',
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.30),
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-            )),
-            Obx(() => AppText(
-              title: controller.email.value.isNotEmpty ? controller.email.value : '-',
-              style: Theme.of(context).textTheme.bodySmall,
-            )),
+            ),
+            Obx(
+              () => AppText(
+                title:
+                    controller.email.value.isNotEmpty
+                        ? controller.email.value
+                        : '-',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
 
             Padding(
               padding: EdgeInsets.all(AppSize.height(height: 2.0)),
@@ -104,63 +114,117 @@ class ProfileView extends GetView<ProfileController> {
                   /// profile settings
                   AppText(
                     title: AppStaticKey.profileSettings,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontSize: AppSize.height(height: 1.80), fontWeight: FontWeight.w900),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontSize: AppSize.height(height: 1.80),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.editInformationView);}, image: AppIcons.editProfile, title: AppStaticKey.personalInformation),
-        
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.editInformationView);
+                    },
+                    image: AppIcons.editProfile,
+                    title: AppStaticKey.personalInformation,
+                  ),
+
                   /// profile settings
-                  SizedBox(height: AppSize.height(height: 1.0),),
+                  SizedBox(height: AppSize.height(height: 1.0)),
                   AppText(
                     title: AppStaticKey.order,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontSize: AppSize.height(height: 1.80), fontWeight: FontWeight.w900),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontSize: AppSize.height(height: 1.80),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.myOrders);}, image: AppIcons.myOrder, title: AppStaticKey.myOrder),
-        
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.myOrders);
+                    },
+                    image: AppIcons.myOrder,
+                    title: AppStaticKey.myOrder,
+                  ),
+
                   /// accounts settings
-                  SizedBox(height: AppSize.height(height: 1.0),),
+                  SizedBox(height: AppSize.height(height: 1.0)),
                   AppText(
                     title: AppStaticKey.accountSettings,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontSize: AppSize.height(height: 1.80), fontWeight: FontWeight.w900),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontSize: AppSize.height(height: 1.80),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.changePasswordView);}, image: AppIcons.changePassword, title: AppStaticKey.changePassword),
-        
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.changePasswordView);
+                    },
+                    image: AppIcons.changePassword,
+                    title: AppStaticKey.changePassword,
+                  ),
+
                   /// support and info
-                  SizedBox(height: AppSize.height(height: 1.0),),
+                  SizedBox(height: AppSize.height(height: 1.0)),
                   AppText(
                     title: AppStaticKey.supportAndInfo,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontSize: AppSize.height(height: 1.80), fontWeight: FontWeight.w900),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontSize: AppSize.height(height: 1.80),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.supportView);}, image: AppIcons.helpAndSupport, title: AppStaticKey.helpAndSupport),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.dataPrivacyView);}, image: AppIcons.privacyAndData, title: AppStaticKey.privacyAndData),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.termsConditionsView);}, image: AppIcons.termsAndConditions, title: AppStaticKey.termsAndConditions),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.supportView);
+                    },
+                    image: AppIcons.helpAndSupport,
+                    title: AppStaticKey.helpAndSupport,
+                  ),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.dataPrivacyView);
+                    },
+                    image: AppIcons.privacyAndData,
+                    title: AppStaticKey.privacyAndData,
+                  ),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.termsConditionsView);
+                    },
+                    image: AppIcons.termsAndConditions,
+                    title: AppStaticKey.termsAndConditions,
+                  ),
 
                   /// app settings
-                  SizedBox(height: AppSize.height(height: 1.0),),
+                  SizedBox(height: AppSize.height(height: 1.0)),
                   AppText(
                     title: AppStaticKey.appSettings,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontSize: AppSize.height(height: 1.80), fontWeight: FontWeight.w900),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontSize: AppSize.height(height: 1.80),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.aboutUsView);}, image: AppIcons.aboutThisApp, title: AppStaticKey.aboutUs),
-                  CustomListTile(onPressed: (){Get.toNamed(Routes.languageView);}, image: AppIcons.language, title: AppStaticKey.language),
-                  CustomListTile(onPressed: (){Get.offAllNamed(Routes.login);}, image: AppIcons.logOut, title: AppStaticKey.logOut),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.aboutUsView);
+                    },
+                    image: AppIcons.aboutThisApp,
+                    title: AppStaticKey.aboutUs,
+                  ),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.toNamed(Routes.languageView);
+                    },
+                    image: AppIcons.language,
+                    title: AppStaticKey.language,
+                  ),
+                  CustomListTile(
+                    onPressed: () {
+                      Get.offAllNamed(Routes.login);
+                    },
+                    image: AppIcons.logOut,
+                    title: AppStaticKey.logOut,
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

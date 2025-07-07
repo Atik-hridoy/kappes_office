@@ -104,7 +104,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.verifyOtp,
-      page: () => const VerifyOtpView(email: '',),
+      page: () => const VerifyOtpView(),
       binding: AuthBinding(),
       transition: Transition.rightToLeft,
     ),
@@ -304,6 +304,5 @@ class AppPages {
       page: () => const TermsConditionsView(),
       binding: ProfileBinding(),
     ),
-
   ];
 }

@@ -29,20 +29,27 @@ class ForgotPasswordViewController extends GetxController {
       isLoading.value = true;
       final result = await _service.requestOtp(email: email);
       isLoading.value = false;
-       debugPrint('ForgotPasswordViewController.resetPassword result: $result');
-      debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
+      debugPrint('ForgotPasswordViewController.resetPassword result: $result');
+      debugPrint(
+        'ForgotPasswordViewController.resetPassword result: ${result['success']}',
+      );
       if (result['success'] == true) {
-        debugPrint('ForgotPasswordViewController.resetPassword result: ${result['success']}');
-       Get.to(VerifyOtpView(email: email,));
+        debugPrint(
+          'ForgotPasswordViewController.resetPassword result: ${result['success']}',
+        );
+        Get.to(VerifyOtpView());
       } else {
-        final msg = (result['message'] != null)
-            ? result['message']
-            : 'Failed to send OTP';
+        final msg =
+            (result['message'] != null)
+                ? result['message']
+                : 'Failed to send OTP';
         Get.snackbar('Error', msg);
       }
     } catch (e, stackTrace) {
       isLoading.value = false;
-      debugPrint('ForgotPasswordViewController.resetPassword error: $e\n$stackTrace');
+      debugPrint(
+        'ForgotPasswordViewController.resetPassword error: $e\n$stackTrace',
+      );
       Get.snackbar('Error', 'An unexpected error occurred.');
     }
   }
