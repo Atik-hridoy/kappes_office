@@ -1,29 +1,34 @@
 import 'dart:convert';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:http/http.dart' as http;
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 
-class ProfileViewGetService {
-  final String baseUrl;
-  final String? token;
-
-  ProfileViewGetService({required this.baseUrl, this.token});
-
+class ProfileService {
   Future<Map<String, dynamic>> getProfileData() async {
-    try {
-      final url = Uri.parse('$baseUrl/api/v1/users/profile');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 200) {
-        return json.decode(response.body) as Map<String, dynamic>;
+    final token = LocalStorage.token;
+
+    if (token.isEmpty) {
+      throw Exception("Auth token not found");
+    }
+
+    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.profile}');
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+
+      if (body['success'] == true && body['data'] != null) {
+        return body['data'];
       } else {
-        throw Exception('Failed to load profile: ${response.statusCode}');
+        throw Exception(body['message'] ?? 'Failed to get profile');
       }
-    } catch (e) {
-      throw Exception('Profile API error: $e');
+    } else {
+      throw Exception('Server Error: ${response.statusCode} - ${response.body}');
     }
   }
 }
