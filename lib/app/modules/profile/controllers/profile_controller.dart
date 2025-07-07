@@ -1,46 +1,52 @@
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/profile/profile_view_get_service.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/data/local/storage_keys.dart';
+import 'package:canuck_mall/app/modules/profile/bindings/profile_binding.dart';
 
 class ProfileController extends GetxController {
-  // User profile data
-  final RxString name = ''.obs;
-  final RxString email = ''.obs;
-  final RxString profileImage = ''.obs;
-  final RxBool isLoading = false.obs;
-  final RxString error = ''.obs;
+  final ProfileService _profileService = ProfileService();
 
-  late final ProfileViewGetService _profileService;
+  var name = ''.obs;
+  var email = ''.obs;
+  var isLoading = true.obs;
+  var errorMessage = ''.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    // You may want to fetch token from storage here
-    _profileService = ProfileViewGetService(
-      baseUrl: 'http://10.0.60.110:7000',
-      // token: 'your_token',
-    );
-    fetchUserProfile();
-  }
 
-  Future<void> fetchUserProfile() async {
-    isLoading.value = true;
-    error.value = '';
+
+  void fetchProfile() async {
     try {
-      final data = await _profileService.getProfileData();
-      name.value = data['name'] ?? '';
-      email.value = data['email'] ?? '';
-      profileImage.value = data['profileImage'] ?? '';
+      isLoading.value = true; // Set loading to true before fetching
+      // Simulate API call or data retrieval
+      await Future.delayed(const Duration(seconds: 2)); // Replace with your actual data fetching
+
+      // Example data - replace with actual fetched data
+      var fetchedName = "John Doe"; // From your API or storage
+      var fetchedEmail = "john.doe@example.com"; // From your API or storage
+
+      if (fetchedName.isNotEmpty && fetchedEmail.isNotEmpty) {
+        name.value = fetchedName;
+        email.value = fetchedEmail;
+      } else {
+        // Handle case where data might not be available
+        name.value = '-';
+        email.value = '-';
+        // Optionally show an error message
+      }
     } catch (e) {
-      error.value = e.toString();
+      print("Error fetching profile: $e");
+      // Handle error, maybe show a snackbar or set an error message
+      name.value = 'Error';
+      email.value = 'Could not load data';
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> logout() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 500));
-    isLoading.value = false;
-    // Add logout logic here
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchProfile();
   }
 }
