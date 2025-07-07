@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +19,11 @@ class SplashController extends GetxController {
       opacity.value = 1.0;
     });
     Future.delayed(const Duration(seconds: 3), () {
-      Get.offAllNamed(Routes.onboarding);
+     if(LocalStorage.token.isNotEmpty){
+        Get.offAllNamed(Routes.home);
+      }else{
+        Get.offAllNamed(Routes.onboarding);
+     }
     });
   }
 

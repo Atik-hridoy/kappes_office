@@ -15,7 +15,8 @@ abstract class AppUrls {
   static const String recommendedProducts = '/product/recommended';
 
   // User endpoints
-  static const String profile = '/user/profile';
+  static const String profile = '$baseUrl/user/profile';
   static const String updateProfile = '/user/update-profile';
   static const String orders = '/user/orders';
+
 }
