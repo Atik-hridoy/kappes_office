@@ -14,33 +14,19 @@ class VerifySignupService {
     try {
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'oneTimeCode': otp,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'oneTimeCode': otp}),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return {
-          'success': true,
-          'data': data,
-        };
+        return {'success': true, 'data': data};
       } else {
         final error = jsonDecode(response.body);
-        return {
-          'success': false,
-          'message': error['message'] ?? 'Invalid OTP',
-        };
+        return {'success': false, 'message': error['message'] ?? 'Invalid OTP'};
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Exception: $e',
-      };
+      return {'success': false, 'message': 'OTP verification error: $e'};
     }
   }
 }

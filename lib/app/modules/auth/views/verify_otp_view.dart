@@ -11,8 +11,7 @@ import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class VerifyOtpView extends GetView<VerifyOtpViewController> {
-  final String email;
-  const VerifyOtpView({super.key,required this.email});
+  const VerifyOtpView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,20 +64,21 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
                   },
                 ),
               ),
-              Obx(() => controller.errorMessage.value.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        controller.errorMessage.value,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    )
-                  : SizedBox.shrink()),
+              Obx(
+                () =>
+                    controller.errorMessage.value.isNotEmpty
+                        ? Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            controller.errorMessage.value,
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        )
+                        : SizedBox.shrink(),
+              ),
               SizedBox(height: AppSize.height(height: 3.0)),
               AppCommonButton(
                 onPressed: () async {
-                    controller.email.value = email;
-
                   await controller.verifyOtp();
                 },
                 title: AppStaticKey.verify,

@@ -1,5 +1,6 @@
 // File: lib/app/modules/auth/controllers/verify_otp_view_controller.dart
 import 'dart:async';
+import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/verify_signup_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
@@ -33,58 +34,57 @@ class VerifyOtpViewController extends GetxController {
   }
 
   Future<bool> verifyOtp() async {
-    print('[OTP] Starting verification');
     errorMessage.value = '';
-    print('[OTP] Entered code: '
-        '"${otpCode.value}"');
     if (otpCode.value.isEmpty) {
       errorMessage.value = 'OTP is required';
-      print('[OTP] Error: OTP is required');
       return false;
     }
     if (email.value.isEmpty) {
       errorMessage.value = 'Email is required';
-      print('[OTP] Error: Email is required');
       return false;
     }
     final otpInt = int.tryParse(otpCode.value);
-    print('[OTP] Parsed int: $otpInt');
     if (otpInt == null) {
       errorMessage.value = 'OTP must be a number';
-      print('[OTP] Error: OTP must be a number');
       return false;
     }
-    print('[OTP] Calling verifyOtp with email: ${email.value}, otp: $otpInt');
-    final result = await _verifySignupService.verifyOtp(email: email.value, otp: otpInt);
-    print('[OTP] Backend result: $result');
+    // Send both email and oneTimeCode in the body for OTP verification
+    final result = await _verifySignupService.verifyOtp(
+      email: email.value,
+      otp: otpInt,
+    );
     if (result['success'] == true) {
       Get.snackbar('Success', 'Your email is now verified.');
-      print('[OTP] Success: Email verified, navigating to login');
       Get.offAllNamed(Routes.login);
       return true;
     } else {
       errorMessage.value = result['message'] ?? 'Invalid OTP';
-      print('[OTP] Error: ${errorMessage.value}');
       return false;
+    }
+  }
+
+  Future<void> onAppInitialDataLoadFun() async {
+    try {
+      startTimer();
+
+      final args = Get.arguments;
+      if (args != null && args is Map<String, dynamic>) {
+        if (args['email'] != null) {
+          email.value = args['email'].toString();
+        }
+      } else {
+        errorMessage.value = 'Invalid arguments passed to VerifyOtpView';
+      }
+    } catch (e) {
+      errorLog(e);
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    startTimer();
 
-    final args = Get.arguments;
-    if (args is Map<String, dynamic>) {
-      if (args['email'] != null) {
-        email.value = args['email'];
-        // Also set otp input if needed
-      }
-      if (args['from'] != null) from = args['from'];
-    } else if (args is String) {
-      email.value = args;
-    }
-    print('[OTP] onInit: email=${email.value}, from=$from');
+    onAppInitialDataLoadFun();
   }
 
   @override
