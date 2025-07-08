@@ -2,51 +2,84 @@ import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/profile/profile_view_get_service.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
-import 'package:canuck_mall/app/modules/profile/bindings/profile_binding.dart';
 
 class ProfileController extends GetxController {
   final ProfileService _profileService = ProfileService();
 
-  var name = ''.obs;
+  var fullName = ''.obs;
   var email = ''.obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
+  
 
 
 
   void fetchProfile() async {
+    print("=====================>>>   Fetching profile data");
     try {
-      isLoading.value = true; // Set loading to true before fetching
-      // Simulate API call or data retrieval
-      await Future.delayed(const Duration(seconds: 2)); // Replace with your actual data fetching
+      isLoading.value = true;
+      errorMessage.value = '';
 
-      // Example data - replace with actual fetched data
-      var fetchedName = "John Doe"; // From your API or storage
-      var fetchedEmail = "john.doe@example.com"; // From your API or storage
+      // First try to get name and email from local storage
+      final storedFullName = LocalStorage.myName;
+      final storedEmail = LocalStorage.myEmail;
+      
+      // Set the values from local storage first for immediate UI update
+      fullName.value = storedFullName;
+      email.value = storedEmail;
 
-      if (fetchedName.isNotEmpty && fetchedEmail.isNotEmpty) {
-        name.value = fetchedName;
-        email.value = fetchedEmail;
-      } else {
-        // Handle case where data might not be available
-        name.value = '-';
-        email.value = '-';
-        // Optionally show an error message
+      print("=====================>>>   Stored name: $storedFullName");
+      print("=====================>>>   Stored email: $storedEmail");
+
+      if (storedEmail.isEmpty) {
+        print("=====================>>>   No stored email found");
+        throw Exception("User not logged in or email not found");
       }
-    } catch (e) {
-      print("Error fetching profile: $e");
-      // Handle error, maybe show a snackbar or set an error message
-      name.value = 'Error';
-      email.value = 'Could not load data';
+
+      // Fetch fresh data from the server
+      final response = await _profileService.getProfileData(email: storedEmail);
+      print("=====================>>>   Profile API response: $response");
+
+      if (response['success'] == true) {
+        final profileData = response['data'] ?? {};
+        
+        // Update with fresh data from server
+        fullName.value = profileData['full_name']?.toString() ??
+                    profileData['name']?.toString() ??
+            storedFullName;
+                    
+        email.value = profileData['email']?.toString() ?? storedEmail;
+
+        // Update local storage with fresh data
+        if (fullName.value.isNotEmpty) {
+          await LocalStorage.setString(LocalStorageKeys.myName, fullName.value);
+        }
+        if (email.value.isNotEmpty) {
+          await LocalStorage.setString(LocalStorageKeys.myEmail, email.value);
+        }
+
+        print("=====================>>>   Updated profile data - Name: ${fullName.value}, Email: ${email.value}");
+      } else {
+        final errorMsg = response['message'] ?? 'Failed to fetch profile data';
+        print("=====================>>>   Profile API error: $errorMsg");
+        errorMessage.value = errorMsg;
+      }
+    } catch (e, stackTrace) {
+      final errorMsg = 'Error fetching profile: $e';
+      print("=====================>>>   $errorMsg");
+      print("=====================>>>   Stack trace: $stackTrace");
+      errorMessage.value = errorMsg;
     } finally {
       isLoading.value = false;
+      print("=====================>>>   Fetching profile data ended");
     }
   }
-
 
   @override
   void onInit() {
     super.onInit();
     fetchProfile();
   }
+
+
 }
