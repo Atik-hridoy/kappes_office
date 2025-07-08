@@ -97,8 +97,8 @@ import '../controllers/profile_controller.dart';
                   // Name and Email are already in Obx, they will update when data is fetched
                   Obx(
                         () => AppText(
-                      title: controller.name.value.isNotEmpty
-                          ? controller.name.value
+                      title: controller.fullName.value.isNotEmpty
+                          ? controller.fullName.value
                           : '-',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontSize: AppSize.height(height: 2.30),
