@@ -39,14 +39,14 @@ class LocalStorage {
     appLog(userId, source: "Local Storage");
   }
 
-  /// Remove All Data From SharedPreferences
-  static Future<void> removeAllPrefData() async {
-    final localStorage = await _getStorage();
-    await localStorage.clear();
-    _resetLocalStorageData();
-    Get.offAllNamed(Routes.login);
-    await getAllPrefData();
-  }
+  // /// Remove All Data From SharedPreferences
+  // static Future<void> removeAllPrefData() async {
+  //   final localStorage = await _getStorage();
+  //   await localStorage.clear();
+  //   _resetLocalStorageData();
+  //   Get.offAllNamed(Routes.login);
+  //   await getAllPrefData();
+  // }
 
   // Reset LocalStorage Data
   static void _resetLocalStorageData() {
@@ -70,10 +70,5 @@ class LocalStorage {
   static Future<void> setBool(String key, bool value) async {
     final localStorage = await _getStorage();
     await localStorage.setBool(key, value);
-  }
-
-  static Future<void> setInt(String key, int value) async {
-    final localStorage = await _getStorage();
-    await localStorage.setInt(key, value);
   }
 }

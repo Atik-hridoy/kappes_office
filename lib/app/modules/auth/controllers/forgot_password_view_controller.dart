@@ -1,7 +1,7 @@
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/data/netwok/forget_password_service.dart';
+import 'package:canuck_mall/app/data/netwok/auth/forget_password_service.dart';
 
 import '../views/verify_otp_view.dart';
 

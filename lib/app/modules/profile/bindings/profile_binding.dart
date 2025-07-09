@@ -1,4 +1,4 @@
-import 'package:canuck_mall/app/modules/profile/controllers/Edit_information_view.dart';
+import 'package:canuck_mall/app/modules/profile/controllers/Edit_information_view_controller.dart';
 import 'package:canuck_mall/app/modules/profile/controllers/change_password_view_controller.dart';
 import 'package:canuck_mall/app/modules/profile/controllers/data_privacy_view_controller.dart';
 import 'package:canuck_mall/app/modules/profile/controllers/language_view_controller.dart';

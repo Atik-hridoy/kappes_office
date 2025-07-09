@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:canuck_mall/app/data/netwok/login_post_service.dart';
+import 'package:canuck_mall/app/data/netwok/auth/login_post_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 
 import '../../../data/local/storage_keys.dart';
@@ -47,36 +47,56 @@ class LoginController extends GetxController {
 
       if (response['success'] == true) {
         final responseData = response['data'];
+        print('=================== Login Response Data: $responseData');
 
-        if (responseData != null && responseData['success'] == true) {
-          final data = responseData['data'] ?? {};
-          final token = data['accessToken'] ?? '';
+        if (responseData != null) {
+          // Check if responseData has a nested 'data' object
+          final data = responseData is Map && responseData.containsKey('data')
+              ? responseData['data'] ?? {}
+              : responseData;
+
+          final token = data['accessToken'] ?? data['token'] ?? '';
           final refreshToken = data['refreshToken'] ?? '';
 
-          // Extract user data from the nested response
-          final userData = data['user'] ?? {};
-          final fullName = userData['name'] ?? data['name'] ?? '';
+          // Extract user data - check different possible locations
+          final userData = data['user'] ?? data;
+          final fullName = userData['full_name'] ??
+                          userData['name'] ??
+                          data['full_name'] ??
+                          data['name'] ??
+                          '';
+
           final email = userData['email'] ?? data['email'] ?? '';
 
+          print('=================== Extracted User Data:');
+          print('   - Token: ${token.isNotEmpty ? '✅' : '❌'}');
+          print('   - Full Name: $fullName');
+          print('   - Email: $email');
 
-
+          // Clear any existing data first
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.clear();
+          
+          // Store the data using the same keys as signup
           await LocalStorage.setString(LocalStorageKeys.token, token);
           await LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken);
           await LocalStorage.setString(LocalStorageKeys.myName, fullName);
           await LocalStorage.setString(LocalStorageKeys.myEmail, email);
           await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
+          
+          print('💾 Saved user data to LocalStorage');
+          print('   - Name: $fullName');
+          print('   - Email: $email');
+          print('   - Token: ${token.isNotEmpty ? '✅' : '❌'}');
 
-          print('🔑 Storing tokens and user data:');
-          print('   - Access Token: ${token.isNotEmpty ? '✅ Received' : '❌ Empty'} ${token.isNotEmpty ? '(length: ${token.length})' : ''}');
-          print('   - Refresh Token: ${refreshToken.isNotEmpty ? '✅ Received' : '❌ Empty'} ${refreshToken.isNotEmpty ? '(length: ${refreshToken.length})' : ''}');
-          print('   - Name: ${fullName.isNotEmpty ? fullName : '❌ Not provided'}');
-          print('   - Email: ${email.isNotEmpty ? email : '❌ Not provided'}');
-
-          // Verify the tokens were saved
-          final prefs = await SharedPreferences.getInstance();
+          // Force reload all preferences
+          await LocalStorage.getAllPrefData();
+          
+          // Verify the data was stored correctly
           print('\n🔍 Verifying stored data:');
+          print('   - Stored Name: ${LocalStorage.myName.isNotEmpty ? '✅ ${LocalStorage.myName}' : '❌ Not stored'}');
+          print('   - Stored Email: ${LocalStorage.myEmail.isNotEmpty ? '✅ ${LocalStorage.myEmail}' : '❌ Not stored'}');
           print('   - Stored Token: ${prefs.getString(LocalStorageKeys.token)?.isNotEmpty == true ? '✅ Verified' : '❌ Not found'}');
-          print('   - Stored Refresh Token: ${prefs.getString(LocalStorageKeys.refreshToken)?.isNotEmpty == true ? '✅ Verified' : '❌ Not found'}');
           print('   - Login Status: ${prefs.getBool(LocalStorageKeys.isLogIn) == true ? '✅ Logged In' : '❌ Not logged in'}\n');
           
           errorMessage.value = '';
