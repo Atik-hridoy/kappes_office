@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/data/netwok/verify_signup_service.dart';
+import 'package:canuck_mall/app/data/netwok/auth/verify_signup_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 
 class VerifyOtpViewController extends GetxController {

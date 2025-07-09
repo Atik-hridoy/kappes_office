@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/modules/profile/controllers/Edit_information_view.dart';
 import 'package:canuck_mall/app/modules/profile/widget/profile_with_badge.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -9,8 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
-class EditInformationView extends GetView<EditInformationViewController>{
+import '../controllers/Edit_information_view_controller.dart';
+
+class EditInformationView extends GetView<EditInformationViewController> {
   const EditInformationView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,132 +32,120 @@ class EditInformationView extends GetView<EditInformationViewController>{
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSize.height(height: 1.0),
             children: [
               Center(
                 child: Obx(
                       () => ProfileWithBadge(
-                      onPressed: () {
-                        controller.pickImage();
-                      },
-                      imageUrl: controller.imageFile.value != null
-                          ? FileImage(controller.imageFile.value!)
-                      as ImageProvider
-                          : null),
+                    onPressed: () {
+                      controller.pickImage();
+                    },
+                    imageUrl: controller.imageFile.value != null
+                        ? FileImage(controller.imageFile.value!)
+                        : null,
+                  ),
                 ),
               ),
               Center(
-                child: AppText(
-                  title: "Hassan Ali",
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Obx(
+                      () => AppText(
+                    title: controller.fullName.value.isNotEmpty
+                        ? controller.fullName.value
+                        : "Hassan Ali", // You can modify this part
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ),
+              SizedBox(height: AppSize.height(height: 1.0)),
 
-              SizedBox(
-                height: AppSize.height(height: 1.0),
-              ),
-
-              /// full name
+              // Full Name
               AppText(
                 title: AppStaticKey.fullName,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: AppStaticKey.enterYourFullName,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppStaticKey.thisFieldCannotBeEmpty;
-                    }
-                    return null;
-                  }),
+                style: const TextStyle(fontSize: 14.0),
+                decoration: const InputDecoration(
+                  hintText: AppStaticKey.enterYourFullName,
+                ),
+                onChanged: (value) => controller.fullName.value = value,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppStaticKey.thisFieldCannotBeEmpty;
+                  }
+                  return null;
+                },
+              ),
 
-              /// email
+              // Email
               AppText(
                 title: AppStaticKey.email,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: AppStaticKey.enterYourEmail,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppStaticKey.thisFieldCannotBeEmpty;
-                    }
-                    return null;
-                  }),
+                style: const TextStyle(fontSize: 14.0),
+                decoration: const InputDecoration(
+                  hintText: AppStaticKey.enterYourEmail,
+                ),
+                onChanged: (value) => controller.email.value = value,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppStaticKey.thisFieldCannotBeEmpty;
+                  }
+                  return null;
+                },
+              ),
 
-              /// phone
+              // Phone
               AppText(
                 title: AppStaticKey.phoneNumber,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               IntlPhoneField(
-                  decoration: const InputDecoration(
-                    hintText: AppStaticKey.enterYourPhoneNumber,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(),
-                    ),
+                decoration: const InputDecoration(
+                  hintText: AppStaticKey.enterYourPhoneNumber,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
                   ),
-                  initialCountryCode: 'CA',
-                  onChanged: (phone) {},
-                  validator: (value) {
-                    if (value == null || value.number.isEmpty) {
-                      return AppStaticKey.thisFieldCannotBeEmpty;
-                    }
-                    return null;
+                ),
+                initialCountryCode: 'CA',
+                onChanged: (phone) => controller.phone.value = phone.completeNumber,
+                validator: (value) {
+                  if (value == null || value.number.isEmpty) {
+                    return AppStaticKey.thisFieldCannotBeEmpty;
                   }
+                  return null;
+                },
               ),
 
-              /// address
+              // Address
               AppText(
                 title: AppStaticKey.address,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
-                  maxLines: 3,
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: AppStaticKey.enterYourAddress,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppStaticKey.thisFieldCannotBeEmpty;
-                    }
-                    return null;
-                  }),
-              SizedBox(
-                height: AppSize.height(height: 1.0),
+                maxLines: 3,
+                style: const TextStyle(fontSize: 14.0),
+                decoration: const InputDecoration(
+                  hintText: AppStaticKey.enterYourAddress,
+                ),
+                onChanged: (value) => controller.address.value = value,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppStaticKey.thisFieldCannotBeEmpty;
+                  }
+                  return null;
+                },
               ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+
+              // Update Button
               AppCommonButton(
-                onPressed: () {},
+                onPressed: () => controller.updateProfile(),
                 title: AppStaticKey.update,
                 fontSize: AppSize.height(height: 1.70),
                 backgroundColor: AppColors.primary,
                 borderColor: AppColors.primary,
-              )
+              ),
             ],
           ),
         ),

@@ -16,6 +16,10 @@ abstract class AppUrls {
 
   // User endpoints
   static const String profile = '/users/profile';
-  static const String updateProfile = '/user/update-profile';
+  static const String myOrders = '/order/my-orders';
   static const String orders = '/user/orders';
+
+  // home page endpoints
+  static const String home = '/home';
+  static const String trendingProducts = '/product?sort=-purchaseCount';
 }

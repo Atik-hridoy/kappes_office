@@ -134,11 +134,9 @@ class LoginView extends GetView<LoginController> {
                           child: Checkbox(
                             value: controller.isRemember.value,
                             onChanged: (value) {
-                              controller.isRemember.value =
-                                  !controller.isRemember.value;
+                              controller.isRemember.value = value ?? false;
                             },
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             visualDensity: VisualDensity.compact,
                             side: const BorderSide(
                               width: 1.0,
