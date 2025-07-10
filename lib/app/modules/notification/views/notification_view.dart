@@ -4,13 +4,13 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 
 import '../controllers/notification_controller.dart';
 
 class NotificationView extends GetView<NotificationController> {
   const NotificationView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,71 +22,43 @@ class NotificationView extends GetView<NotificationController> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-        child: Column(
-          spacing: AppSize.height(height: 2.0),
-          children: [
-            Row(
-              spacing: AppSize.width(width: 2.0),
-              children: [
-                AppText(
-                  title: AppStaticKey.today,
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color: AppColors.gray,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Flexible(child: Divider(color: Colors.grey.shade200)),
-              ],
-            ),
-            NotificationCard(
-              title: "Backed Shipped!",
-              body:
-                  """Your Hiking Traveler Backpack is on its way! It will arrive in 3-5 business days.""",
-              isRead: true,
-            ),
-            NotificationCard(
-              title: "New Message",
-              body:
-                  """Your backpack is ready to ship! The seller will dispatch it soon.""",
-              isRead: false,
-            ),
-            NotificationCard(
-              title: "Order Confirmed",
-              body:
-                  """We’ve processed your order. Expect delivery in 3-5 business days.""",
-              isRead: true,
-            ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            Row(
-              spacing: AppSize.width(width: 2.0),
-              children: [
-                AppText(
-                  title: AppStaticKey.yesterday,
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color: AppColors.gray,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Flexible(child: Divider(color: Colors.grey.shade200)),
-              ],
+        if (controller.errorMessage.value.isNotEmpty) {
+          return Center(
+            child: Text(
+              controller.errorMessage.value,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
             ),
-            NotificationCard(
-              title: "Out for Delivery!",
-              body:
-                  """Your Hiking Traveler Backpack is out for delivery today.""",
-              isRead: true,
-            ),
-            NotificationCard(
-              title: "Order Confirmed",
-              body:
-                  """We’ve processed your order. Expect delivery in 3-5 business days.""",
-              isRead: true,
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+
+        if (controller.notifications.isEmpty) {
+          return const Center(
+            child: Text("No notifications available."),
+          );
+        }
+
+        return ListView.separated(
+          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+          itemCount: controller.notifications.length,
+          separatorBuilder: (_, __) =>
+              SizedBox(height: AppSize.height(height: 1.5)),
+          itemBuilder: (context, index) {
+            final item = controller.notifications[index];
+
+            return NotificationCard(
+              title: item['title'] ?? 'No title',
+              body: item['body'] ?? 'No body',
+              isRead: item['isRead'] ?? false,
+            );
+          },
+        );
+      }),
     );
   }
 }

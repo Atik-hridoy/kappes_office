@@ -16,12 +16,12 @@ class AppCommonButton extends StatelessWidget {
   final TextStyle? style;
   final EdgeInsetsGeometry? padding;
   final OutlinedBorder? shape;
-  // New gradient parameters
   final Gradient? gradient;
   final BorderRadius? borderRadius;
   final List<Color>? gradientColors;
   final AlignmentGeometry gradientBegin;
   final AlignmentGeometry gradientEnd;
+  final bool isLoading; // ✅ NEW
 
   const AppCommonButton({
     super.key,
@@ -37,12 +37,15 @@ class AppCommonButton extends StatelessWidget {
     this.gradient,
     this.gradientColors,
     this.gradientBegin = Alignment.centerLeft,
-    this.gradientEnd = Alignment.centerRight, this.borderRadius, this.padding, this.fontSize,
+    this.gradientEnd = Alignment.centerRight,
+    this.borderRadius,
+    this.padding,
+    this.fontSize,
+    this.isLoading = false, // ✅ default false
   });
 
   @override
   Widget build(BuildContext context) {
-    // Create the default gradient if gradientColors are provided
     final Gradient? buttonGradient = gradient ??
         (gradientColors != null
             ? LinearGradient(
@@ -62,13 +65,23 @@ class AppCommonButton extends StatelessWidget {
         height: height ?? AppSize.height(height: 6.5),
         child: buttonGradient != null
             ? _GradientButton(
-          onPressed: onPressed,
+          onPressed: isLoading ? null : onPressed,
           padding: padding,
           gradient: buttonGradient,
           borderRadius: borderRadius ?? BorderRadius.circular(10.0),
           shape: shape,
           borderColor: borderColor ?? AppColors.primary,
-          child: AppText(
+          isLoading: isLoading, // ✅ pass to _GradientButton
+          child: isLoading
+              ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2.0,
+            ),
+          )
+              : AppText(
             title: title,
             style: style ??
                 Theme.of(context)
@@ -78,7 +91,7 @@ class AppCommonButton extends StatelessWidget {
           ),
         )
             : ElevatedButton(
-          onPressed: onPressed,
+          onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: backgroundColor ?? AppColors.primary,
             elevation: 0.0,
@@ -89,13 +102,22 @@ class AppCommonButton extends StatelessWidget {
                 ),
             side: BorderSide(color: borderColor ?? AppColors.primary),
           ),
-          child: AppText(
+          child: isLoading
+              ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2.0,
+            ),
+          )
+              : AppText(
             title: title,
             style: style ??
-                Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(color: color ?? AppColors.white, fontSize: fontSize),
+                Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: color ?? AppColors.white,
+                  fontSize: fontSize,
+                ),
           ),
         ),
       ),
@@ -103,15 +125,15 @@ class AppCommonButton extends StatelessWidget {
   }
 }
 
-// Helper widget to create a gradient button
 class _GradientButton extends StatelessWidget {
   final Widget child;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Gradient gradient;
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
   final OutlinedBorder? shape;
   final Color borderColor;
+  final bool isLoading;
 
   const _GradientButton({
     required this.child,
@@ -119,7 +141,9 @@ class _GradientButton extends StatelessWidget {
     required this.gradient,
     this.borderRadius,
     this.shape,
-    required this.borderColor, this.padding,
+    required this.borderColor,
+    this.padding,
+    this.isLoading = false,
   });
 
   @override

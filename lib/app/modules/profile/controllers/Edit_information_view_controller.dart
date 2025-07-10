@@ -1,58 +1,87 @@
 import 'dart:io';
-import 'package:get/get.dart';
-
-import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/themes/app_colors.dart';
-import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../data/netwok/profile/edit_information.dart';
+import 'package:canuck_mall/app/data/netwok/profile/edit_information_service.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/data/local/storage_keys.dart';
 
 class EditInformationViewController extends GetxController {
-  var imageFile = Rxn<File>();
-  var fullName = ''.obs;
-  var email = ''.obs;
-  var phone = ''.obs;
-  var address = ''.obs;
+  // ✅ Add this to fix the isLoading error
+  final isLoading = false.obs;
+
+  final imageFile = Rxn<File>();
+  final fullName = ''.obs;
+  final email = ''.obs;
+  final phone = ''.obs;
+  final address = ''.obs;
+
   final EditInformationViewService _service = EditInformationViewService();
 
-  // Method to pick image using the ImagePicker package
-  void pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  @override
+  void onInit() {
+    super.onInit();
+    fullName.value = LocalStorage.myName;
+    email.value = LocalStorage.myEmail;
+    phone.value = '';   // preload if available
+    address.value = ''; // preload if available
+    print('✅ Loaded user from LocalStorage: $fullName | $email');
+  }
 
-    if (image != null) {
-      imageFile.value = File(image.path);
+  void pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      imageFile.value = File(picked.path);
+      print('🖼️ Image selected: ${picked.path}');
     }
   }
 
-  // Method to update the profile information
   Future<void> updateProfile() async {
-    // Validate that all required fields are filled
-    if (fullName.value.isEmpty || email.value.isEmpty || phone.value.isEmpty || address.value.isEmpty) {
+    // Prevent sending "undefined" strings
+    final name = fullName.value.trim();
+    final mail = email.value.trim();
+    final mobile = phone.value.trim();
+    final addr = address.value.trim();
+
+    if ([name, mail, mobile, addr].any((v) => v.isEmpty)) {
       Get.snackbar('Error', 'All fields must be filled');
       return;
     }
 
+    isLoading.value = true;
+    print('🔄 Attempting to update profile...');
+    print('📦 Sending: $name | $mail | $mobile | $addr');
+
     try {
-      var response = await _service.updateProfile(
-        fullName.value,
-        email.value,
-        phone.value,
-        address.value,
+      final success = await _service.updateProfile(
+        name,
+        mail,
+        mobile,
+        addr,
         imageFile.value,
       );
 
-      if (response) {
+      if (success) {
+        await LocalStorage.setString(LocalStorageKeys.myName, name);
+        await LocalStorage.setString(LocalStorageKeys.myEmail, mail);
+        await LocalStorage.getAllPrefData();
+
+        print('✅ Profile updated & LocalStorage synced');
+        Get.back(result: true);
         Get.snackbar('Success', 'Profile updated successfully!');
       } else {
-        Get.snackbar('Error', 'Failed to update profile.');
+        print('❌ Update failed on server side');
+        Get.snackbar('Error', 'Failed to update profile. Try again later.');
       }
     } catch (e) {
-      Get.snackbar('Error', 'An error occurred while updating profile: $e');
+      print('❗ Exception: $e');
+      Get.snackbar('Error', 'Something went wrong: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
+
+
 }
