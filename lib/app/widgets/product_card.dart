@@ -9,7 +9,17 @@ import 'package:get/get.dart';
 
 class ProductCard extends StatefulWidget {
   final bool? isSaved;
-  const ProductCard({super.key, this.isSaved});
+  final String imageUrl;
+  final String title;
+  final String price;
+
+  const ProductCard({
+    super.key,
+    this.isSaved,
+    required this.imageUrl,
+    required this.title,
+    required this.price,
+  });
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -20,14 +30,8 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   void initState() {
-    if (widget.isSaved != null) {
-      if (widget.isSaved!) {
-        setState(() {
-          isFavourite = widget.isSaved!;
-        });
-      }
-    }
     super.initState();
+    isFavourite = widget.isSaved ?? false;
   }
 
   @override
@@ -49,7 +53,6 @@ class _ProductCardState extends State<ProductCard> {
             border: Border.all(color: AppColors.lightGray),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Section
@@ -64,7 +67,7 @@ class _ProductCardState extends State<ProductCard> {
                       height: AppSize.height(height: 19.0),
                       width: double.infinity,
                       child: AppImage(
-                        imagePath: AppImages.banner3,
+                        imagePath: widget.imageUrl,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -92,9 +95,7 @@ class _ProductCardState extends State<ProductCard> {
                           ],
                         ),
                         child: Icon(
-                          isFavourite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
+                          isFavourite ? Icons.favorite : Icons.favorite_border,
                           size: AppSize.height(height: 2.0),
                           color: isFavourite ? AppColors.lightRed : AppColors.gray,
                         ),
@@ -103,17 +104,13 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ],
               ),
-              
-              // Product Info Section
               Padding(
                 padding: EdgeInsets.all(AppSize.height(height: 1.0)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Product Name
                     Text(
-                      "Camping Chair - With Multiple Color",
+                      widget.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -121,9 +118,8 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                     ),
                     SizedBox(height: AppSize.height(height: 0.5)),
-                    // Price
                     Text(
-                      "\$149.99",
+                      '\$${widget.price}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,

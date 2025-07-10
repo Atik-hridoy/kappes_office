@@ -200,7 +200,7 @@ class StoreView extends GetView<StoreController> {
                         onTap: () {
                           // Get.toNamed(AppRoutes.productDetailsScreen);
                         },
-                        child: ProductCard(),
+                        //child: ProductCard(),
                       );
                     },
                   ),

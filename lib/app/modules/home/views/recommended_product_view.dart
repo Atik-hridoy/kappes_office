@@ -8,8 +8,12 @@ import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class RecommendedProductView extends GetView {
+import '../controllers/recommended_product_view_controller.dart';
+
+
+class RecommendedProductView extends GetView<RecommendedProductController> {
   const RecommendedProductView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,66 +27,74 @@ class RecommendedProductView extends GetView {
       ),
       body: Padding(
         padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: AppSize.height(height: 1.0),
-            children: [
-              SearchBox(title: AppStaticKey.searchProduct),
-              Divider(color: AppColors.lightGray),
-              Row(
-                children: [
-                  /// filter icon
-                  ImageIcon(
-                    AssetImage(AppIcons.filter2),
-                    size: AppSize.height(height: 2.0),
-                  ),
-                  SizedBox(width: AppSize.width(width: 2.0),),
-                  AppText(
-                    title: AppStaticKey.filter,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
-                  ),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (controller.errorMessage.isNotEmpty) {
+            return Center(child: Text(controller.errorMessage.value));
+          } else if (controller.products.isEmpty) {
+            return const Center(child: Text("No products found."));
+          }
 
-                  Spacer(),
-
-                  /// sort icon
-                  ImageIcon(
-                    AssetImage(AppIcons.sort),
-                    size: AppSize.height(height: 2.0),
-                  ),
-                  SizedBox(width: AppSize.width(width: 2.0),),
-                  AppText(
-                    title: AppStaticKey.sort,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-              Divider(color: AppColors.lightGray),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Number of columns
-                  mainAxisSpacing: AppSize.height(height: 2.0),
-                  crossAxisSpacing: AppSize.height(height: 2.0),
-                  childAspectRatio: AppSize.width(width: 0.18), // Adjust to fit your design
+          return SingleChildScrollView(
+            child: Column(
+              spacing: AppSize.height(height: 1.0),
+              children: [
+                SearchBox(title: AppStaticKey.searchProduct),
+                Divider(color: AppColors.lightGray),
+                Row(
+                  children: [
+                    ImageIcon(
+                      AssetImage(AppIcons.filter2),
+                      size: AppSize.height(height: 2.0),
+                    ),
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    AppText(
+                      title: AppStaticKey.filter,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall!
+                          .copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    const Spacer(),
+                    ImageIcon(
+                      AssetImage(AppIcons.sort),
+                      size: AppSize.height(height: 2.0),
+                    ),
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    AppText(
+                      title: AppStaticKey.sort,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall!
+                          .copyWith(fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      // Get.toNamed(AppRoutes.productDetailsScreen);
-                    },
-                    child: ProductCard(),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+                Divider(color: AppColors.lightGray),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: controller.products.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: AppSize.height(height: 2.0),
+                    crossAxisSpacing: AppSize.height(height: 2.0),
+                    childAspectRatio: AppSize.width(width: 0.18),
+                  ),
+                  itemBuilder: (context, index) {
+                    final product = controller.products[index];
+                    return ProductCard(
+                      imageUrl: product['images']?.first ?? '',
+                      title: product['name'] ?? '',
+                      price: product['basePrice']?.toString() ?? '',
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

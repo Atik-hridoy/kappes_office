@@ -25,4 +25,7 @@ abstract class AppUrls {
 
   // notifications endpoints
   static const String notifications = '/notifications';
+
+  // orders
+  static const String order = 'order/my-orders';
 }
