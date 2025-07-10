@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
@@ -7,12 +8,12 @@ class EditInformationViewService {
   final Dio _dio = Dio();
 
   Future<bool> updateProfile(
-      String fullName,
-      String email,
-      String phone,
-      String address,
-      File? imageFile,
-      ) async {
+    String fullName,
+    String email,
+    String phone,
+    String address,
+    File? imageFile,
+  ) async {
     final String url = '${AppUrls.baseUrl}${AppUrls.profile}';
     final token = LocalStorage.token;
 
@@ -28,21 +29,32 @@ class EditInformationViewService {
         }
       }
 
-      // Add fields with proper null/empty checks
-      addIfNotEmpty('full_name', fullName);
-      addIfNotEmpty('email', email);
-      addIfNotEmpty('phone', phone);
-      addIfNotEmpty('address', address);
+      // // Add fields with proper null/empty checks
+      // addIfNotEmpty('full_name', fullName);
+      // addIfNotEmpty('email', email);
+      // addIfNotEmpty('phone', phone);
+      // addIfNotEmpty('address', address);
+
+      var body = {
+        "full_name": fullName,
+        "email": email,
+        "phone": phone,
+        "address": address,
+      };
+
+      formData.fields.add(MapEntry("data", jsonEncode(body)));
 
       // Add image file if present
       if (imageFile != null) {
-        formData.files.add(MapEntry(
-          'image',
-          await MultipartFile.fromFile(
-            imageFile.path,
-            filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        formData.files.add(
+          MapEntry(
+            'image',
+            await MultipartFile.fromFile(
+              imageFile.path,
+              filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+            ),
           ),
-        ));
+        );
       }
 
       // Log the request details
@@ -63,7 +75,8 @@ class EditInformationViewService {
             'Content-Type': 'multipart/form-data',
             'Accept': 'application/json',
           },
-          validateStatus: (status) => status! < 500, // Accept all status codes < 500
+          validateStatus:
+              (status) => status! < 500, // Accept all status codes < 500
         ),
       );
 
