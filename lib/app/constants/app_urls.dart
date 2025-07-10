@@ -22,4 +22,7 @@ abstract class AppUrls {
   // home page endpoints
   static const String home = '/home';
   static const String trendingProducts = '/product?sort=-purchaseCount';
+
+  // notifications endpoints
+  static const String notifications = '/notifications';
 }

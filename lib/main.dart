@@ -1,29 +1,31 @@
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/localization/translation_service.dart';
 import 'package:canuck_mall/app/modules/error_screens/error_screen.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:canuck_mall/app/themes/app_theme.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:get/get.dart';
 
-import 'app/routes/app_pages.dart';
-import 'app/themes/app_theme.dart';
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp, // Lock to portrait mode
-  ]).then((_) {
-    runApp(
-      CanuckMall()
-    );
-  });
+
+  // Lock orientation
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Load local preferences
+  await LocalStorage.getAllPrefData(); // Load local preferences
+
+  runApp(const CanuckMall());
 }
 
 class CanuckMall extends StatelessWidget {
@@ -42,13 +44,18 @@ class CanuckMall extends StatelessWidget {
         return child!;
       },
       debugShowCheckedModeBanner: false,
-      title: "Application",
-      initialRoute: AppPages.initial,
-      getPages: AppPages.routes,
+      title: "Canuck Mall",
+      theme: lightTheme,
       translations: AppTranslation(),
       locale: const Locale('en', 'US'),
       fallbackLocale: const Locale('en', 'US'),
-      theme: lightTheme,
+
+      // 👇 Set initial route dynamically based on saved login
+      initialRoute: LocalStorage.isLogIn && LocalStorage.token.isNotEmpty
+          ? Routes.bottomNav // or home/dashboard
+          : Routes.login,
+
+      getPages: AppPages.routes,
     );
   }
 }

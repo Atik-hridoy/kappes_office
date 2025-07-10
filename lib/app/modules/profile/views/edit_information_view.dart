@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/profile/widget/profile_with_badge.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../controllers/Edit_information_view_controller.dart';
 
@@ -16,6 +17,8 @@ class EditInformationView extends GetView<EditInformationViewController> {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -25,45 +28,41 @@ class EditInformationView extends GetView<EditInformationViewController> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(
-            AppSize.height(height: 2.0),
-          ),
+      body: Obx(() => SingleChildScrollView(
+        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+        child: Form(
+          key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// Profile Image
               Center(
-                child: Obx(
-                      () => ProfileWithBadge(
-                    onPressed: () {
-                      controller.pickImage();
-                    },
-                    imageUrl: controller.imageFile.value != null
-                        ? FileImage(controller.imageFile.value!)
-                        : null,
-                  ),
+                child: ProfileWithBadge(
+                  onPressed: controller.pickImage,
+                  imageUrl: controller.imageFile.value != null
+                      ? FileImage(controller.imageFile.value!) as ImageProvider
+                      : null,
                 ),
               ),
-              Center(
-                child: Obx(
-                      () => AppText(
-                    title: controller.fullName.value.isNotEmpty
-                        ? controller.fullName.value
-                        : "Hassan Ali", // You can modify this part
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ),
-              SizedBox(height: AppSize.height(height: 1.0)),
 
-              // Full Name
+              /// Full Name Text
+              Center(
+                child: AppText(
+                  title: controller.fullName.value.isNotEmpty
+                      ? controller.fullName.value
+                      : "User",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 2.0)),
+
+              /// Full Name Field
               AppText(
                 title: AppStaticKey.fullName,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
-                style: const TextStyle(fontSize: 14.0),
+                initialValue: controller.fullName.value,
                 decoration: const InputDecoration(
                   hintText: AppStaticKey.enterYourFullName,
                 ),
@@ -75,14 +74,15 @@ class EditInformationView extends GetView<EditInformationViewController> {
                   return null;
                 },
               ),
+              SizedBox(height: AppSize.height(height: 2.0)),
 
-              // Email
+              /// Email Field
               AppText(
                 title: AppStaticKey.email,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
-                style: const TextStyle(fontSize: 14.0),
+                initialValue: controller.email.value,
                 decoration: const InputDecoration(
                   hintText: AppStaticKey.enterYourEmail,
                 ),
@@ -94,18 +94,18 @@ class EditInformationView extends GetView<EditInformationViewController> {
                   return null;
                 },
               ),
+              SizedBox(height: AppSize.height(height: 2.0)),
 
-              // Phone
+              /// Phone Field
               AppText(
                 title: AppStaticKey.phoneNumber,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               IntlPhoneField(
+                initialValue: controller.phone.value,
                 decoration: const InputDecoration(
                   hintText: AppStaticKey.enterYourPhoneNumber,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  ),
+                  border: OutlineInputBorder(),
                 ),
                 initialCountryCode: 'CA',
                 onChanged: (phone) => controller.phone.value = phone.completeNumber,
@@ -116,15 +116,16 @@ class EditInformationView extends GetView<EditInformationViewController> {
                   return null;
                 },
               ),
+              SizedBox(height: AppSize.height(height: 2.0)),
 
-              // Address
+              /// Address Field
               AppText(
                 title: AppStaticKey.address,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
               ),
               TextFormField(
+                initialValue: controller.address.value,
                 maxLines: 3,
-                style: const TextStyle(fontSize: 14.0),
                 decoration: const InputDecoration(
                   hintText: AppStaticKey.enterYourAddress,
                 ),
@@ -136,20 +137,23 @@ class EditInformationView extends GetView<EditInformationViewController> {
                   return null;
                 },
               ),
-              SizedBox(height: AppSize.height(height: 1.0)),
+              SizedBox(height: AppSize.height(height: 3.0)),
 
-              // Update Button
+              /// ✅ Update Button with loading spinner
               AppCommonButton(
-                onPressed: () => controller.updateProfile(),
-                title: AppStaticKey.update,
-                fontSize: AppSize.height(height: 1.70),
-                backgroundColor: AppColors.primary,
-                borderColor: AppColors.primary,
+                title: controller.isLoading.value ? "Updating..." : AppStaticKey.update,
+                isLoading: controller.isLoading.value,
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    controller.updateProfile();
+                  }
+                },
               ),
+              SizedBox(height: AppSize.height(height: 1.0)),
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }
