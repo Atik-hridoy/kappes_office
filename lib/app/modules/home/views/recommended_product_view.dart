@@ -1,5 +1,7 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
@@ -7,9 +9,7 @@ import 'package:canuck_mall/app/widgets/product_card.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../controllers/recommended_product_view_controller.dart';
-
 
 class RecommendedProductView extends GetView<RecommendedProductController> {
   const RecommendedProductView({super.key});
@@ -25,77 +25,87 @@ class RecommendedProductView extends GetView<RecommendedProductController> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (controller.errorMessage.isNotEmpty) {
-            return Center(child: Text(controller.errorMessage.value));
-          } else if (controller.products.isEmpty) {
-            return const Center(child: Text("No products found."));
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (controller.errorMessage.isNotEmpty) {
+          return Center(child: Text(controller.errorMessage.value));
+        } else if (controller.products.isEmpty) {
+          return const Center(child: Text("No products found."));
+        }
 
-          return SingleChildScrollView(
-            child: Column(
-              spacing: AppSize.height(height: 1.0),
-              children: [
-                SearchBox(title: AppStaticKey.searchProduct),
-                Divider(color: AppColors.lightGray),
-                Row(
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ImageIcon(
-                      AssetImage(AppIcons.filter2),
-                      size: AppSize.height(height: 2.0),
+                    SearchBox(title: AppStaticKey.searchProduct),
+                    Divider(color: AppColors.lightGray),
+                    Row(
+                      children: [
+                        ImageIcon(
+                          AssetImage(AppIcons.filter2),
+                          size: AppSize.height(height: 2.0),
+                        ),
+                        SizedBox(width: AppSize.width(width: 2.0)),
+                        AppText(
+                          title: AppStaticKey.filter,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        ImageIcon(
+                          AssetImage(AppIcons.sort),
+                          size: AppSize.height(height: 2.0),
+                        ),
+                        SizedBox(width: AppSize.width(width: 2.0)),
+                        AppText(
+                          title: AppStaticKey.sort,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: AppSize.width(width: 2.0)),
-                    AppText(
-                      title: AppStaticKey.filter,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    const Spacer(),
-                    ImageIcon(
-                      AssetImage(AppIcons.sort),
-                      size: AppSize.height(height: 2.0),
-                    ),
-                    SizedBox(width: AppSize.width(width: 2.0)),
-                    AppText(
-                      title: AppStaticKey.sort,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(fontWeight: FontWeight.w500),
+                    Divider(color: AppColors.lightGray),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: controller.products.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: AppSize.height(height: 2.0),
+                        crossAxisSpacing: AppSize.height(height: 2.0),
+                        childAspectRatio: AppSize.width(width: 0.18),
+                      ),
+                      itemBuilder: (context, index) {
+                        final product = controller.products[index];
+                        final List images = product['images'] ?? [];
+
+                        final imageUrl = images.isNotEmpty
+                            ? '${AppUrls.imageUrl}${images.first}'
+                            : 'https://via.placeholder.com/150';
+
+                        return ProductCard(
+                          imageUrl: imageUrl,
+                          title: product['name'] ?? '',
+                          price: product['basePrice']?.toString() ?? '0.00',
+                          productId: product['_id'], // ✅ Pass product ID
+                        );
+                      },
                     ),
                   ],
                 ),
-                Divider(color: AppColors.lightGray),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: controller.products.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: AppSize.height(height: 2.0),
-                    crossAxisSpacing: AppSize.height(height: 2.0),
-                    childAspectRatio: AppSize.width(width: 0.18),
-                  ),
-                  itemBuilder: (context, index) {
-                    final product = controller.products[index];
-                    return ProductCard(
-                      imageUrl: product['images']?.first ?? '',
-                      title: product['name'] ?? '',
-                      price: product['basePrice']?.toString() ?? '',
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        }),
-      ),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 }

@@ -12,6 +12,7 @@ class ProductCard extends StatefulWidget {
   final String imageUrl;
   final String title;
   final String price;
+  final String productId; // ✅ Added
 
   const ProductCard({
     super.key,
@@ -19,6 +20,7 @@ class ProductCard extends StatefulWidget {
     required this.imageUrl,
     required this.title,
     required this.price,
+    required this.productId, // ✅ Required
   });
 
   @override
@@ -38,7 +40,11 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed(Routes.productDetails);
+        print('🟢 Navigating to product with ID: ${widget.productId}');
+        Get.toNamed(
+          Routes.productDetails,
+          arguments: widget.productId,
+        );
       },
       borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
       child: ConstrainedBox(
@@ -55,7 +61,6 @@ class _ProductCardState extends State<ProductCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image Section
               Stack(
                 children: [
                   ClipRRect(
