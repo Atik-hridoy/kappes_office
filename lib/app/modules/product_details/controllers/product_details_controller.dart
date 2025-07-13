@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../../../data/netwok/product_details/product_details_service.dart';
-import '../../../model/product_model.dart';
+import '../../../model/recomended_product_model.dart';
 
 class ProductDetailsController extends GetxController {
   final ProductDetailsService _productDetailsService = ProductDetailsService();
@@ -10,12 +10,23 @@ class ProductDetailsController extends GetxController {
   RxString selectColor = RxString('white');
   RxString selectedProductSize = RxString('S');
 
+
+
+  Future<void> onAppInitialDataLoadFunction()async {
+try{
+  final String productId = Get.arguments;
+  fetchProductDetails(productId);
+  }catch(e){
+  print("object $e");
+}
+  }
+
   @override
   void onInit() {
+    onAppInitialDataLoadFunction();
     super.onInit();
     // You can pass the product ID from the view, like `Get.arguments`
-    final String productId = Get.arguments;
-    fetchProductDetails(productId);
+
   }
 
   Future<void> fetchProductDetails(String id) async {
@@ -32,4 +43,6 @@ class ProductDetailsController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
 }

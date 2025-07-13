@@ -1,66 +1,38 @@
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
-import 'package:canuck_mall/app/data/local/storage_service.dart';
 
-class TrendingProductsViewService {
+class TrendingProductsService {
   final Dio _dio = Dio();
 
-  Future<Map<String, dynamic>> getTrendingProducts({
-    int page = 1,
-    int limit = 10,
+  Future<List<Map<String, dynamic>>> getTrendingProducts({
+    required String token,
   }) async {
+    final url = '${AppUrls.baseUrl}${AppUrls.trendingProduct}';
+
+    print('📤 Sending GET to: $url');
+
     try {
-      final token = LocalStorage.token;
-      
-      final options = Options(
-        headers: {
-          'Content-Type': 'application/json',
-          if (token.isNotEmpty) 'Authorization': 'Bearer $token',
-        },
-        validateStatus: (status) => status! < 500, // Accept all status codes below 500
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
       );
 
-      final params = {
-        'page': page,
-        'limit': limit,
-        'sort': '-purchaseCount', // Sort by purchase count in descending order
-      };
+      print('📥 Status: ${response.statusCode}');
+      print('📥 Response: ${response.data}');
 
-      print('🌐 Fetching trending products...');
-      print('📡 URL: ${AppUrls.baseUrl}${AppUrls.trendingProducts}');
-      print('🔍 Params: $params');
-      
-      final response = await _dio.get<Map<String, dynamic>>(
-        '${AppUrls.baseUrl}${AppUrls.trendingProducts}',
-        queryParameters: params,
-        options: options,
-      );
-
-      print('📥 Response status: ${response.statusCode}');
-      print('📦 Response data: ${response.data}');
-
-      if (response.statusCode == 200) {
-        return response.data ?? {};
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final data = response.data['data']['result'];
+        return List<Map<String, dynamic>>.from(data);
       } else {
-        final errorData = response.data;
-        throw Exception(
-          errorData?['message']?.toString() ?? 'Failed to load trending products. Status: ${response.statusCode}'
-        );
+        throw Exception(response.data['message'] ?? 'Unknown error');
       }
-    } on DioException catch (e) {
-      print('❌ Dio Error: ${e.message}');
-      if (e.response != null) {
-        print('❌ Response data: ${e.response?.data}');
-        print('❌ Response status: ${e.response?.statusCode}');
-        print('❌ Response headers: ${e.response?.headers}');
-      } else {
-        print('❌ Error request: ${e.requestOptions.uri}');
-        print('❌ Error message: ${e.message}');
-      }
-      rethrow;
     } catch (e) {
-      print('❌ Unexpected error in TrendingProductsViewService: $e');
-      rethrow;
+      print('❗ Dio error: $e');
+      throw Exception('Dio error: $e');
     }
   }
 }
