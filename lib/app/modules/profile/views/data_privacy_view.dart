@@ -1,12 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:flutter/material.dart';
+import '../controllers/data_privacy_view_controller.dart';
 
-import 'package:get/get.dart';
 
-class DataPrivacyView extends GetView {
+
+class DataPrivacyView extends GetView<DataPrivacyController> {
   const DataPrivacyView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,25 +22,30 @@ class DataPrivacyView extends GetView {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-          child: AppText(
-            maxLine: 5000,
-            title: """At The Canuck, your privacy is important to us. By using our app, you agree to the following:
-Information We Collect: We collect personal details (name, email, payment info) and usage data (app activity, device info) to improve your experience.
-How We Use Your Info: Your data helps us process orders, provide customer support, and send updates or promotions.
-Sharing Data: We may share your info with trusted third parties for payment processing and shipping. We do not sell your personal data.
-Security: We take reasonable steps to protect your data but cannot guarantee complete security.
-Your Rights: You can update, correct, or delete your information anytime. You can also opt-out of marketing emails.
-Cookies: We use cookies to improve your experience. You can manage cookie preferences in your settings.
-Changes: We may update this policy. Any changes will be posted in the app.
-For questions, contact us at support@thecanuck.com.""",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ),
-      ),
+      body: Obx(
+            () {
+          // Show loading spinner if privacy policy is not yet fetched
+          if (controller.privacyPolicy.value.isEmpty) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
+          // Use flutter_html to render the HTML content of the privacy policy
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+              child: Html(  // Use Html widget to render the HTML content
+                data: controller.privacyPolicy.value,  // Display the HTML content
+                style: {
+                  "p": Style(fontSize: FontSize(16.0)),  // Style paragraphs
+                  "h1": Style(fontSize: FontSize(22.0)), // Style headers
+                },
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

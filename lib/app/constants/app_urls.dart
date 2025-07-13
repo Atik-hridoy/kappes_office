@@ -12,17 +12,22 @@ abstract class AppUrls {
   // Product endpoints
   static const String products = '/products';
   static const String categories = '/categories';
-  static const String stores = '/stores';
+  //static const String stores = '/stores';
   static const String recommendedProducts = '/product/recommended';
+  static const String trendingProduct = '/product';
 
   // User endpoints
   static const String profile = '/users/profile';
   static const String myOrders = '/order/my-orders';
   static const String orders = '/user/orders';
+  static const String changePassword = '/auth/change-password';
+  static const String getPrivacy = '/settings/privacy-policy';
+  static const String getTerms = '/settings/termsOfService';
 
   // home page endpoints
   static const String home = '/home';
-  static const String trendingProducts = '/product?sort=-purchaseCount';
+  static const String category = '/category';
+
 
   // notifications endpoints
   static const String notifications = '/notifications';
@@ -33,5 +38,11 @@ abstract class AppUrls {
   // product details
   static const String getProduct = '/product/6858dafad21add59c265e18e';
   static const String getReviews = '/review/product/6858dafad21add59c265e18e';
-  static const String getShop = '/shop/6857ef75b1e96a6bba1a489a';
+  static const String getShop = '/shop/685806ee0d8150920d3662a5';
+
+  // shopssssssssssssssssssssssssssss
+
+  static const String getShopsByProvince = '/shop';
+  static const String shopByStoreName = '/shop?searchTerm=123';
+
 }

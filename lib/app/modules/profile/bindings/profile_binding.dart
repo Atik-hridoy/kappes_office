@@ -20,8 +20,8 @@ class ProfileBinding extends Bindings {
     Get.lazyPut<ChangePasswordViewController>(
       () => ChangePasswordViewController(),
     );
-    Get.lazyPut<DataPrivacyViewController>(
-      () => DataPrivacyViewController(),
+    Get.lazyPut<DataPrivacyController>(
+      () => DataPrivacyController(),
     );
     Get.lazyPut<EditInformationViewController>(
       () => EditInformationViewController(),
@@ -29,8 +29,8 @@ class ProfileBinding extends Bindings {
     Get.lazyPut<LanguageViewController>(
       () => LanguageViewController(),
     );
-    Get.lazyPut<TermsConditionsViewController>(
-      () => TermsConditionsViewController(),
+    Get.lazyPut<TermsConditionsController>(
+      () => TermsConditionsController(),
     );
   }
 }

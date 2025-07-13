@@ -168,7 +168,9 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
               SizedBox(height: AppSize.height(height: 2.0)),
-              RecommendedProducts(),
+              RecommendedProducts(
+
+              ),
               SizedBox(height: AppSize.height(height: 2.0)),
               Row(
                 children: [

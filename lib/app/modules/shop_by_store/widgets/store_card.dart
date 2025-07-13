@@ -10,7 +10,15 @@ class StoreCard extends StatelessWidget {
   final String shopCover;
   final String shopName;
   final String address;
-  const StoreCard({super.key, required this.shopLogo, required this.shopCover, required this.shopName, required this.address});
+  const StoreCard(
+      {
+    super.key,
+    required this.shopLogo,
+    required this.shopCover,
+    required this.shopName,
+    required this.address
+      }
+      );
 
   @override
   Widget build(BuildContext context) {

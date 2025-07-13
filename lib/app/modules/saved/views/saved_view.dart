@@ -37,7 +37,11 @@ class SavedView extends GetView<SavedController> {
               onTap: () {
                 // Get.toNamed(AppRoutes.productDetailsScreen);
               },
-             // child: ProductCard(isSaved: true,),
+              child: ProductCard(isSaved: true,
+                imageUrl: '',
+                title: '',
+                price: '',
+                productId: '',),
             );
           },
         ),

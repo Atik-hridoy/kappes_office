@@ -1,6 +1,5 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/dev_data/bannar_dev_data.dart';
-import 'package:canuck_mall/app/dev_data/store_dev_data.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/shop_by_store/widgets/store_card.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
@@ -90,30 +89,32 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
             padding: EdgeInsets.symmetric(
               horizontal: AppSize.height(height: 2.0),
             ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Column(
-                  children: [
-                    InkWell(
-                      onTap:(){
-                        Get.toNamed(Routes.store);
-                      },
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      child: StoreCard(
-                        shopLogo: storeInfo[index].shopLogo,
-                        shopCover: storeInfo[index].shopCover,
-                        shopName: storeInfo[index].shopName,
-                        address: storeInfo[index].address,
+            sliver: Obx(
+              () => SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(Routes.store);
+                        },
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        child: StoreCard(
+                          shopLogo: controller.shopLogo(index),
+                          shopCover: controller.shopCover(index),
+                          shopName: controller.shopName(index),
+                          address: controller.address(index),
+                        ),
                       ),
-                    ),
-                    // Add separator for all items except the last one
-                    index < 4
-                        ? SizedBox(height: AppSize.height(height: 2.0))
-                        : SizedBox.shrink(),
-                  ],
-                );
-              }, childCount: storeInfo.length),
+                      // Add separator for all items except the last one
+                      index < controller.shops.length - 1
+                          ? SizedBox(height: AppSize.height(height: 2.0))
+                          : SizedBox.shrink(),
+                    ],
+                  );
+                }, childCount: controller.shops.length),
+              ),
             ),
           ),
 
