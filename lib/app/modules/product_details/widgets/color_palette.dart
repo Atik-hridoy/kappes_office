@@ -17,6 +17,7 @@ class ColorPalette extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
       onTap: () {
         onChanged(value);

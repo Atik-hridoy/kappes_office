@@ -1,72 +1,35 @@
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
-import 'package:canuck_mall/app/constants/app_urls.dart';
+import '../../../data/netwok/product_details/product_details_service.dart';
+import '../../../model/product_model.dart';
 
 class ProductDetailsController extends GetxController {
-  final Dio _dio = Dio();
-
-  /// Reactive variables
-  final Rxn<Map<String, dynamic>> product = Rxn<Map<String, dynamic>>();
-  final Rxn<Map<String, dynamic>> shop = Rxn<Map<String, dynamic>>();
-
-  final RxBool isFavourite = false.obs;
-  final RxString selectColor = ''.obs;
-  final RxString selectedProductSize = ''.obs;
-  final RxBool isLoading = true.obs;
-
-  late final String? productId;
+  final ProductDetailsService _productDetailsService = ProductDetailsService();
+  Rx<ProductData?> product = Rx<ProductData?>(null);
+  RxBool isLoading = RxBool(false);
+  RxBool isFavourite = RxBool(false);
+  RxString selectColor = RxString('white');
+  RxString selectedProductSize = RxString('S');
 
   @override
   void onInit() {
     super.onInit();
-    productId = Get.arguments;
-
-    if (productId != null && productId!.isNotEmpty) {
-      fetchProductById(productId!);
-    } else {
-      isLoading.value = false;
-      Get.snackbar("Error", "Product ID is missing.");
-    }
+    // You can pass the product ID from the view, like `Get.arguments`
+    final String productId = Get.arguments;
+    fetchProductDetails(productId);
   }
 
-  Future<void> fetchProductById(String id) async {
-    isLoading.value = true;
-
+  Future<void> fetchProductDetails(String id) async {
     try {
-      final url = "${AppUrls.baseUrl}/product/$id";
-      final response = await _dio.get(url);
+      isLoading.value = true;
+      final response = await _productDetailsService.getProductById(id);
+      product.value = ProductData.fromJson(response);
 
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        product.value = response.data['data'];
-
-        /// ✅ Fetch related shop
-        final shopId = product.value?['shopId']?['_id'];
-        if (shopId != null) {
-          await fetchShopById(shopId);
-        }
-      } else {
-        final message = response.data['message'] ?? 'Unknown error';
-        Get.snackbar("Error", message);
-      }
+      print(response) ;
     } catch (e) {
-      Get.snackbar("Error", "Failed to load product: ${e.toString()}");
+      // Handle error, you can display an error message
+      print('Error fetching product details: $e');
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> fetchShopById(String shopId) async {
-    try {
-      final url = "${AppUrls.baseUrl}/shop/$shopId";
-      final response = await _dio.get(url);
-
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        shop.value = response.data['data'];
-      } else {
-        Get.snackbar("Error", "Failed to load shop");
-      }
-    } catch (e) {
-      print("❌ Error fetching shop: $e");
     }
   }
 }

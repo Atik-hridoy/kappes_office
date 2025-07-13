@@ -69,7 +69,7 @@ class _ProductCardState extends State<ProductCard> {
                       topRight: Radius.circular(AppSize.height(height: 2.0)),
                     ),
                     child: SizedBox(
-                      height: AppSize.height(height: 19.0),
+                      height: AppSize.height(height: 15.0),
                       width: double.infinity,
                       child: AppImage(
                         imagePath: widget.imageUrl,

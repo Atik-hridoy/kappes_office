@@ -58,297 +58,278 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           return const Center(child: Text('Product not found'));
         }
 
-        final List images = product['images'] ?? [];
-        final String imageUrl = images.isNotEmpty
-            ? "${AppUrls.imageUrl}${images.first}"
-            : AppImages.banner3;
+        final images = product.images;
+        final imageUrl =
+            images.isNotEmpty
+                ? "${AppUrls.imageUrl}${images.first}"
+                : AppImages.banner3;
 
         return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSize.height(height: 2.0),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSize.height(height: 2.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 1.5),
+                    ),
+                    child: AppImage(
+                      imagePath: imageUrl,
+                      width: double.infinity,
+                      height: AppSize.height(height: 40.0),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    top: AppSize.height(height: 1.5),
+                    right: AppSize.width(width: 2.0),
+                    child: Obx(() {
+                      return InkWell(
+                        onTap: () {
+                          controller.isFavourite.value =
+                              !controller.isFavourite.value;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(AppSize.height(height: 0.5)),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(
+                              AppSize.height(height: 100.0),
+                            ),
+                          ),
+                          child: Icon(
+                            controller.isFavourite.value
+                                ? Icons.favorite_outlined
+                                : Icons.favorite_border,
+                            size: AppSize.height(height: 2.5),
+                            color:
+                                controller.isFavourite.value
+                                    ? AppColors.lightRed
+                                    : null,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+              SizedBox(height: AppSize.height(height: 1.5)),
+              AppText(
+                title: product.name,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 0.5)),
+              InkWell(
+                onTap: () {
+                  Get.toNamed(Routes.reviews, arguments: product.id);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: AppSize.height(height: 2.5),
+                    ),
+                    SizedBox(width: AppSize.width(width: 0.5)),
+                    RichText(
+                      text: TextSpan(
+                        text: product.avgRating.toStringAsFixed(1),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: " (${product.totalReviews})",
+                            style: Theme.of(context).textTheme.bodySmall!
+                                .copyWith(color: Colors.grey.shade500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 0.5)),
+              Row(
+                children: [
+                  AppText(
+                    title: "\$${product.basePrice.toStringAsFixed(2)}",
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontSize: AppSize.height(height: 2.0),
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  if (product.productVariantDetails.isNotEmpty) ...[
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    AppText(
+                      title:
+                          "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: AppSize.height(height: 2.0),
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Padding(
+                padding: EdgeInsets.only(bottom: AppSize.height(height: 1.0)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(
-                        AppSize.height(height: 1.5),
+                        AppSize.height(height: 100.0),
                       ),
                       child: AppImage(
-                        imagePath: imageUrl,
-                        width: double.infinity,
-                        height: AppSize.height(height: 40.0),
+                        imagePath: AppUrls.imageUrl + product.shop.logo,
+                        height: AppSize.height(height: 5.5),
+                        width: AppSize.height(height: 5.5),
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Positioned(
-                      top: AppSize.height(height: 1.5),
-                      right: AppSize.width(width: 2.0),
-                      child: Obx(
-                            () => InkWell(
-                          onTap: () {
-                            controller.isFavourite.value =
-                            !controller.isFavourite.value;
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(AppSize.height(height: 0.5)),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(
-                                AppSize.height(height: 100.0),
-                              ),
-                            ),
-                            child: Icon(
-                              controller.isFavourite.value
-                                  ? Icons.favorite_outlined
-                                  : Icons.favorite_border,
-                              size: AppSize.height(height: 2.5),
-                              color: controller.isFavourite.value
-                                  ? AppColors.lightRed
-                                  : null,
-                            ),
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText(
+                            title: product.shop.name,
+                            style: Theme.of(context).textTheme.titleSmall!
+                                .copyWith(fontWeight: FontWeight.w900),
+                          ),
+                          AppText(
+                            title: product.shop.address.country,
+                            // You can modify this dynamically as well
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap:
+                          () => Get.toNamed(
+                            Routes.store,
+                            arguments: product.shop.id,
+                          ),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 0.5),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSize.height(height: 1.2),
+                          vertical: AppSize.height(height: 0.8),
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(
+                            AppSize.height(height: 0.5),
+                          ),
+                        ),
+                        child: AppText(
+                          title: AppStaticKey.visitStore,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleSmall!.copyWith(
+                            color: AppColors.white,
+                            fontSize: AppSize.height(height: 1.5),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: AppSize.height(height: 1.5)),
-                AppText(
-                  title: product['name'] ?? 'No name',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
+              ),
+              Divider(color: AppColors.lightGray),
+              SizedBox(height: AppSize.height(height: 0.5)),
+              AppText(
+                title: AppStaticKey.description,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  fontWeight: FontWeight.w900,
                 ),
-                SizedBox(height: AppSize.height(height: 0.5)),
-                InkWell(
-                  onTap: () {
-                    final productId = product['id'] ?? product['_id'];
-                    Get.toNamed(Routes.reviews, arguments: productId);
-                  },
-                  child: Row(
-                    children: [
-                      Icon(Icons.star,
-                          color: Colors.amber,
-                          size: AppSize.height(height: 2.5)),
-                      SizedBox(width: AppSize.width(width: 0.5)),
-                      RichText(
-                        text: TextSpan(
-                          text: product['avg_rating']?.toStringAsFixed(1) ?? '0.0',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall!
-                              .copyWith(fontWeight: FontWeight.w500),
-                          children: [
-                            TextSpan(
-                              text: " (${product['totalReviews'] ?? 0})",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
-                                  .copyWith(color: Colors.grey.shade500),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              AppText(
+                title: product.description,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Divider(color: AppColors.lightGray),
+              SizedBox(height: AppSize.height(height: 0.5)),
+              AppText(
+                title: "${AppStaticKey.color}:",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  fontWeight: FontWeight.w900,
                 ),
-                SizedBox(height: AppSize.height(height: 0.5)),
-                Row(
-                  spacing: AppSize.width(width: 2.0),
-                  children: [
-                    AppText(
-                      title: "\$${product['basePrice']?.toStringAsFixed(2) ?? '0.00'}",
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontSize: AppSize.height(height: 2.0),
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    if (product['product_variant_Details'] != null &&
-                        product['product_variant_Details'].isNotEmpty)
-                      AppText(
-                        title:
-                        "\$${product['product_variant_Details'][0]['variantPrice']?.toStringAsFixed(2)}",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(
-                          fontSize: AppSize.height(height: 2.0),
-                          decoration: TextDecoration.lineThrough,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                  ],
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Obx(() {
+                return Row(
+                  children:
+                      product.productVariantDetails.map((variant) {
+                        return ColorPalette(
+                          value: variant.variantId.color.name,
+                          group: controller.selectColor.value,
+                          onChanged:
+                              (value) => controller.selectColor.value = value,
+                          color: Color(
+                            int.tryParse(
+                                  variant.variantId.color.code,
+                                  radix: 16,
+                                ) ??
+                                0,
+                          ),
+                        );
+                      }).toList(),
+                );
+              }),
+              SizedBox(height: AppSize.height(height: 2.0)),
+              AppText(
+                title: "${AppStaticKey.size}:",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  fontWeight: FontWeight.w900,
                 ),
-                // Obx(() {
-                //   final shop = controller.shop.value;
-                //   if (shop == null) return const SizedBox.shrink();
-                //
-                //   return Row(
-                //     children: [
-                //       ClipRRect(
-                //         borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
-                //         child: AppImage(
-                //           imagePath: AppImages.shopLogo, // You can use shop['logo'] if available
-                //           height: AppSize.height(height: 5.5),
-                //           width: AppSize.height(height: 5.5),
-                //           fit: BoxFit.cover,
-                //         ),
-                //       ),
-                //       SizedBox(width: AppSize.width(width: 2.0)),
-                //       Column(
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: [
-                //           AppText(
-                //             title: shop['name'] ?? 'Shop',
-                //             style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                //               fontWeight: FontWeight.w900,
-                //             ),
-                //           ),
-                //           AppText(
-                //             title: shop['address'] ?? 'No address',
-                //             style: Theme.of(context).textTheme.bodySmall,
-                //           ),
-                //         ],
-                //       ),
-                //       const Spacer(),
-                //       InkWell(
-                //         onTap: () => Get.toNamed(Routes.store, arguments: shop['_id']),
-                //         borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
-                //         child: Container(
-                //           padding: EdgeInsets.all(AppSize.height(height: 0.8)),
-                //           decoration: BoxDecoration(
-                //             color: AppColors.primary,
-                //             borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
-                //           ),
-                //           child: AppText(
-                //             title: AppStaticKey.visitStore,
-                //             style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                //               color: AppColors.white,
-                //               fontSize: AppSize.height(height: 1.5),
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   );
-                // }),
-                SizedBox(height: AppSize.height(height: 1.0)),
-
-                Divider(color: AppColors.lightGray),
-
-                /// Description
-                SizedBox(height: AppSize.height(height: 0.5)),
-                AppText(
-                  title: AppStaticKey.description,
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Obx(() {
+                return Row(
+                  children:
+                      ['S', 'M', 'L'].map((size) {
+                        return ProductSizeSelector(
+                          value: size,
+                          group: controller.selectedProductSize.value,
+                          onChanged:
+                              (val) =>
+                                  controller.selectedProductSize.value = val,
+                        );
+                      }).toList(),
+                );
+              }),
+              SizedBox(height: AppSize.height(height: 1.5)),
+              AppText(
+                title: "${AppStaticKey.quantity}:",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  fontWeight: FontWeight.w900,
                 ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                AppText(
-                  title: product['description'] ?? 'No description available.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                Divider(color: AppColors.lightGray),
-
-                /// Colors
-                SizedBox(height: AppSize.height(height: 0.5)),
-                AppText(
-                  title: "${AppStaticKey.color}:",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                Obx(
-                      () => Row(
-                    spacing: AppSize.width(width: 3.0),
-                    children: [
-                      ColorPalette(
-                        value: "white",
-                        group: controller.selectColor.value,
-                        onChanged: (value) =>
-                        controller.selectColor.value = value,
-                        color: AppColors.white,
-                      ),
-                      ColorPalette(
-                        value: "gray",
-                        group: controller.selectColor.value,
-                        onChanged: (value) =>
-                        controller.selectColor.value = value,
-                        color: AppColors.gray,
-                      ),
-                      ColorPalette(
-                        value: "green",
-                        group: controller.selectColor.value,
-                        onChanged: (value) =>
-                        controller.selectColor.value = value,
-                        color: AppColors.green,
-                      ),
-                    ],
-                  ),
-                ),
-
-                /// Sizes
-                SizedBox(height: AppSize.height(height: 2.0)),
-                AppText(
-                  title: "${AppStaticKey.size}:",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                Obx(
-                      () => Row(
-                    spacing: AppSize.width(width: 3.0),
-                    children: [
-                      ProductSizeSelector(
-                        value: "S",
-                        group: controller.selectedProductSize.value,
-                        onChanged: (val) =>
-                        controller.selectedProductSize.value = val,
-                      ),
-                      ProductSizeSelector(
-                        value: "M",
-                        group: controller.selectedProductSize.value,
-                        onChanged: (val) =>
-                        controller.selectedProductSize.value = val,
-                      ),
-                      ProductSizeSelector(
-                        value: "L",
-                        group: controller.selectedProductSize.value,
-                        onChanged: (val) =>
-                        controller.selectedProductSize.value = val,
-                      ),
-                    ],
-                  ),
-                ),
-
-                /// Quantity
-                SizedBox(height: AppSize.height(height: 1.5)),
-                AppText(
-                  title: "${AppStaticKey.quantity}:",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                QuantityButton(),
-
-                SizedBox(height: AppSize.height(height: 3.0)),
-              ],
-            ),
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              QuantityButton(),
+              SizedBox(height: AppSize.height(height: 3.0)),
+            ],
           ),
         );
       }),
@@ -386,27 +367,31 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ),
                 SizedBox(height: AppSize.height(height: 1.0)),
                 Row(
-                  spacing: AppSize.width(width: 3.0),
                   children: [
-                    Flexible(
+                    Expanded(
                       child: AppCommonButton(
                         onPressed: () {},
                         title: AppStaticKey.addToCart,
                         backgroundColor: AppColors.white200,
                         borderColor: AppColors.lightGray,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium!.copyWith(
                           fontSize: AppSize.height(height: 2.0),
                           color: AppColors.black,
                         ),
                       ),
                     ),
-                    Flexible(
+                    SizedBox(width: AppSize.width(width: 3.0)),
+                    Expanded(
                       child: AppCommonButton(
                         onPressed: () {
                           Get.toNamed(Routes.myCart);
                         },
                         title: AppStaticKey.buyNow,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium!.copyWith(
                           fontSize: AppSize.height(height: 2.0),
                           color: AppColors.white,
                         ),
