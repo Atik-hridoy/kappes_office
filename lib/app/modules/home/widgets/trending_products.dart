@@ -16,7 +16,7 @@ class TrendingProducts extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          return ProductCard();
+          //return ProductCard();
         },
         separatorBuilder: (context, index) {
           return SizedBox(width: AppSize.width(width: 3.0));

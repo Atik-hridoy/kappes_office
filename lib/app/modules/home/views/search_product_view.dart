@@ -77,7 +77,7 @@ class SearchProductView extends GetView<SearchProductViewController>{
                     onTap: () {
                       // Get.toNamed(AppRoutes.productDetailsScreen);
                     },
-                    child: ProductCard(),
+                   // child: ProductCard(),
                   );
                 },
               ),

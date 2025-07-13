@@ -15,9 +15,10 @@ class HomeBinding extends Bindings {
     Get.lazyPut<CategoryViewController>(
       () => CategoryViewController(),
     );
-    Get.lazyPut<RecommendedProductViewController>(
-      () => RecommendedProductViewController(),
-    );
+
+    Get.lazyPut(() => RecommendedProductController()
+      );
+
     Get.lazyPut<SearchProductViewController>(
       () => SearchProductViewController(),
     );

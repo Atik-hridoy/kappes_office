@@ -1,21 +1,38 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class RecommendedProductService {
-  Future<Map<String, dynamic>> fetchRecommendedProducts() async {
-    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.recommendedProducts}');
+  final Dio _dio = Dio();
+
+  Future<List<Map<String, dynamic>>> getRecommendedProducts({
+    required String token,
+  }) async {
+    final url = '${AppUrls.baseUrl}${AppUrls.recommendedProducts}';
+
+    print('📤 Sending GET to: $url');
+
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return {'success': true, 'data': data};
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      print('📥 Status: ${response.statusCode}');
+      print('📥 Response: ${response.data}');
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final data = response.data['data']['result'];
+        return List<Map<String, dynamic>>.from(data);
       } else {
-        final error = jsonDecode(response.body);
-        return {'success': false, 'message': error['message'] ?? 'Failed to fetch recommended products'};
+        throw Exception(response.data['message'] ?? 'Unknown error');
       }
     } catch (e) {
-      return {'success': false, 'message': 'Exception: $e'};
+      print('❗ Dio error: $e');
+      throw Exception('Dio error: $e');
     }
   }
 }

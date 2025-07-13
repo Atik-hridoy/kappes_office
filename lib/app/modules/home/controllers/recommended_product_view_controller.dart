@@ -1,13 +1,13 @@
-// File: recommended_product_controller.dart
-import 'package:flutter/material.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/data/netwok/home/recommended_product_service.dart';
+import '../../../data/netwok/home/recommended_product_service.dart';
 
-class RecommendedProductViewController extends GetxController {
-  final isLoading = false.obs;
+class RecommendedProductController extends GetxController {
+  final isLoading = true.obs;
   final errorMessage = ''.obs;
-  final recommendedProducts = <dynamic>[].obs;
-  final RecommendedProductService _service = RecommendedProductService();
+  final products = <Map<String, dynamic>>[].obs;
+
+  final _service = RecommendedProductService();
 
   @override
   void onInit() {
@@ -16,28 +16,33 @@ class RecommendedProductViewController extends GetxController {
   }
 
   Future<void> fetchRecommendedProducts() async {
+    print('\n🟡 RecommendedProductController: Fetching recommended products...');
     isLoading.value = true;
     errorMessage.value = '';
+
     try {
-      final result = await _service.fetchRecommendedProducts();
-      if (result['success'] == true) {
-        // Adjust this depending on your backend response structure
-        final data = result['data'];
-        if (data is Map && data.containsKey('result')) {
-          recommendedProducts.assignAll(data['result']);
-        } else if (data is List) {
-          recommendedProducts.assignAll(data);
-        } else {
-          recommendedProducts.clear();
-        }
-        errorMessage.value = '';
-      } else {
-        errorMessage.value = result['message'] ?? 'Something went wrong';
+      final token = LocalStorage.token;
+      print('🔐 Token used: $token');
+
+      final result = await _service.getRecommendedProducts(token: token);
+
+      print('✅ Total products received: ${result.length}');
+      for (var i = 0; i < result.length; i++) {
+        final p = result[i];
+        final name = p['name'] ?? 'Unnamed';
+        final price = p['basePrice'] ?? 'N/A';
+        final id = p['_id'] ?? 'No ID';
+
+        print('➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price');
       }
+
+      products.assignAll(result);
     } catch (e) {
-      errorMessage.value = 'Error: $e';
+      print('❌ Error while fetching products: $e');
+      errorMessage.value = 'Failed to fetch products: $e';
     } finally {
       isLoading.value = false;
+      print('📴 Done fetching recommended products\n');
     }
   }
 }

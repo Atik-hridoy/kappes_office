@@ -177,6 +177,7 @@ class AppPages {
     GetPage(
       name: _Paths.productDetails,
       page: () => const ProductDetailsView(),
+
       binding: ProductDetailsBinding(),
     ),
     GetPage(

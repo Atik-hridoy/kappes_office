@@ -76,7 +76,7 @@ class TrendingProductsView extends GetView {
                     onTap: () {
                       // Get.toNamed(AppRoutes.productDetailsScreen);
                     },
-                    child: ProductCard(),
+                    //child: ProductCard(),
                   );
                 },
               ),
