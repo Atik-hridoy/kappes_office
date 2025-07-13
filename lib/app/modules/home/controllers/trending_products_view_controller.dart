@@ -1,20 +1,14 @@
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/data/netwok/home/trending_products_view_service.dart';
 
-class TrendingProductsViewController extends GetxController {
-  final TrendingProductsViewService _trendingProductsService = TrendingProductsViewService();
-  
-  // Reactive state variables
-  final isLoading = false.obs;
+import '../../../data/netwok/home/trending_products_view_service.dart';
+
+class TrendingProductsController extends GetxController {
+  final isLoading = true.obs;
   final errorMessage = ''.obs;
-  final trendingProducts = <dynamic>[].obs;
-  final currentPage = 1.obs;
-  final hasMore = true.obs;
-  final int limit = 10;
-  
-  // Meta information
-  final totalProducts = 0.obs;
-  final totalPages = 1.obs;
+  final products = <Map<String, dynamic>>[].obs;
+
+  final _service = TrendingProductsService();
 
   @override
   void onInit() {
@@ -22,67 +16,34 @@ class TrendingProductsViewController extends GetxController {
     fetchTrendingProducts();
   }
 
-  Future<void> fetchTrendingProducts({bool loadMore = false}) async {
-    if (isLoading.value) return;
-    
+  Future<void> fetchTrendingProducts() async {
+    print('\n🟡 TrendingProductController: Fetching trending products...');
+    isLoading.value = true;
+    errorMessage.value = '';
+
     try {
-      if (!loadMore) {
-        currentPage.value = 1;
-        isLoading.value = true;
-        errorMessage.value = '';
-        print('🔄 Fetching trending products...');
-      } else if (!hasMore.value) {
-        print('ℹ️ No more products to load');
-        return;
-      } else {
-        currentPage.value++;
-        print('🔄 Loading more products, page: ${currentPage.value}');
+      final token = LocalStorage.token;
+      print('🔐 Token used: $token');
+
+      final result = await _service.getTrendingProducts(token: token);
+
+      print('✅ Total products received: ${result.length}');
+      for (var i = 0; i < result.length; i++) {
+        final p = result[i];
+        final name = p['name'] ?? 'Unnamed';
+        final price = p['basePrice'] ?? 'N/A';
+        final id = p['_id'] ?? 'No ID';
+
+        print('➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price');
       }
 
-      final response = await _trendingProductsService.getTrendingProducts(
-        page: currentPage.value,
-        limit: limit,
-      );
-
-      if (response['success'] == true && response['data'] != null) {
-        final data = response['data'];
-        
-        if (!loadMore) {
-          trendingProducts.clear();
-        }
-        
-        trendingProducts.addAll(data['result'] ?? []);
-        
-        // Update meta information
-        if (data['meta'] != null) {
-          totalProducts.value = data['meta']['total'] ?? 0;
-          totalPages.value = data['meta']['totalPage'] ?? 1;
-          hasMore.value = currentPage.value < totalPages.value;
-        }
-        
-        print('✅ Successfully loaded ${(data['result'] ?? []).length} products');
-        print('📊 Total products: ${totalProducts.value}, Has more: ${hasMore.value}');
-      } else {
-        errorMessage.value = response['message'] ?? 'Failed to load products';
-        print('❌ Error: ${errorMessage.value}');
-      }
+      products.assignAll(result);
     } catch (e) {
-      errorMessage.value = 'Failed to load trending products: $e';
-      print('❌ Exception: $e');
+      print('❌ Error while fetching products: $e');
+      errorMessage.value = 'Failed to fetch products: $e';
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> refreshProducts() async {
-    print('🔄 Refreshing products...');
-    await fetchTrendingProducts(loadMore: false);
-  }
-
-  void loadMoreProducts() {
-    if (!isLoading.value && hasMore.value) {
-      print('⬇️ Loading more products...');
-      fetchTrendingProducts(loadMore: true);
+      print('📴 Done fetching trending products\n');
     }
   }
 }

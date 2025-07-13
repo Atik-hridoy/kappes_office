@@ -22,8 +22,8 @@ class HomeBinding extends Bindings {
     Get.lazyPut<SearchProductViewController>(
       () => SearchProductViewController(),
     );
-    Get.lazyPut<TrendingProductsViewController>(
-      () => TrendingProductsViewController(),
+    Get.lazyPut<TrendingProductsController>(
+      () => TrendingProductsController(),
     );
     Get.lazyPut<SearchLocationViewController>(
           () => SearchLocationViewController(),

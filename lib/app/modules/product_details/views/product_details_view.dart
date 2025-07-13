@@ -217,14 +217,11 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                       ),
                     ),
                     InkWell(
-                      onTap:
-                          () => Get.toNamed(
-                            Routes.store,
-                            arguments: product.shop.id,
-                          ),
-                      borderRadius: BorderRadius.circular(
-                        AppSize.height(height: 0.5),
-                      ),
+                      onTap: () {
+                        print('[ProductDetailsView] Navigating to storeId: ${product.shop.id}');
+                        Get.toNamed(Routes.store, arguments: product.shop.id); // Pass storeId as arguments
+                      },
+                      borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: AppSize.height(height: 1.2),
@@ -232,21 +229,18 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(
-                            AppSize.height(height: 0.5),
-                          ),
+                          borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
                         ),
                         child: AppText(
                           title: AppStaticKey.visitStore,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleSmall!.copyWith(
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             color: AppColors.white,
                             fontSize: AppSize.height(height: 1.5),
                           ),
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),
