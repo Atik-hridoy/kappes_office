@@ -50,7 +50,6 @@ dependencies:
   shared_preferences: ^2.5.3
   dio: ^5.8.0+1
   cached_network_image: ^3.4.1
-  flutter_image_compress: ^2.4.0
   flutter_html: ^3.0.0
 
 

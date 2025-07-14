@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get/get.dart';
+
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
