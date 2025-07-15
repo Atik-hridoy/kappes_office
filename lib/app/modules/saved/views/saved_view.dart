@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 
 import '../controllers/saved_controller.dart';
 
+
+
 class SavedView extends GetView<SavedController> {
   const SavedView({super.key});
   @override
@@ -37,11 +39,13 @@ class SavedView extends GetView<SavedController> {
               onTap: () {
                 // Get.toNamed(AppRoutes.productDetailsScreen);
               },
-              child: ProductCard(isSaved: true,
-                imageUrl: '',
-                title: '',
-                price: '',
-                productId: '',),
+              child: ProductCard(
+                isSaved: true,
+                imageUrl: 'https://via.placeholder.com/150', // Provide a valid image URL
+                title: 'Sample Product', // Provide a sample or actual product name
+                price: '0.00', // Provide a sample or actual price
+                productId: 'sample_id', // Provide a sample or actual product ID
+              ),
             );
           },
         ),

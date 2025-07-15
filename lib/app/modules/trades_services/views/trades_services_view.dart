@@ -158,3 +158,4 @@ class TradesServicesView extends GetView<TradesServicesController> {
     );
   }
 }
+

@@ -64,6 +64,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ? "${AppUrls.imageUrl}${images.first}"
                 : AppImages.banner3;
 
+        // Get the productId from navigation arguments
+        final productId = Get.arguments as String?;
+
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: AppSize.height(height: 2.0),
@@ -71,6 +74,17 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (productId != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Product ID: $productId',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
               Stack(
                 children: [
                   ClipRRect(
@@ -270,21 +284,27 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
               Obx(() {
+                // Get all color codes from product variants
+                final colorCodes = product.productVariantDetails.map((variant) => variant.variantId.color.code).toList();
+                print('Fetched color codes: ' + colorCodes.toString());
                 return Row(
                   children:
                       product.productVariantDetails.map((variant) {
+                        // Convert hex string to Color
+                        final hex = variant.variantId.color.code;
+                        Color? color;
+                        try {
+                          var hexColor = hex.replaceAll('#', '');
+                          if (hexColor.length == 6) hexColor = 'FF' + hexColor;
+                          color = Color(int.parse(hexColor, radix: 16));
+                        } catch (e) {
+                          color = Colors.grey;
+                        }
                         return ColorPalette(
                           value: variant.variantId.color.name,
                           group: controller.selectColor.value,
-                          onChanged:
-                              (value) => controller.selectColor.value = value,
-                          color: Color(
-                            int.tryParse(
-                                  variant.variantId.color.code,
-                                  radix: 16,
-                                ) ??
-                                0,
-                          ),
+                          onChanged: (value) => controller.selectColor.value = value,
+                          color: color,
                         );
                       }).toList(),
                 );
@@ -364,7 +384,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   children: [
                     Expanded(
                       child: AppCommonButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          controller.addToCartAndGoToCart();
+                        },
                         title: AppStaticKey.addToCart,
                         backgroundColor: AppColors.white200,
                         borderColor: AppColors.lightGray,
@@ -380,7 +402,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                     Expanded(
                       child: AppCommonButton(
                         onPressed: () {
-                          Get.toNamed(Routes.myCart);
+                          controller.addToCartAndGoToCart();
                         },
                         title: AppStaticKey.buyNow,
                         style: Theme.of(

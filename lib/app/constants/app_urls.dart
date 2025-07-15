@@ -43,6 +43,15 @@ abstract class AppUrls {
   // shopssssssssssssssssssssssssssss
 
   static const String getShopsByProvince = '/shop';
-  static const String shopByStoreName = '/shop?searchTerm=123';
+  static const String shopByStoreName = '/shop';
+  static const String shopByTerritory = '/shop';
+  static const String tradeNService = '/business/all';
+  static const String offered = '/offered';
+  static const String shopLocation = '/shop/location';
+
+
+  // Wishlist endpoints
+  static const String myCart = '/cart';
+  static const String createOrder = '/cart/create';
 
 }

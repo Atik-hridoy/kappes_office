@@ -1,21 +1,25 @@
-import 'package:canuck_mall/app/constants/app_icons.dart';
-import 'package:canuck_mall/app/dev_data/bannar_dev_data.dart';
-import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/modules/shop_by_store/widgets/store_card.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/custom_slider.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import '../../../constants/app_icons.dart';
+import '../../../dev_data/bannar_dev_data.dart' show bannar;
+import '../../../routes/app_pages.dart';
 import '../controllers/shop_by_store_controller.dart';
+import '../widgets/store_card.dart';
+
 
 class ShopByStoreView extends GetView<ShopByStoreController> {
   const ShopByStoreView({super.key});
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width; // For responsiveness
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -48,7 +52,6 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
                 // Filter and sort row
                 Row(
                   children: [
-                    // Filter icon
                     ImageIcon(
                       AssetImage(AppIcons.filter2),
                       size: AppSize.height(height: 2.0),
@@ -60,10 +63,7 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-
                     Spacer(),
-
-                    // Sort icon
                     ImageIcon(
                       AssetImage(AppIcons.sort),
                       size: AppSize.height(height: 2.0),
@@ -89,32 +89,29 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
             padding: EdgeInsets.symmetric(
               horizontal: AppSize.height(height: 2.0),
             ),
-            sliver: Obx(
-              () => SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Column(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.store);
-                        },
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        child: StoreCard(
-                          shopLogo: controller.shopLogo(index),
-                          shopCover: controller.shopCover(index),
-                          shopName: controller.shopName(index),
-                          address: controller.address(index),
-                        ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Column(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.store); // Navigate to the store details page
+                      },
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      child: StoreCard(
+                        shopLogo: controller.shopLogo(index),
+                        shopCover: controller.shopCover(index),
+                        shopName: controller.shopName(index),
+                        address: controller.address(index),
                       ),
-                      // Add separator for all items except the last one
-                      index < controller.shops.length - 1
-                          ? SizedBox(height: AppSize.height(height: 2.0))
-                          : SizedBox.shrink(),
-                    ],
-                  );
-                }, childCount: controller.shops.length),
-              ),
+                    ),
+                    index < controller.shops.length - 1
+                        ? SizedBox(height: AppSize.height(height: 2.0))
+                        : SizedBox.shrink(),
+                  ],
+                );
+              }, childCount: controller.shops.length),
             ),
           ),
 

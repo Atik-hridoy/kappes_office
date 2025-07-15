@@ -7,6 +7,7 @@ import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class SearchLocationView extends GetView {
   const SearchLocationView({super.key});
@@ -63,7 +64,7 @@ class SearchLocationView extends GetView {
                   borderRadius: BorderRadius.circular(
                     AppSize.height(height: 1.0),
                   ),
-                  child: Image.asset(AppImages.map, fit: BoxFit.cover),
+                  child: _buildMap(context),
                 ),
               ),
               Container(
@@ -177,6 +178,40 @@ class SearchLocationView extends GetView {
               SizedBox(height: AppSize.height(height: 1.0)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMap(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        color: Colors.grey.shade200,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        child: GoogleMap(
+          onMapCreated: (controller) {}, // Use presenter's method
+          initialCameraPosition: CameraPosition(
+            target: LatLng(23.8103, 90.4125),
+            zoom: 14.0,
+          ),
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          mapToolbarEnabled: false,
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          tiltGesturesEnabled: true,
+          rotateGesturesEnabled: true,
         ),
       ),
     );

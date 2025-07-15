@@ -51,6 +51,8 @@ dependencies:
   dio: ^5.8.0+1
   cached_network_image: ^3.4.1
   flutter_html: ^3.0.0
+  google_maps_flutter: ^2.12.3
+
 
 
 dev_dependencies:

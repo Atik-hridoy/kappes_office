@@ -1,3 +1,4 @@
+
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/dev_data/bannar_dev_data.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';

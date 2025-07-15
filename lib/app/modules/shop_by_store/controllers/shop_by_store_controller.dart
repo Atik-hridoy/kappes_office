@@ -1,6 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../data/netwok/store/shop_by_store_service.dart'; // For token retrieval
 import '../../../data/local/storage_service.dart';
 
@@ -12,8 +10,17 @@ class ShopByStoreController extends GetxController {
   Future<void> fetchShopsByStoreName(String searchTerm) async {
     final token = LocalStorage.token;  // Get the token securely
     if (token.isNotEmpty) {
-      shops.value = await _shopByStoreService.getShopsByStoreName(token, searchTerm);
+      final fetched = await _shopByStoreService.getShopsByStoreName(token, searchTerm);
+      print('Fetched shops:');
+      print(fetched);
+      // Print logo and cover for each shop
+      for (var i = 0; i < fetched.length; i++) {
+        print('Shop #$i logo: ${fetched[i]['logo']}');
+        print('Shop #$i coverPhoto: ${fetched[i]['coverPhoto']}');
+      }
+      shops.value = fetched;
     } else {
+      print('No token found. Shops not fetched.');
       shops.value = [];  // Handle case where token is missing
     }
   }
@@ -21,13 +28,31 @@ class ShopByStoreController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Call this method when the view is initialized
     fetchShopsByStoreName('');  // Fetch shops initially with an empty searchTerm or pass a valid searchTerm
   }
 
   // Helpers for StoreCard
-  String shopLogo(int index) => shops[index]['logo'] ?? '';
-  String shopCover(int index) => shops[index]['coverPhoto'] ?? '';
+  String shopLogo(int index) {
+    final url = shops[index]['logo'];
+    return (url != null && url.toString().isNotEmpty)
+        ? url
+        : 'https://via.placeholder.com/80x80.png?text=No+Logo';
+  }
+
+  String shopCover(int index) {
+    final url = shops[index]['coverPhoto'];
+    return (url != null && url.toString().isNotEmpty)
+        ? url
+        : 'https://via.placeholder.com/300x120.png?text=No+Cover';
+  }
+
+  String shopIcon(int index) {
+    final url = shops[index]['iconUrl'];
+    return (url != null && url.toString().isNotEmpty)
+        ? url
+        : 'https://via.placeholder.com/40x40.png?text=No+Icon';
+  }
+
   String shopName(int index) => shops[index]['name'] ?? '';
   String address(int index) {
     final addr = shops[index]['address'];
