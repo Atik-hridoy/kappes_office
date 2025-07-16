@@ -31,6 +31,7 @@ abstract class AppUrls {
 
   // notifications endpoints
   static const String notifications = '/notifications';
+  static const String readNotification = '/notifications/';
 
   // orders
   static const String order = 'order/my-orders';
@@ -52,6 +53,6 @@ abstract class AppUrls {
 
   // Wishlist endpoints
   static const String myCart = '/cart';
-  static const String createOrder = '/cart/create';
+  static const String createOrder = '/order/create';
 
 }

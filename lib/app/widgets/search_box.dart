@@ -12,6 +12,8 @@ class SearchBox extends StatelessWidget {
   final double? iconSize;
   final double? circularRadius;
   final VoidCallback? onPressed;
+  final TextEditingController? controller; // ✅ NEW
+
   const SearchBox({
     super.key,
     this.isEnable,
@@ -21,6 +23,7 @@ class SearchBox extends StatelessWidget {
     this.height,
     this.iconSize,
     this.circularRadius,
+    this.controller, // ✅ NEW
   });
 
   @override
@@ -28,6 +31,7 @@ class SearchBox extends StatelessWidget {
     return SizedBox(
       height: height ?? AppSize.height(height: 6.0),
       child: TextField(
+        controller: controller, // ✅ NEW
         onTap: onPressed,
         readOnly: redOnly,
         enabled: isEnable,

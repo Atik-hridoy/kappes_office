@@ -34,15 +34,16 @@ class LoginController extends GetxController {
 
     try {
       print('🚀 Sending login request for $email...');
+
       final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.login}',
         data: {
           'email': email,
           'password': password,
         },
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-        }),
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
       );
 
       final data = response.data;
@@ -87,8 +88,18 @@ class LoginController extends GetxController {
         return false;
       }
     } catch (e) {
-      errorMessage.value = 'Login error: $e';
-      print('❌ Exception during login: $e');
+      if (e is DioException) {
+        final dioError = e.response;
+        final statusCode = dioError?.statusCode;
+        final statusMessage = dioError?.statusMessage;
+
+        // Log the error response for debugging
+        print('❌ Dio Error: StatusCode: $statusCode, StatusMessage: $statusMessage');
+        errorMessage.value = 'Login failed: $statusMessage';
+      } else {
+        errorMessage.value = 'Login error: $e';
+        print('❌ Exception during login: $e');
+      }
       return false;
     } finally {
       isLoading.value = false;
