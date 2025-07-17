@@ -12,7 +12,7 @@ class ProductCard extends StatefulWidget {
   final String imageUrl;
   final String title;
   final String price;
-  final String productId; // ✅ Added
+  final String productId;
 
   const ProductCard({
     super.key,
@@ -20,7 +20,7 @@ class ProductCard extends StatefulWidget {
     required this.imageUrl,
     required this.title,
     required this.price,
-    required this.productId, // ✅ Required
+    required this.productId,
   });
 
   @override
@@ -109,28 +109,30 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ],
               ),
-              Padding(
-                padding: EdgeInsets.all(AppSize.height(height: 1.0)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSize.height(height: 1.0)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: AppSize.height(height: 0.5)),
-                    Text(
-                      '\$${widget.price}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: AppSize.height(height: 0.5)),
+                      Text(
+                        '\$${widget.price}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

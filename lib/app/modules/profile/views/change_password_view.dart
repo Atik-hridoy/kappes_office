@@ -153,15 +153,16 @@ class ChangePasswordView extends GetView<ChangePasswordViewController>{
                   height: AppSize.height(height: 3.0),
                 ),
                 AppCommonButton(
-                  onPressed: () {
-                    if(!formKey.currentState!.validate()){
-                      return;
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      await controller.changePassword();
                     }
                   },
                   title: AppStaticKey.update,
                   backgroundColor: AppColors.primary,
                   fontSize: AppSize.height(height: 1.70),
                   borderColor: AppColors.primary,
+
                 )
               ],
             ),

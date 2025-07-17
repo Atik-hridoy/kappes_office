@@ -1,16 +1,14 @@
-import 'package:canuck_mall/app/constants/app_icons.dart';
-import 'package:canuck_mall/app/constants/app_images.dart';
-import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
-import 'package:canuck_mall/app/themes/app_colors.dart';
-import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
-import 'package:canuck_mall/app/widgets/app_button/quantity_button.dart';
-import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/widgets/tipple.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:canuck_mall/app/themes/app_colors.dart';
+import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/widgets/app_text.dart';
+import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
+import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
+
+import '../../../constants/app_images.dart';
+import '../../../routes/app_pages.dart';
+import '../../../widgets/app_button/quantity_button.dart';
 import '../controllers/my_cart_controller.dart';
 
 class MyCartView extends GetView<MyCartController> {
@@ -21,99 +19,98 @@ class MyCartView extends GetView<MyCartController> {
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
         title: AppText(
-          title: AppStaticKey.myCart,
+          title: "My Cart",
           style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: AppSize.height(height: 2.0)),
-        child: ListView.separated(
-          itemCount: 3,
-          itemBuilder: (context, index) {
-            return Container(
-              padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.lightGray),
-                borderRadius: BorderRadius.circular(
-                  AppSize.height(height: 1.0),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: AppSize.width(width: 2.0),
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      AppSize.height(height: 0.5),
-                    ),
-                    child: AppImage(
-                      imagePath: AppImages.banner2,
-                      height: AppSize.height(height: 9.0),
-                      width: AppSize.height(height: 9.0),
-                      fit: BoxFit.cover,
-                    ),
+        child: Obx(
+              () {
+            // Check if the cart is empty
+            if (controller.cartItems.isEmpty) {
+              return Center(child: Text('No items in cart.'));
+            }
+
+            return ListView.separated(
+              itemCount: controller.cartItems.length.toInt(),
+              itemBuilder: (context, index) {
+                var item = controller.cartItems[index];
+                return Container(
+                  padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGray),
+                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
                   ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: AppSize.height(height: 1.0),
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
+                        child: AppImage(
+                          imagePath: item['logo'] ?? AppImages.banner2,  // Use the logo or a placeholder
+                          height: AppSize.height(height: 9.0),
+                          width: AppSize.height(height: 9.0),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      SizedBox(width: AppSize.height(height: 1.0)),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // spacing: AppSize.height(height: 1.0), // Remove if not using a custom Column with spacing property
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            AppText(
-                              title: "Hiking Traveler Backpack",
-                              style: Theme.of(context).textTheme.titleSmall!
-                                  .copyWith(letterSpacing: 0.0),
+                            Row(
+                              children: [
+                                AppText(
+                                  title: item['name'] ?? 'Unknown Item',  // Fallback if name is missing
+                                  style: Theme.of(context).textTheme.titleSmall!
+                                      .copyWith(letterSpacing: 0.0),
+                                ),
+                                Spacer(),
+                                IconButton(
+                                  icon: Icon(Icons.cancel),
+                                  onPressed: () {
+                                    // Handle remove item from cart
+                                  },
+                                ),
+                              ],
                             ),
-                            Spacer(),
-                            Tipple(
-                              onTap: () {
-                                // AppUtils.appLog("Hello world!");
-                              },
-                              height: AppSize.height(height: 5.0),
-                              width: AppSize.height(height: 5.0),
-                              borderRadius: BorderRadius.circular(
-                                AppSize.height(height: 100.0),
-                              ),
-                              positionTop: -10,
-                              positionRight: -11,
-                              child: ImageIcon(
-                                AssetImage(AppIcons.cancel),
-                                size: AppSize.height(height: 2.2),
-                              ),
+                            AppText(
+                              title: "Size: ${item['size'] ?? 'M'}     Color: ${item['color'] ?? 'Yellow'}",
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Row(
+                              children: [
+                                AppText(
+                                  title: "\$${item['price'] ?? 0.0}",
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                                Spacer(),
+                                QuantityButton(
+                                  buttonSize: 1.5,
+                                  buttonCircularSize: 2.0,
+                                  spacing: 3.5,
+                                  textSize: AppSize.height(height: 1.5),
+                                  onChanged: (newQuantity) {
+                                    // Handle quantity update
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        AppText(
-                          title: "Size: M     Color: Yellow",
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Row(
-                          children: [
-                            AppText(
-                              title: "\$149.99",
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            Spacer(),
-                            QuantityButton(
-                              buttonSize: 1.5,
-                              buttonCircularSize: 2.0,
-                              spacing: 3.5,
-                              textSize: AppSize.height(height: 1.5),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return SizedBox(height: AppSize.height(height: 2.0));
+              },
             );
-          },
-          separatorBuilder: (context, index) {
-            return SizedBox(height: AppSize.height(height: 2.0));
           },
         ),
       ),
@@ -126,10 +123,10 @@ class MyCartView extends GetView<MyCartController> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black.withAlpha((0.2 * 255).toInt()),
               spreadRadius: 3,
               blurRadius: 8,
-              offset: const Offset(0, 2), // changes position of shadow
+              offset: Offset(0, 2), // changes position of shadow
             ),
           ],
         ),
@@ -142,9 +139,9 @@ class MyCartView extends GetView<MyCartController> {
           ),
           child: AppCommonButton(
             onPressed: () {
-              Get.toNamed(Routes.checkoutView);
+              Get.toNamed(Routes.checkoutView);  // Navigate to checkout view
             },
-            title: "${AppStaticKey.checkout} : \$449.97",
+            title: "Checkout: \$${controller.totalAmount.value}",
             style: Theme.of(context).textTheme.titleMedium!.copyWith(
               fontSize: AppSize.height(height: 2.0),
               color: AppColors.white,

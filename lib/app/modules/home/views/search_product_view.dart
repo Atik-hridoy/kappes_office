@@ -9,8 +9,9 @@ import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SearchProductView extends GetView<SearchProductViewController>{
+class SearchProductView extends GetView<SearchProductViewController> {
   const SearchProductView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,61 +27,91 @@ class SearchProductView extends GetView<SearchProductViewController>{
         padding: EdgeInsets.all(AppSize.height(height: 2.0)),
         child: SingleChildScrollView(
           child: Column(
-            spacing: AppSize.height(height: 1.0),
             children: [
-              SearchBox(title: AppStaticKey.searchProduct),
+              SearchBox(
+                title: AppStaticKey.searchProduct,
+                onSearch: (value) {
+                  // Trigger the search when the user types something
+                  controller.searchProducts(name: value);
+                },
+              ),
               Divider(color: AppColors.lightGray),
               Row(
                 children: [
-                  /// filter icon
+                  // Filter icon
                   ImageIcon(
                     AssetImage(AppIcons.filter2),
                     size: AppSize.height(height: 2.0),
                   ),
-                  SizedBox(width: AppSize.width(width: 2.0),),
+                  SizedBox(width: AppSize.width(width: 2.0)),
                   AppText(
                     title: AppStaticKey.filter,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
                   ),
-
                   Spacer(),
-
-                  /// sort icon
+                  // Sort icon
                   ImageIcon(
                     AssetImage(AppIcons.sort),
                     size: AppSize.height(height: 2.0),
                   ),
-                  SizedBox(width: AppSize.width(width: 2.0),),
+                  SizedBox(width: AppSize.width(width: 2.0)),
                   AppText(
                     title: AppStaticKey.sort,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
               Divider(color: AppColors.lightGray),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Number of columns
-                  mainAxisSpacing: AppSize.height(height: 2.0),
-                  crossAxisSpacing: AppSize.height(height: 2.0),
-                  childAspectRatio: 0.65, // Adjust to fit your design
-                ),
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      // Get.toNamed(AppRoutes.productDetailsScreen);
-                    },
-                   // child: ProductCard(),
+
+              // Grid View to display search results
+              Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (controller.errorMessage.isNotEmpty) {
+                  return Center(
+                    child: Text(
+                      controller.errorMessage.value,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
                   );
-                },
-              ),
+                }
+
+                if (controller.searchResults.isEmpty) {
+                  return const Center(
+                    child: Text("No products found."),
+                  );
+                }
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Number of columns
+                    mainAxisSpacing: AppSize.height(height: 2.0),
+                    crossAxisSpacing: AppSize.height(height: 2.0),
+                    childAspectRatio: 0.65, // Adjust to fit your design
+                  ),
+                  itemCount: controller.searchResults.length,
+                  itemBuilder: (context, index) {
+                    final product = controller.searchResults[index];
+                    return InkWell(
+                      onTap: () {
+                        // Navigate to the product details page when clicked
+                        // Get.toNamed(AppRoutes.productDetailsScreen, arguments: product);
+                      },
+                      child: ProductCard(
+                        imageUrl: product.images.isNotEmpty ? product.images[0] : '',
+                        title: product.name,
+                        price: product.basePrice.toString(),
+                        productId: product.id,
+                      ),
+                    );
+                  },
+                );
+              }),
             ],
           ),
         ),

@@ -1,4 +1,4 @@
-import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -7,11 +7,16 @@ import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../controllers/search_location_view_controller.dart';
 
-class SearchLocationView extends GetView {
+class SearchLocationView extends GetView<SearchLocationViewController> {
   const SearchLocationView({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(SearchLocationViewController());
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -26,20 +31,21 @@ class SearchLocationView extends GetView {
           padding: EdgeInsets.all(AppSize.height(height: 2.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSize.height(height: 2.0),
             children: [
-              SearchBox(title: AppStaticKey.searchLocation),
+              SearchBox(
+                title: AppStaticKey.searchLocation,
+                controller: controller.searchController,
+              ),
               SizedBox(
                 width: double.maxFinite,
                 height: AppSize.height(height: 6.0),
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: controller.useCurrentLocation,
                   label: AppText(
                     title: AppStaticKey.useCurrentLocation,
                     style: TextStyle(color: AppColors.white),
                   ),
                   icon: Icon(Icons.my_location, color: AppColors.white),
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -50,6 +56,7 @@ class SearchLocationView extends GetView {
                   ),
                 ),
               ),
+              SizedBox(height: AppSize.height(height: 2.0)),
               Container(
                 height: AppSize.height(height: 30.0),
                 width: double.maxFinite,
@@ -63,7 +70,18 @@ class SearchLocationView extends GetView {
                   borderRadius: BorderRadius.circular(
                     AppSize.height(height: 1.0),
                   ),
-                  child: Image.asset(AppImages.map, fit: BoxFit.cover),
+                  child: _buildMap(context),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: controller.toggleMapType,
+                  icon: Icon(Icons.map, color: AppColors.primary),
+                  label: Text(
+                    "Switch Map Type",
+                    style: TextStyle(color: AppColors.primary),
+                  ),
                 ),
               ),
               Container(
@@ -75,19 +93,26 @@ class SearchLocationView extends GetView {
                   ),
                   border: Border.all(color: AppColors.lightGray),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      title: "Toronto, Canada",
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    AppText(
-                      title: "43.651070, -79.347015",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+                child: Obx(() {
+                  final marker = controller.selectedMarker.value;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        title: marker != null
+                            ? "Selected Location"
+                            : "Toronto, Canada",
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      AppText(
+                        title: marker != null
+                            ? "${marker.position.latitude}, ${marker.position.longitude}"
+                            : "43.651070, -79.347015",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  );
+                }),
               ),
               AppText(
                 title: AppStaticKey.recentLocations,
@@ -97,77 +122,27 @@ class SearchLocationView extends GetView {
                   letterSpacing: 0.0,
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(AppSize.height(height: 1.5)),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    AppSize.height(height: 1.5),
-                  ),
-                  border: Border.all(color: AppColors.lightGray),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      title: "Vancouver, Canada",
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    AppText(
-                      title: "49.282730, -123.120735",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+              _buildLocationItem(
+                title: "Vancouver, Canada",
+                coordinates: "49.282730, -123.120735",
               ),
-              Container(
-                padding: EdgeInsets.all(AppSize.height(height: 1.5)),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    AppSize.height(height: 1.5),
-                  ),
-                  border: Border.all(color: AppColors.lightGray),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      title: "Montreal, Canada",
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    AppText(
-                      title: "45.501690, -73.567253",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+              _buildLocationItem(
+                title: "Montreal, Canada",
+                coordinates: "45.501690, -73.567253",
               ),
-              Container(
-                padding: EdgeInsets.all(AppSize.height(height: 1.5)),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    AppSize.height(height: 1.5),
-                  ),
-                  border: Border.all(color: AppColors.lightGray),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      title: "Calgary, Canada",
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    AppText(
-                      title: "51.044270, -114.062019",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+              _buildLocationItem(
+                title: "Calgary, Canada",
+                coordinates: "51.044270, -114.062019",
               ),
               AppCommonButton(
-                onPressed: () {},
+                onPressed: () {
+                  final marker = controller.selectedMarker.value;
+                  if (marker != null) {
+                    Get.back(result: marker.position);
+                  } else {
+                    Get.snackbar("Error", "Please select a location first");
+                  }
+                },
                 title: AppStaticKey.confirmLocation,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   color: AppColors.white,
@@ -178,6 +153,62 @@ class SearchLocationView extends GetView {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMap(BuildContext context) {
+    final controller = Get.find<SearchLocationViewController>();
+
+    return Obx(() {
+      final camPos =
+          controller.dynamicCameraPosition.value ?? controller.initialCameraPosition;
+
+      return GoogleMap(
+        onMapCreated: controller.onMapCreated,
+        initialCameraPosition: camPos,
+        mapType: controller.mapType.value,
+        markers: controller.selectedMarker.value != null
+            ? {controller.selectedMarker.value!}
+            : {},
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        compassEnabled: true,
+        mapToolbarEnabled: true,
+        zoomControlsEnabled: true,
+        scrollGesturesEnabled: true,
+        zoomGesturesEnabled: true,
+        tiltGesturesEnabled: true,
+        rotateGesturesEnabled: true,
+      );
+    });
+  }
+
+  Widget _buildLocationItem({
+    required String title,
+    required String coordinates,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(AppSize.height(height: 1.5)),
+      width: double.maxFinite,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+          AppSize.height(height: 1.5),
+        ),
+        border: Border.all(color: AppColors.lightGray),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            title: title,
+            style: Theme.of(Get.context!).textTheme.titleSmall,
+          ),
+          AppText(
+            title: coordinates,
+            style: Theme.of(Get.context!).textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }

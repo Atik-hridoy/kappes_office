@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
-import '../../../data/netwok/product_details/product_details_service.dart';
+import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import '../../../model/recomended_product_model.dart';
+
 
 class ProductDetailsController extends GetxController {
   final ProductDetailsService _productDetailsService = ProductDetailsService();
@@ -10,39 +11,39 @@ class ProductDetailsController extends GetxController {
   RxString selectColor = RxString('white');
   RxString selectedProductSize = RxString('S');
 
-
-
-  Future<void> onAppInitialDataLoadFunction()async {
-try{
-  final String productId = Get.arguments;
-  fetchProductDetails(productId);
-  }catch(e){
-  print("object $e");
-}
+  Future<void> onAppInitialDataLoadFunction() async {
+    try {
+      // Fetching the productId from Get.arguments (passed from the view)
+      final String productId = Get.arguments;
+      print('📤 Fetching details for Product ID: $productId');
+      await fetchProductDetails(productId);
+    } catch (e) {
+      print("Error: $e");
+      Get.snackbar('Error', 'Failed to load product details');
+    }
   }
 
   @override
   void onInit() {
-    onAppInitialDataLoadFunction();
     super.onInit();
-    // You can pass the product ID from the view, like `Get.arguments`
-
+    onAppInitialDataLoadFunction();  // Load data when the controller is initialized
   }
 
   Future<void> fetchProductDetails(String id) async {
     try {
+      print('🔄 Fetching product details...');
       isLoading.value = true;
       final response = await _productDetailsService.getProductById(id);
-      product.value = ProductData.fromJson(response);
+      print('✅ Product details fetched successfully');
 
-      print(response) ;
+      // Assuming you have a ProductData model to parse the response data
+      product.value = ProductData.fromJson(response);  // Parse the fetched data into your model
+      print('Product Details: ${product.value?.name}');  // Print the fetched product name
     } catch (e) {
-      // Handle error, you can display an error message
-      print('Error fetching product details: $e');
+      print('❌ Error fetching product details: $e');
+      Get.snackbar('Error', 'Failed to fetch product details');
     } finally {
       isLoading.value = false;
     }
   }
-
-
 }

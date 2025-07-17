@@ -1,12 +1,10 @@
-import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/notification/widgets/notification_card.dart';
-import 'package:canuck_mall/app/themes/app_colors.dart';
-import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../controllers/notification_controller.dart';
+import 'package:canuck_mall/app/modules/notification/controllers/notification_controller.dart';
+import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
+import 'package:canuck_mall/app/themes/app_colors.dart';
+import 'package:canuck_mall/app/utils/app_size.dart';
 
 class NotificationView extends GetView<NotificationController> {
   const NotificationView({super.key});
@@ -16,11 +14,17 @@ class NotificationView extends GetView<NotificationController> {
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
-        title: AppText(
-          title: AppStaticKey.notifications,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        title: Text('Notifications'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.mark_email_read),
+            onPressed: () {
+              // Trigger mark all as read
+              controller.markAllAsRead();
+            },
+          ),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -53,8 +57,8 @@ class NotificationView extends GetView<NotificationController> {
 
             return NotificationCard(
               title: item['title'] ?? 'No title',
-              body: item['body'] ?? 'No body',
-              isRead: item['isRead'] ?? false,
+              body: item['message'] ?? 'No body',
+              isRead: item['read'] ?? false,
             );
           },
         );

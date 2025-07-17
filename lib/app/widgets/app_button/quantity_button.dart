@@ -8,7 +8,8 @@ class QuantityButton extends StatefulWidget {
   final double? buttonCircularSize;
   final double? spacing;
   final double? textSize;
-  const QuantityButton({super.key, this.buttonSize, this.spacing, this.textSize,this.buttonCircularSize});
+  final ValueChanged<int>? onChanged;
+  const QuantityButton({super.key, this.buttonSize, this.spacing, this.textSize,this.buttonCircularSize, this.onChanged});
 
   @override
   State<QuantityButton> createState() => _QuantityButtonState();
@@ -38,6 +39,7 @@ class _QuantityButtonState extends State<QuantityButton> {
                setState(() {
                  --quantity;
                });
+               widget.onChanged?.call(quantity);
              }
             },
             borderRadius: BorderRadius.circular(
@@ -61,6 +63,7 @@ class _QuantityButtonState extends State<QuantityButton> {
               setState(() {
                 ++quantity;
               });
+              widget.onChanged?.call(quantity);
             },
             borderRadius: BorderRadius.circular(
               AppSize.height(height: 100.0),

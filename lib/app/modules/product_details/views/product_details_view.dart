@@ -31,7 +31,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
         centerTitle: true,
         actions: [
           Tipple(
-            onTap: () {},
+            onTap: () {
+              // AppUtils.appLog("Hello world!");
+            },
             height: AppSize.height(height: 5.0),
             width: AppSize.height(height: 5.0),
             borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
@@ -58,25 +60,20 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           return const Center(child: Text('Product not found'));
         }
 
-        final images = product.images;
-        final imageUrl =
-            images.isNotEmpty
-                ? "${AppUrls.imageUrl}${images.first}"
-                : AppImages.banner3;
+        final imageUrl = product.images.isNotEmpty
+            ? "${AppUrls.imageUrl}${product.images.first}"
+            : AppImages.banner3;
 
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSize.height(height: 2.0),
-          ),
+          padding: EdgeInsets.symmetric(horizontal: AppSize.height(height: 2.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Product Image
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      AppSize.height(height: 1.5),
-                    ),
+                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
                     child: AppImage(
                       imagePath: imageUrl,
                       width: double.infinity,
@@ -87,49 +84,52 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Positioned(
                     top: AppSize.height(height: 1.5),
                     right: AppSize.width(width: 2.0),
-                    child: Obx(() {
-                      return InkWell(
-                        onTap: () {
-                          controller.isFavourite.value =
-                              !controller.isFavourite.value;
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(AppSize.height(height: 0.5)),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(
-                              AppSize.height(height: 100.0),
-                            ),
-                          ),
-                          child: Icon(
-                            controller.isFavourite.value
-                                ? Icons.favorite_outlined
-                                : Icons.favorite_border,
-                            size: AppSize.height(height: 2.5),
-                            color:
-                                controller.isFavourite.value
-                                    ? AppColors.lightRed
-                                    : null,
-                          ),
+                    child: InkWell(
+                      onTap: () {
+                        controller.isFavourite.value =
+                        !controller.isFavourite.value;
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(AppSize.height(height: 0.5)),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
                         ),
-                      );
-                    }),
+                        child: Icon(
+                          controller.isFavourite.value
+                              ? Icons.favorite_outlined
+                              : Icons.favorite_border,
+                          size: AppSize.height(height: 2.5),
+                          color: controller.isFavourite.value
+                              ? AppColors.lightRed
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: AppSize.height(height: 1.5)),
+
+              // Product Name
               AppText(
                 title: product.name,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
                 ),
               ),
               SizedBox(height: AppSize.height(height: 0.5)),
+
+              // Rating & Reviews
               InkWell(
                 onTap: () {
                   Get.toNamed(Routes.reviews, arguments: product.id);
                 },
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 child: Row(
                   children: [
                     Icon(
@@ -157,6 +157,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ),
               ),
               SizedBox(height: AppSize.height(height: 0.5)),
+
+              // Product Price
               Row(
                 children: [
                   AppText(
@@ -170,8 +172,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   if (product.productVariantDetails.isNotEmpty) ...[
                     SizedBox(width: AppSize.width(width: 2.0)),
                     AppText(
-                      title:
-                          "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
+                      title: "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: AppSize.height(height: 2.0),
                         decoration: TextDecoration.lineThrough,
@@ -182,75 +183,70 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ],
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
-              Padding(
-                padding: EdgeInsets.only(bottom: AppSize.height(height: 1.0)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        AppSize.height(height: 100.0),
-                      ),
-                      child: AppImage(
-                        imagePath: AppUrls.imageUrl + product.shop.logo,
-                        height: AppSize.height(height: 5.5),
-                        width: AppSize.height(height: 5.5),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    SizedBox(width: AppSize.width(width: 2.0)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText(
-                            title: product.shop.name,
-                            style: Theme.of(context).textTheme.titleSmall!
-                                .copyWith(fontWeight: FontWeight.w900),
-                          ),
-                          AppText(
-                            title: product.shop.address.country,
-                            // You can modify this dynamically as well
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        print('[ProductDetailsView] Navigating to storeId: ${product.shop.id}');
-                        Get.toNamed(Routes.store, arguments: product.shop.id); // Pass storeId as arguments
-                      },
-                      borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSize.height(height: 1.2),
-                          vertical: AppSize.height(height: 0.8),
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
-                        ),
-                        child: AppText(
-                          title: AppStaticKey.visitStore,
-                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: AppColors.white,
-                            fontSize: AppSize.height(height: 1.5),
-                          ),
-                        ),
-                      ),
-                    ),
 
-                  ],
-                ),
-              ),
+              // Shop Details
               Divider(color: AppColors.lightGray),
-              SizedBox(height: AppSize.height(height: 0.5)),
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
+                    child: AppImage(
+                      imagePath: AppUrls.imageUrl + product.shop.logo,
+                      height: AppSize.height(height: 5.5),
+                      width: AppSize.height(height: 5.5),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(width: AppSize.width(width: 2.0)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        title: product.shop.name,
+                        style: Theme.of(context).textTheme.titleSmall!
+                            .copyWith(fontWeight: FontWeight.w900),
+                      ),
+                      AppText(
+                        title: product.shop.address.country,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  InkWell(
+                    onTap: () {
+                      print('[ProductDetailsView] Navigating to store with ID: ${product.shop.id}');
+                      Get.toNamed(Routes.store, arguments: product.shop.id); // Pass store ID as arguments
+                    },
+                    borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
+                    child: Container(
+                      padding: EdgeInsets.all(AppSize.height(height: 0.8)),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
+                      ),
+                      child: AppText(
+                        title: AppStaticKey.visitStore,
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          color: AppColors.white,
+                          fontSize: AppSize.height(height: 1.5),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Divider(color: AppColors.lightGray),
+
+              // Description
               AppText(
                 title: AppStaticKey.description,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
                 ),
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
@@ -259,6 +255,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
+
+              // Color Palette
               Divider(color: AppColors.lightGray),
               SizedBox(height: AppSize.height(height: 0.5)),
               AppText(
@@ -266,138 +264,134 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
                 ),
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
               Obx(() {
                 return Row(
-                  children:
-                      product.productVariantDetails.map((variant) {
-                        return ColorPalette(
-                          value: variant.variantId.color.name,
-                          group: controller.selectColor.value,
-                          onChanged:
-                              (value) => controller.selectColor.value = value,
-                          color: Color(
-                            int.tryParse(
-                                  variant.variantId.color.code,
-                                  radix: 16,
-                                ) ??
-                                0,
-                          ),
-                        );
-                      }).toList(),
+                  children: product.productVariantDetails.map((variant) {
+                    final color = Color(int.parse(variant.variantId.color.code.replaceAll('#', '0x')));
+                    return ColorPalette(
+                      onChanged: (value) {
+                        controller.selectColor.value = value;
+                      },
+                      value: variant.variantId.color.name,
+                      group: controller.selectColor.value,
+                      color: color,
+                    );
+                  }).toList(),
                 );
               }),
-              SizedBox(height: AppSize.height(height: 2.0)),
+              SizedBox(height: AppSize.height(height: 3.0)),
+
+              // Size Selector (dynamically fetched)
               AppText(
                 title: "${AppStaticKey.size}:",
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
                 ),
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
               Obx(() {
                 return Row(
-                  children:
-                      ['S', 'M', 'L'].map((size) {
-                        return ProductSizeSelector(
-                          value: size,
-                          group: controller.selectedProductSize.value,
-                          onChanged:
-                              (val) =>
-                                  controller.selectedProductSize.value = val,
-                        );
-                      }).toList(),
+                  children: product.productVariantDetails.map((variant) {
+                    return ProductSizeSelector(
+                      value: variant.variantId.size,
+                      group: controller.selectedProductSize.value,
+                      onChanged: (value) {
+                        controller.selectedProductSize.value = value;
+                      },
+                    );
+                  }).toList(),
                 );
               }),
-              SizedBox(height: AppSize.height(height: 1.5)),
+              SizedBox(height: AppSize.height(height: 1.0)),
+
+              // Quantity Selector
+              Divider(color: AppColors.lightGray),
+              SizedBox(height: AppSize.height(height: 0.5)),
               AppText(
                 title: "${AppStaticKey.quantity}:",
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
                 ),
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
               QuantityButton(),
-              SizedBox(height: AppSize.height(height: 3.0)),
+              SizedBox(height: AppSize.height(height: 0.5)),
+              Divider(color: AppColors.lightGray),
             ],
           ),
         );
       }),
-      bottomNavigationBar: Obx(() {
-        final product = controller.product.value;
-        if (product == null) return const SizedBox();
-
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(AppSize.height(height: 2.0)),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(AppSize.height(height: 2.0)),
+            topRight: Radius.circular(AppSize.height(height: 2.0)),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 8,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 3,
-                blurRadius: 8,
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppCommonButton(
+                onPressed: () {},
+                title: AppStaticKey.sendMessageToSeller,
+                backgroundColor: AppColors.white,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: AppSize.height(height: 2.0),
+                  color: AppColors.primary,
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppCommonButton(
+                      onPressed: () {},
+                      title: AppStaticKey.addToCart,
+                      backgroundColor: AppColors.white200,
+                      borderColor: AppColors.lightGray,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontSize: AppSize.height(height: 2.0),
+                        color: AppColors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: AppSize.width(width: 3.0)),
+                  Expanded(
+                    child: AppCommonButton(
+                      onPressed: () {
+                        Get.toNamed(Routes.myCart);
+                      },
+                      title: AppStaticKey.buyNow,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontSize: AppSize.height(height: 2.0),
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          child: Padding(
-            padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppCommonButton(
-                  onPressed: () {},
-                  title: AppStaticKey.sendMessageToSeller,
-                  backgroundColor: AppColors.white,
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    color: AppColors.primary,
-                  ),
-                ),
-                SizedBox(height: AppSize.height(height: 1.0)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppCommonButton(
-                        onPressed: () {},
-                        title: AppStaticKey.addToCart,
-                        backgroundColor: AppColors.white200,
-                        borderColor: AppColors.lightGray,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium!.copyWith(
-                          fontSize: AppSize.height(height: 2.0),
-                          color: AppColors.black,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: AppSize.width(width: 3.0)),
-                    Expanded(
-                      child: AppCommonButton(
-                        onPressed: () {
-                          Get.toNamed(Routes.myCart);
-                        },
-                        title: AppStaticKey.buyNow,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium!.copyWith(
-                          fontSize: AppSize.height(height: 2.0),
-                          color: AppColors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }

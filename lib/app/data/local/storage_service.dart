@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../routes/app_pages.dart';
 import '../../utils/log/app_log.dart';
@@ -39,15 +38,6 @@ class LocalStorage {
     appLog(userId, source: "Local Storage");
   }
 
-  // /// Remove All Data From SharedPreferences
-  // static Future<void> removeAllPrefData() async {
-  //   final localStorage = await _getStorage();
-  //   await localStorage.clear();
-  //   _resetLocalStorageData();
-  //   Get.offAllNamed(Routes.login);
-  //   await getAllPrefData();
-  // }
-
   // Reset LocalStorage Data
   static void _resetLocalStorageData() {
     final localStorage = preferences!;
@@ -71,4 +61,12 @@ class LocalStorage {
     final localStorage = await _getStorage();
     await localStorage.setBool(key, value);
   }
+
+  // Get Data From SharedPreferences (Retrieve string values)
+  static Future<String> getString(String key) async {
+    final localStorage = await _getStorage();
+    return localStorage.getString(key) ?? '';  // Return empty string if the value is not found
+  }
+
+// Optionally, you can add similar methods for retrieving other types like bool, int, etc.
 }

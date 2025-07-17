@@ -5,11 +5,11 @@ import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/widgets/product_card.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/trending_products_view_controller.dart';
+import 'package:canuck_mall/app/widgets/product_card.dart';
 
 
 class TrendingProductsView extends GetView<TrendingProductsController> {
