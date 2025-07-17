@@ -6,42 +6,41 @@ import '../../../model/recomended_product_model.dart';
 class ProductDetailsController extends GetxController {
   final ProductDetailsService _productDetailsService = ProductDetailsService();
   Rx<ProductData?> product = Rx<ProductData?>(null);
-  RxBool isLoading = RxBool(false);
+  RxBool isLoading = RxBool(true);
   RxBool isFavourite = RxBool(false);
   RxString selectColor = RxString('white');
   RxString selectedProductSize = RxString('S');
 
-  Future<void> onAppInitialDataLoadFunction() async {
-    try {
-      // Fetching the productId from Get.arguments (passed from the view)
-      final String productId = Get.arguments;
-      print('📤 Fetching details for Product ID: $productId');
-      await fetchProductDetails(productId);
-    } catch (e) {
-      print("Error: $e");
-      Get.snackbar('Error', 'Failed to load product details');
-    }
-  }
 
   @override
   void onInit() {
     super.onInit();
-    onAppInitialDataLoadFunction();  // Load data when the controller is initialized
+    final productId = Get.arguments as String;
+    print('🔄 Initializing ProductDetailsController with product ID: $productId');
+    if (productId.isNotEmpty) {
+      fetchProductDetails(productId);
+    } else {
+      print('❌ No product ID provided');
+      Get.back();
+    }
   }
 
   Future<void> fetchProductDetails(String id) async {
     try {
-      print('🔄 Fetching product details...');
+      print('🔄 Fetching product details for ID: $id');
       isLoading.value = true;
       final response = await _productDetailsService.getProductById(id);
       print('✅ Product details fetched successfully');
 
-      // Assuming you have a ProductData model to parse the response data
-      product.value = ProductData.fromJson(response);  // Parse the fetched data into your model
-      print('Product Details: ${product.value?.name}');  // Print the fetched product name
+      product.value = ProductData.fromJson(response);
+      print('📦 Product Name: ${product.value?.name}');
     } catch (e) {
       print('❌ Error fetching product details: $e');
-      Get.snackbar('Error', 'Failed to fetch product details');
+      Get.snackbar(
+        'Error',
+        'Failed to fetch product details',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }

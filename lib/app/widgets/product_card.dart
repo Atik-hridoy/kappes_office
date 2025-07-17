@@ -7,12 +7,15 @@ import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants/app_urls.dart';
+
 class ProductCard extends StatefulWidget {
   final bool? isSaved;
   final String imageUrl;
   final String title;
   final String price;
   final String productId;
+  final Function() onTap;
 
   const ProductCard({
     super.key,
@@ -21,6 +24,7 @@ class ProductCard extends StatefulWidget {
     required this.title,
     required this.price,
     required this.productId,
+    required this.onTap,
   });
 
   @override
@@ -39,17 +43,11 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        print('🟢 Navigating to product with ID: ${widget.productId}');
-        Get.toNamed(
-          Routes.productDetails,
-          arguments: widget.productId,
-        );
-      },
+      onTap: widget.onTap,
       borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 0,
+        constraints: BoxConstraints(
+          minHeight: AppSize.height(height: 20.0),  // Give a minimum height
           maxHeight: double.infinity,
         ),
         child: Container(
@@ -73,6 +71,7 @@ class _ProductCardState extends State<ProductCard> {
                       width: double.infinity,
                       child: AppImage(
                         imagePath: widget.imageUrl,
+
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -109,6 +108,7 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ],
               ),
+              // Wrap the rest of the content inside a flexible widget
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.all(AppSize.height(height: 1.0)),

@@ -9,6 +9,8 @@ import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../routes/app_pages.dart';
+
 class SearchProductView extends GetView<SearchProductViewController> {
   const SearchProductView({super.key});
 
@@ -107,6 +109,9 @@ class SearchProductView extends GetView<SearchProductViewController> {
                         title: product.name,
                         price: product.basePrice.toString(),
                         productId: product.id,
+                        onTap: () {
+                          Get.toNamed(Routes.productDetails, arguments: product.id);
+                        },
                       ),
                     );
                   },

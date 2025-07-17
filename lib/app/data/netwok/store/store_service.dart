@@ -33,7 +33,20 @@ class StoreService {
 
       if (response.statusCode == 200 && response.data['success']) {
         print('[StoreService] Successfully fetched products');
-        return response.data['data']['products'];  // Return product list
+        final products = response.data['data']['products'];
+        // Fetch images for each product and add as 'imageUrls' field
+        if (products is List) {
+          for (var product in products) {
+            if (product is Map && product['images'] != null && product['images'] is List) {
+              product['imageUrls'] = (product['images'] as List)
+                  .map((img) => img.toString())
+                  .toList();
+            } else {
+              product['imageUrls'] = [];
+            }
+          }
+        }
+        return products;
       } else {
         print('[StoreService] Failed to fetch products');
         throw Exception('Failed to fetch products');
@@ -42,5 +55,12 @@ class StoreService {
       print('[StoreService] Error fetching products: $e');
       throw Exception('Error fetching products');
     }
+  }
+
+  /// Fetch image url for a given path (shop logo or cover)
+  Future<String> fetchImage(String? path) async {
+    if (path == null || path.isEmpty) return '';
+    if (path.startsWith('http')) return path;
+    return '${AppUrls.baseUrl}$path';
   }
 }

@@ -130,17 +130,20 @@ class StoreView extends GetView<StoreController> {
                 itemCount: controller.products.length,
                 itemBuilder: (context, index) {
                   final product = controller.products[index];
-                  return InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.productDetails, arguments: product['id']);
-                    },
-                    child: ProductCard(
-                      imageUrl: controller.getImageUrl(product['images'][0]),
+                  print('==================>>> Product: $product');
+                  return
+                     ProductCard(
+                      imageUrl: product['imageUrls'] != null && product['imageUrls'].isNotEmpty
+                          ? product['imageUrls'][0]
+                          : controller.getImageUrl(product['images'][0]),
                       title: product['name'],
                       price: product['basePrice'].toString(),
-                      productId: product['id'],
-                    ),
-                  );
+                      productId: product['_id'],
+                       onTap: () {
+                         Get.toNamed(Routes.productDetails, arguments: product['_id']);
+                       },
+                    );
+
                 },
               )
                   : Center(child: Text('No products available')),

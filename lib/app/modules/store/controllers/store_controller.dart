@@ -67,10 +67,29 @@ class StoreController extends GetxController {
       print('[StoreController] Fetching products for Shop ID: $shopId');
       final productData = await _storeService.fetchProductsByShopId(shopId);
 
-      products.clear();  // Clear existing products
-      products.addAll(productData);  // Add the new products
-      update();  // Trigger UI update after products are fetched
-      print('[StoreController] Products fetched successfully: $productData');
+      // Ensure productData is always a List
+      List<dynamic> productsList;
+      if (productData is List) {
+        productsList = productData;
+      } else if (productData is Map) {
+        productsList = [productData];
+      } else {
+        productsList = [];
+      }
+
+      products.clear();
+      products.addAll(productsList);
+      update();
+      print('[StoreController] Products fetched successfully.');
+      print('================= FETCHED PRODUCT IDs =================');
+      if (productsList.isEmpty) {
+        print('No products found.');
+      } else {
+        for (var p in productsList) {
+          print('  🆔 Product ID: \x1B[32m${p['id']}\x1B[0m');
+        }
+      }
+      print('======================================================');
     } catch (e) {
       print('[StoreController] Error fetching products: $e');
     }

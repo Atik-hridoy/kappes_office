@@ -45,6 +45,9 @@ class SavedView extends GetView<SavedController> {
                 title: 'Sample Product', // Provide a sample or actual product name
                 price: '0.00', // Provide a sample or actual price
                 productId: 'sample_id', // Provide a sample or actual product ID
+                onTap: () {
+                  // Handle product card tap
+                },
               ),
             );
           },

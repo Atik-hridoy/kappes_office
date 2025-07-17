@@ -96,6 +96,10 @@ class RecommendedProductView extends GetView<RecommendedProductController> {
                           title: product['name'] ?? '',
                           price: product['basePrice']?.toString() ?? '0.00',
                           productId: product['_id'], // ✅ Pass product ID
+                          onTap: () {
+                            Get.toNamed(Routes.productDetails, arguments: product['_id']);
+                          },
+
                         );
                       },
                     ),
