@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 
 class ReviewCard extends StatelessWidget {
-  const ReviewCard({super.key});
+  const ReviewCard({super.key, required review});
 
   @override
   Widget build(BuildContext context) {

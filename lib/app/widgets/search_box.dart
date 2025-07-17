@@ -13,6 +13,7 @@ class SearchBox extends StatelessWidget {
   final double? circularRadius;
   final VoidCallback? onPressed;
   final TextEditingController? controller; // ✅ NEW
+  final ValueChanged<String>? onSearch; // ✅ NEW
 
   const SearchBox({
     super.key,
@@ -24,6 +25,7 @@ class SearchBox extends StatelessWidget {
     this.iconSize,
     this.circularRadius,
     this.controller, // ✅ NEW
+    this.onSearch, // ✅ NEW
   });
 
   @override
@@ -35,6 +37,7 @@ class SearchBox extends StatelessWidget {
         onTap: onPressed,
         readOnly: redOnly,
         enabled: isEnable,
+        onSubmitted: onSearch, // ✅ Call onSearch when the user submits
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(left: AppSize.height(height: 2.0)),
           hintText: title ?? AppStaticKey.search,

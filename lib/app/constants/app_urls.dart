@@ -16,6 +16,7 @@ abstract class AppUrls {
   static const String recommendedProducts = '/product/recommended';
   static const String trendingProduct = '/product';
 
+
   // User endpoints
   static const String profile = '/users/profile';
   static const String myOrders = '/order/my-orders';
@@ -37,9 +38,12 @@ abstract class AppUrls {
   static const String order = 'order/my-orders';
 
   // product details
-  static const String getProduct = '/product/6858dafad21add59c265e18e';
+  static const String getProduct = '/product';
+  static const String getProductByShopId = '/shop/products';
   static const String getReviews = '/review/product/6858dafad21add59c265e18e';
-  static const String getShop = '/shop/685806ee0d8150920d3662a5';
+  static const String getShop = '/shop';
+  static const String searchProduct = 'product?fields=name&name | description | tag=';
+  static const String review = 'review/product/6858dafad21add59c265e18e';
 
   // shopssssssssssssssssssssssssssss
 

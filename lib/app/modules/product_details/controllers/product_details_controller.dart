@@ -1,9 +1,6 @@
 import 'package:get/get.dart';
-import '../../../data/local/storage_service.dart';
-import '../../../data/netwok/product_details/product_details_service.dart';
+import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import '../../../model/recomended_product_model.dart';
-import '../../../data/netwok/my_cart/my_cart_service.dart';
-import '../../../routes/app_pages.dart';
 
 
 class ProductDetailsController extends GetxController {
@@ -16,67 +13,37 @@ class ProductDetailsController extends GetxController {
 
   Future<void> onAppInitialDataLoadFunction() async {
     try {
+      // Fetching the productId from Get.arguments (passed from the view)
       final String productId = Get.arguments;
-      fetchProductDetails(productId);
+      print('📤 Fetching details for Product ID: $productId');
+      await fetchProductDetails(productId);
     } catch (e) {
-      print("object $e");
+      print("Error: $e");
+      Get.snackbar('Error', 'Failed to load product details');
     }
   }
 
   @override
   void onInit() {
-    onAppInitialDataLoadFunction();
     super.onInit();
-
+    onAppInitialDataLoadFunction();  // Load data when the controller is initialized
   }
 
   Future<void> fetchProductDetails(String id) async {
     try {
+      print('🔄 Fetching product details...');
       isLoading.value = true;
       final response = await _productDetailsService.getProductById(id);
-      product.value = ProductData.fromJson(response);
+      print('✅ Product details fetched successfully');
 
-      print(response);
+      // Assuming you have a ProductData model to parse the response data
+      product.value = ProductData.fromJson(response);  // Parse the fetched data into your model
+      print('Product Details: ${product.value?.name}');  // Print the fetched product name
     } catch (e) {
-      // Handle error, you can display an error message
-      print('Error fetching product details: $e');
+      print('❌ Error fetching product details: $e');
+      Get.snackbar('Error', 'Failed to fetch product details');
     } finally {
       isLoading.value = false;
-    }
-  }
-
-
-
-
-  Future<void> addToCartAndGoToCart() async {
-    try {
-      final productData = product.value;
-      print("==========================>>>>>>>>>>>  ${product.value?.id} ===================== ");
-      if (productData == null) return;
-      final token = LocalStorage.token;
-      if (token.isEmpty) {
-        Get.snackbar('Error', 'User not authenticated');
-        return;
-      }
-      final cartService = MyCartService();
-      final payload = {
-        'productId': productData.id,
-        'quantity': 1,
-        'color': selectColor.value,
-        'size': selectedProductSize.value,
-      };
-
-      print("==========================>>>>>>>>>>>  ${payload} ===================== ");
-      final success = await cartService.addToCart(token: token, cartData: payload);
-      if (success) {
-        Get.snackbar('Success', 'Product added to cart');
-        Get.toNamed(Routes.myCart);
-      } else {
-        Get.snackbar('Error', 'Could not add product to cart');
-      }
-    } catch (e) {
-      print('Error adding to cart: $e');
-      Get.snackbar('Error', 'Could not add product to cart');
     }
   }
 }

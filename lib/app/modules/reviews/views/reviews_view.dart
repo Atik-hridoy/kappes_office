@@ -23,20 +23,28 @@ class ReviewsView extends GetView<ReviewsController> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-          child: Column(
-            spacing: AppSize.height(height: 2.0),
-            children: [
-              ProgressBar(),
-              ReviewCard(),
-              ReviewCard(),
-              ReviewCard(),
-            ],
+      body: Obx(() {
+        final controller = Get.find<ReviewsController>();
+        if (controller.isLoading.value) {
+          return Center(child: ProgressBar());
+        }
+        if (controller.errorMessage.isNotEmpty) {
+          return Center(child: Text(controller.errorMessage.value));
+        }
+        if (controller.reviews.isEmpty) {
+          return Center(child: Text('No reviews found.'));
+        }
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+            child: Column(
+              children: [
+                ...controller.reviews.map((review) => ReviewCard(review: review)).toList(),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
