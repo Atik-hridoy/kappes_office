@@ -29,6 +29,7 @@ class SavedController extends GetxController {
         print('🔵 [SavedController] Wishlist items: $items');
         savedProducts.value =
             items
+                .where((item) => item['product'] != null)
                 .map<Map<String, dynamic>>(
                   (item) => item['product'] as Map<String, dynamic>,
                 )
@@ -45,6 +46,35 @@ class SavedController extends GetxController {
     } catch (e) {
       print('❌ [SavedController] Error saving product: $e');
       Get.snackbar('Error', 'Failed to save product');
+    }
+  }
+
+  Future<void> fetchSavedProducts() async {
+    print('🟢 [SavedController] Fetching wishlist products...');
+    try {
+      final response = await _savedService.fetchWishlistProducts();
+      print('🟡 [SavedController] Backend response: $response');
+      if (response != null &&
+          response['data'] != null &&
+          response['data']['items'] is List) {
+        final items = response['data']['items'] as List;
+        print('🔵 [SavedController] Wishlist items: $items');
+        savedProducts.value =
+            items
+                .map<Map<String, dynamic>>(
+                  (item) => item['product'] as Map<String, dynamic>,
+                )
+                .toList();
+        print(
+          '🟣 [SavedController] Updated local savedProducts: ${savedProducts.length} items',
+        );
+      } else {
+        print(
+          '🔴 [SavedController] Unexpected response format, could not update local list.',
+        );
+      }
+    } catch (e) {
+      print('❌ [SavedController] Error fetching wishlist products: $e');
     }
   }
 }
