@@ -60,12 +60,18 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           return const Center(child: Text('Product not found'));
         }
 
-        final imageUrl = product.images.isNotEmpty
-            ? "${AppUrls.imageUrl}${product.images.first}"
-            : AppImages.banner3;
+        // Use image URL directly if already normalized, else construct
+        final imageUrl =
+            product.images.isNotEmpty
+                ? (product.images.first.startsWith('http')
+                    ? product.images.first
+                    : AppUrls.imageUrl + product.images.first)
+                : AppImages.banner3;
 
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: AppSize.height(height: 2.0)),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSize.height(height: 2.0),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -73,7 +79,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 1.5),
+                    ),
                     child: AppImage(
                       imagePath: imageUrl,
                       width: double.infinity,
@@ -87,22 +95,25 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                     child: InkWell(
                       onTap: () {
                         controller.isFavourite.value =
-                        !controller.isFavourite.value;
+                            !controller.isFavourite.value;
                       },
                       child: Container(
                         padding: EdgeInsets.all(AppSize.height(height: 0.5)),
                         decoration: BoxDecoration(
                           color: AppColors.white,
-                          borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
+                          borderRadius: BorderRadius.circular(
+                            AppSize.height(height: 100.0),
+                          ),
                         ),
                         child: Icon(
                           controller.isFavourite.value
                               ? Icons.favorite_outlined
                               : Icons.favorite_border,
                           size: AppSize.height(height: 2.5),
-                          color: controller.isFavourite.value
-                              ? AppColors.lightRed
-                              : null,
+                          color:
+                              controller.isFavourite.value
+                                  ? AppColors.lightRed
+                                  : null,
                         ),
                       ),
                     ),
@@ -172,7 +183,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   if (product.productVariantDetails.isNotEmpty) ...[
                     SizedBox(width: AppSize.width(width: 2.0)),
                     AppText(
-                      title: "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
+                      title:
+                          "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: AppSize.height(height: 2.0),
                         decoration: TextDecoration.lineThrough,
@@ -189,9 +201,15 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 100.0),
+                    ),
                     child: AppImage(
-                      imagePath: AppUrls.imageUrl + product.shop.logo,
+                      imagePath:
+                          (product.shop.logo != null &&
+                                  product.shop.logo.startsWith('http'))
+                              ? product.shop.logo
+                              : AppUrls.imageUrl + (product.shop.logo ?? ''),
                       height: AppSize.height(height: 5.5),
                       width: AppSize.height(height: 5.5),
                       fit: BoxFit.cover,
@@ -202,12 +220,13 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppText(
-                        title: product.shop.name,
-                        style: Theme.of(context).textTheme.titleSmall!
-                            .copyWith(fontWeight: FontWeight.w900),
+                        title: product.shop.name ?? '',
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                       AppText(
-                        title: product.shop.address.country,
+                        title: product.shop.address?.country ?? '',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -215,15 +234,24 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Spacer(),
                   InkWell(
                     onTap: () {
-                      print('[ProductDetailsView] Navigating to store with ID: ${product.shop.id}');
-                      Get.toNamed(Routes.store, arguments: product.shop.id); // Pass store ID as arguments
+                      print(
+                        '[ProductDetailsView] Navigating to store with ID: ${product.shop.id}',
+                      );
+                      Get.toNamed(
+                        Routes.store,
+                        arguments: product.shop.id,
+                      ); // Pass store ID as arguments
                     },
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 0.5),
+                    ),
                     child: Container(
                       padding: EdgeInsets.all(AppSize.height(height: 0.8)),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
+                        borderRadius: BorderRadius.circular(
+                          AppSize.height(height: 0.5),
+                        ),
                       ),
                       child: AppText(
                         title: AppStaticKey.visitStore,
@@ -234,7 +262,6 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                       ),
                     ),
                   ),
-
                 ],
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
@@ -270,17 +297,36 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               SizedBox(height: AppSize.height(height: 1.0)),
               Obx(() {
                 return Row(
-                  children: product.productVariantDetails.map((variant) {
-                    final color = Color(int.parse(variant.variantId.color.code.replaceAll('#', '0x')));
-                    return ColorPalette(
-                      onChanged: (value) {
-                        controller.selectColor.value = value;
-                      },
-                      value: variant.variantId.color.name,
-                      group: controller.selectColor.value,
-                      color: color,
-                    );
-                  }).toList(),
+                  children:
+                      product.productVariantDetails.map((variant) {
+                        String code = variant.variantId.color.code;
+                        if (code.length == 7 && code.startsWith('#')) {
+                          code = code.replaceFirst('#', '0xFF');
+                        } else if (code.length == 9 && code.startsWith('#')) {
+                          code = code.replaceFirst('#', '0x');
+                        }
+                        final color = Color(int.parse(code));
+                        return Column(
+                          children: [
+                            ColorPalette(
+                              onChanged: (value) {
+                                controller.selectColor.value = value;
+                              },
+                              value: variant.variantId.color.name,
+                              group: controller.selectColor.value,
+                              color: color,
+                            ),
+                            SizedBox(height: AppSize.height(height: 0.5)),
+                            AppText(
+                              title:
+                                  variant.variantId.color.name.isNotEmpty
+                                      ? variant.variantId.color.name
+                                      : code,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        );
+                      }).toList(),
                 );
               }),
               SizedBox(height: AppSize.height(height: 3.0)),
@@ -297,15 +343,16 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               SizedBox(height: AppSize.height(height: 1.0)),
               Obx(() {
                 return Row(
-                  children: product.productVariantDetails.map((variant) {
-                    return ProductSizeSelector(
-                      value: variant.variantId.size,
-                      group: controller.selectedProductSize.value,
-                      onChanged: (value) {
-                        controller.selectedProductSize.value = value;
-                      },
-                    );
-                  }).toList(),
+                  children:
+                      product.productVariantDetails.map((variant) {
+                        return ProductSizeSelector(
+                          value: variant.variantId.size,
+                          group: controller.selectedProductSize.value,
+                          onChanged: (value) {
+                            controller.selectedProductSize.value = value;
+                          },
+                        );
+                      }).toList(),
                 );
               }),
               SizedBox(height: AppSize.height(height: 1.0)),

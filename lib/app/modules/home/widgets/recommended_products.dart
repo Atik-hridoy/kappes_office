@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/recommended_product_view_controller.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class RecommendedProducts extends StatelessWidget {
   const RecommendedProducts({super.key});
@@ -26,8 +27,12 @@ class RecommendedProducts extends StatelessWidget {
           itemBuilder: (context, index) {
             final product = controller.products[index];
             final List images = product['images'] ?? [];
+            final imageUrl =
+                images.isNotEmpty
+                    ? '${AppUrls.imageUrl}/${images[0]}'
+                    : 'https://via.placeholder.com/150';
             return ProductCard(
-              imageUrl: images.isNotEmpty ? images[0] : '',
+              imageUrl: imageUrl,
               title: product['name'] ?? '',
               price: product['basePrice']?.toString() ?? '0.00',
               productId: product['_id'],
