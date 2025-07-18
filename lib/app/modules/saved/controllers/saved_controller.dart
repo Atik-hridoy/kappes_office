@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart/saved_service.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class SavedController extends GetxController {
   RxList<Map<String, dynamic>> savedProducts = <Map<String, dynamic>>[].obs;
@@ -30,9 +31,16 @@ class SavedController extends GetxController {
         savedProducts.value =
             items
                 .where((item) => item['product'] != null)
-                .map<Map<String, dynamic>>(
-                  (item) => item['product'] as Map<String, dynamic>,
-                )
+                .map<Map<String, dynamic>>((item) {
+                  final product = item['product'] as Map<String, dynamic>;
+                  String imageUrl = '';
+                  if (product['images'] is List &&
+                      product['images'].isNotEmpty) {
+                    final firstImagePath = product['images'][0];
+                    imageUrl = AppUrls.imageUrl + firstImagePath;
+                  }
+                  return {...product, 'imageUrl': imageUrl};
+                })
                 .toList();
         print(
           '🟣 [SavedController] Updated local savedProducts: ${savedProducts.length} items',
@@ -61,9 +69,17 @@ class SavedController extends GetxController {
         print('🔵 [SavedController] Wishlist items: $items');
         savedProducts.value =
             items
-                .map<Map<String, dynamic>>(
-                  (item) => item['product'] as Map<String, dynamic>,
-                )
+                .where((item) => item['product'] != null)
+                .map<Map<String, dynamic>>((item) {
+                  final product = item['product'] as Map<String, dynamic>;
+                  String imageUrl = '';
+                  if (product['images'] is List &&
+                      product['images'].isNotEmpty) {
+                    final firstImagePath = product['images'][0];
+                    imageUrl = AppUrls.imageUrl + firstImagePath;
+                  }
+                  return {...product, 'imageUrl': imageUrl};
+                })
                 .toList();
         print(
           '🟣 [SavedController] Updated local savedProducts: ${savedProducts.length} items',
