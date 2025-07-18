@@ -40,54 +40,69 @@ class StoreView extends GetView<StoreController> {
           return const Center(child: Text('No store data found.'));
         }
 
+        // Gather all gallery/banner images if available
+        List<String> galleryImages = [];
+        if (store['gallery'] != null && store['gallery'] is List) {
+          galleryImages = List<String>.from(store['gallery']);
+        }
+        // Add cover and logo to gallery if not present
+        if (controller.shopCoverUrl.value.isNotEmpty) {
+          galleryImages.insert(0, controller.shopCoverUrl.value);
+        }
+        if (controller.shopLogoUrl.value.isNotEmpty) {
+          galleryImages.insert(0, controller.shopLogoUrl.value);
+        }
+
         return SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Store Banner and Logo
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  // Banner Image
-                  SizedBox(
-                    width: double.maxFinite,
-                    height: AppSize.height(height: 25.0),
+              // Gallery Carousel
+              if (galleryImages.isNotEmpty)
+                SizedBox(
+                  height: AppSize.height(height: 25.0),
+                  child: PageView.builder(
+                    itemCount: galleryImages.length,
+                    itemBuilder: (context, index) {
+                      return AppImage(
+                        imagePath: galleryImages[index],
+                        fit: BoxFit.cover,
+                        width: double.maxFinite,
+                        height: AppSize.height(height: 25.0),
+                      );
+                    },
+                  ),
+                ),
+              // Store Logo (as avatar)
+              Center(
+                child: CircleAvatar(
+                  radius: AppSize.height(height: 7.0),
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: AppSize.height(height: 6.5),
+                    backgroundColor: Colors.grey[200],
                     child: AppImage(
-                      imagePath: controller.shopCoverUrl.value.isNotEmpty
-                          ? controller.shopCoverUrl.value
-                          : AppImages.banner3,
+                      imagePath:
+                          controller.shopLogoUrl.value.isNotEmpty
+                              ? controller.shopLogoUrl.value
+                              : AppImages.shopLogo,
                       fit: BoxFit.cover,
+                      width: AppSize.height(height: 13.0),
+                      height: AppSize.height(height: 13.0),
                     ),
                   ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: -AppSize.height(height: 7.0),
-                    child: Center(
-                      child: CircleAvatar(
-                        radius: AppSize.height(height: 7.0),
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: AppSize.height(height: 6.5),
-                          backgroundColor: Colors.grey[200],
-                          child: AppImage(
-                            imagePath: controller.shopLogoUrl.value.isNotEmpty
-                                ? controller.shopLogoUrl.value
-                                : AppImages.shopLogo,
-                            fit: BoxFit.cover,
-                            width: AppSize.height(height: 13.0),
-                            height: AppSize.height(height: 13.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Follow Button
-                  Positioned(
-                    bottom: AppSize.height(height: 12.0),
+                ),
+              ),
+              // Follow Button
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.only(
                     right: AppSize.width(width: 8.0),
-                    child: FollowButton(),
+                    top: AppSize.height(height: 2.0),
                   ),
-                ],
+                  child: FollowButton(),
+                ),
               ),
               // Store Header Section
               StoreHeader(
@@ -98,52 +113,55 @@ class StoreView extends GetView<StoreController> {
               SizedBox(height: AppSize.height(height: 2.0)),
               // Store Description
               AppText(
-                title: store['description']?.isNotEmpty ?? false
-                    ? store['description']
-                    : "No description available.",
+                title:
+                    store['description']?.isNotEmpty ?? false
+                        ? store['description']
+                        : "No description available.",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               SizedBox(height: AppSize.height(height: 2.0)),
               Divider(color: AppColors.lightGray),
-              // Banners
-              CustomSlider(
-                onChanged: (value) {},
-                length: 1,
-                item: [
-                  controller.shopCoverUrl.value.isNotEmpty
-                      ? controller.shopCoverUrl.value
-                      : AppImages.coverImage
-                ],
-              ),
-              SizedBox(height: AppSize.height(height: 2.0)),
               // Store Products Section
-              controller.products.isNotEmpty
-                  ? GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: AppSize.height(height: 2.0),
-                  crossAxisSpacing: AppSize.height(height: 2.0),
-                  childAspectRatio: 0.65,
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSize.width(width: 2.0),
                 ),
-                itemCount: controller.products.length,
-                itemBuilder: (context, index) {
-                  final product = controller.products[index];
-                  return InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.productDetails, arguments: product['id']);
-                    },
-                    child: ProductCard(
-                      imageUrl: controller.getImageUrl(product['images'][0]),
-                      title: product['name'],
-                      price: product['basePrice'].toString(),
-                      productId: product['id'],
-                    ),
-                  );
-                },
-              )
-                  : Center(child: Text('No products available')),
+                child:
+                    controller.products.isNotEmpty
+                        ? GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: AppSize.height(height: 2.0),
+                                crossAxisSpacing: AppSize.height(height: 2.0),
+                                childAspectRatio: 0.65,
+                              ),
+                          itemCount: controller.products.length,
+                          itemBuilder: (context, index) {
+                            final product = controller.products[index];
+                            return InkWell(
+                              onTap: () {
+                                // Pass the full product object to the details screen
+                                Get.toNamed(
+                                  Routes.productDetails,
+                                  arguments: product,
+                                );
+                              },
+                              child: ProductCard(
+                                imageUrl: controller.getImageUrl(
+                                  product['images'][0],
+                                ),
+                                title: product['name'],
+                                price: product['basePrice'].toString(),
+                                productId: product['id'],
+                              ),
+                            );
+                          },
+                        )
+                        : Center(child: Text('No products available')),
+              ),
             ],
           ),
         );

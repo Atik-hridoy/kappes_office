@@ -4,6 +4,7 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:canuck_mall/app/modules/saved/controllers/saved_controller.dart';
 
 class ProductCard extends StatefulWidget {
   final bool? isSaved;
@@ -26,6 +27,7 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
+  final SavedController savedController = Get.put(SavedController());
   bool isFavourite = false;
 
   @override
@@ -80,6 +82,45 @@ class _ProductCardState extends State<ProductCard> {
                         setState(() {
                           isFavourite = !isFavourite;
                         });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(AppSize.height(height: 0.5)),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          isFavourite ? Icons.favorite : Icons.favorite_border,
+                          size: AppSize.height(height: 2.0),
+                          color:
+                              isFavourite ? AppColors.lightRed : AppColors.gray,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Only one love icon, which toggles and saves to wishlist
+                  Positioned(
+                    top: AppSize.height(height: 1.0),
+                    right: AppSize.width(width: 1.0),
+                    child: InkWell(
+                      onTap: () async {
+                        setState(() {
+                          isFavourite = !isFavourite;
+                        });
+                        await savedController.saveProduct({
+                          'id': widget.productId,
+                          'name': widget.title,
+                          'imageUrl': widget.imageUrl,
+                          'price': widget.price,
+                        });
+                        Get.snackbar('Saved', 'Product added to wishlist');
                       },
                       child: Container(
                         padding: EdgeInsets.all(AppSize.height(height: 0.5)),

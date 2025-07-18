@@ -9,8 +9,6 @@ import 'package:get/get.dart';
 
 import '../controllers/saved_controller.dart';
 
-
-
 class SavedView extends GetView<SavedController> {
   const SavedView({super.key});
   @override
@@ -24,32 +22,40 @@ class SavedView extends GetView<SavedController> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Number of columns
-            mainAxisSpacing: AppSize.height(height: 2.0),
-            crossAxisSpacing: AppSize.height(height: 2.0),
-            childAspectRatio: 0.65, // Adjust to fit your design
+      body: Obx(() {
+        final products = controller.savedProducts;
+        if (products.isEmpty) {
+          return Center(child: Text('No saved products'));
+        }
+        return Padding(
+          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: AppSize.height(height: 2.0),
+              crossAxisSpacing: AppSize.height(height: 2.0),
+              childAspectRatio: 0.65,
+            ),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return InkWell(
+                onTap: () {
+                  Get.toNamed('/product-details', arguments: product);
+                },
+                child: ProductCard(
+                  isSaved: true,
+                  imageUrl:
+                      product['imageUrl'] ?? 'https://via.placeholder.com/150',
+                  title: product['name'] ?? '',
+                  price: product['price']?.toString() ?? '0.00',
+                  productId: product['id'] ?? '',
+                ),
+              );
+            },
           ),
-          itemCount: 4,
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () {
-                // Get.toNamed(AppRoutes.productDetailsScreen);
-              },
-              child: ProductCard(
-                isSaved: true,
-                imageUrl: 'https://via.placeholder.com/150', // Provide a valid image URL
-                title: 'Sample Product', // Provide a sample or actual product name
-                price: '0.00', // Provide a sample or actual price
-                productId: 'sample_id', // Provide a sample or actual product ID
-              ),
-            );
-          },
-        ),
-      ),
+        );
+      }),
     );
   }
 }
