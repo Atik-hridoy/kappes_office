@@ -97,7 +97,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 <img src="https://github.com/user-attachments/assets/7aa00e50-6767-481a-bffe-38ee91d72978" width="300"/>
 <img src="https://github.com/user-attachments/assets/0208c80e-f073-448d-9d17-41eeda5df515" width="300"/>
 <img width="281" height="652" alt="Screenshot 2025-07-18 161811" src="https://github.com/user-attachments/assets/0695ee59-e06c-42d1-ae46-d924502c6f98" />
-<img width="281" height="652" alt="Screenshot 2025-07-18 161811" src="https://github.com/user-attachments/assets/c4613573-23da-45ff-9afd-d68659d9203a" />
+
 <img width="282" height="622" alt="Screenshot 2025-07-18 162248" src="https://github.com/user-attachments/assets/d6f0d09a-ad7a-4921-a001-4104cea326f6" />
 
 
