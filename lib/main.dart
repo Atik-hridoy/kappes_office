@@ -8,25 +8,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+/// Main entry point for the app.
+///
+/// This function is responsible for initializing the app, setting up the
+/// system UI, loading local preferences, and running the app.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
-
-  // Set status bar style
+  // Set status bar style to white background with dark icons
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-
-  // Lock orientation
+  // Lock the app's orientation to portrait up
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // Load local preferences
-  await LocalStorage.getAllPrefData(); // Load local preferences
+  // Load local preferences from storage
+  await LocalStorage.getAllPrefData();
 
+  // Run the app
   runApp(const CanuckMall());
 }
 
@@ -51,12 +53,10 @@ class CanuckMall extends StatelessWidget {
       translations: AppTranslation(),
       locale: const Locale('en', 'US'),
       fallbackLocale: const Locale('en', 'US'),
-
-      // 👇 Set initial route dynamically based on saved login
-      initialRoute: LocalStorage.isLogIn && LocalStorage.token.isNotEmpty
-          ? Routes.bottomNav // or home/dashboard
-          : Routes.login,
-
+      initialRoute:
+          LocalStorage.isLogIn && LocalStorage.token.isNotEmpty
+              ? Routes.bottomNav
+              : Routes.login,
       getPages: AppPages.routes,
     );
   }

@@ -1,9 +1,7 @@
-import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -41,10 +39,7 @@ class _ProductCardState extends State<ProductCard> {
     return InkWell(
       onTap: () {
         print('🟢 Navigating to product with ID: ${widget.productId}');
-        Get.toNamed(
-          Routes.productDetails,
-          arguments: widget.productId,
-        );
+        Get.toNamed(Routes.productDetails, arguments: widget.productId);
       },
       borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
       child: ConstrainedBox(
@@ -102,7 +97,8 @@ class _ProductCardState extends State<ProductCard> {
                         child: Icon(
                           isFavourite ? Icons.favorite : Icons.favorite_border,
                           size: AppSize.height(height: 2.0),
-                          color: isFavourite ? AppColors.lightRed : AppColors.gray,
+                          color:
+                              isFavourite ? AppColors.lightRed : AppColors.gray,
                         ),
                       ),
                     ),
@@ -126,7 +122,9 @@ class _ProductCardState extends State<ProductCard> {
                       SizedBox(height: AppSize.height(height: 0.5)),
                       Text(
                         '\$${widget.price}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
