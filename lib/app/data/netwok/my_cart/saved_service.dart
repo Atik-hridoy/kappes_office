@@ -11,7 +11,7 @@ class SavedService {
     try {
       final response = await dio.post(
         url,
-        data: {'productId': productId},
+        data: {'product_id': productId},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -26,6 +26,30 @@ class SavedService {
       }
     } catch (e) {
       throw Exception('Failed to save product: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchWishlistProducts() async {
+    final dio = Dio();
+    final url = AppUrls.baseUrl + AppUrls.wishlist;
+    final token = await LocalStorage.getString('token');
+    try {
+      final response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return response.data is Map<String, dynamic> ? response.data : null;
+      } else {
+        throw Exception('Failed to fetch wishlist products');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch wishlist products: $e');
     }
   }
 }

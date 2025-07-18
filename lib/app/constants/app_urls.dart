@@ -34,7 +34,6 @@ abstract class AppUrls {
 
   // orders
   static const String order = 'order/my-orders';
-  static const String wishlist = '/wishlist';
 
   // product details
   static const String getProduct = '/product';
@@ -57,4 +56,5 @@ abstract class AppUrls {
   // Wishlist endpoints
   static const String myCart = '/cart';
   static const String createOrder = '/order/create';
+  static const String wishlist = '/wishlist';
 }
