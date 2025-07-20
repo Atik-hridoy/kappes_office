@@ -54,6 +54,7 @@ dependencies:
   google_maps_flutter: ^2.12.3
   geolocator: ^14.0.2
   geocoding: ^4.0.0
+  skeletonizer: ^2.1.0+1
 
 
 

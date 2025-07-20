@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/product_card.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -24,6 +25,36 @@ class SavedView extends GetView<SavedController> {
       ),
       body: Obx(() {
         final products = controller.savedProducts;
+        if (controller.isLoading.value) {
+          return Skeletonizer(
+            enabled: true,
+            child: Padding(
+              padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: AppSize.height(height: 2.0),
+                  crossAxisSpacing: AppSize.height(height: 2.0),
+                  childAspectRatio: 0.65,
+                ),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  // Show skeleton only if loading, not real product data
+                  return Skeletonizer(
+                    enabled: true,
+                    child: ProductCard(
+                      isSaved: true,
+                      imageUrl: '',
+                      title: '',
+                      price: '',
+                      productId: '',
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }
         if (products.isEmpty) {
           return Center(child: Text('No saved products'));
         }
@@ -49,7 +80,7 @@ class SavedView extends GetView<SavedController> {
                       product['imageUrl'] ?? 'https://via.placeholder.com/150',
                   title: product['name'] ?? '',
                   price: product['price']?.toString() ?? '0.00',
-                  productId: product['id'] ?? '',
+                  productId: product['id'] ?? product['_id'] ?? '',
                 ),
               );
             },

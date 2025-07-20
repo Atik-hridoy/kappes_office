@@ -7,6 +7,7 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:canuck_mall/app/modules/saved/controllers/saved_controller.dart';
 
 /// Main entry point for the app.
 ///
@@ -28,6 +29,8 @@ void main() async {
   // Load local preferences from storage
   await LocalStorage.getAllPrefData();
 
+  // Register SavedController globally for GetX
+  Get.put(SavedController());
   // Run the app
   runApp(const CanuckMall());
 }
