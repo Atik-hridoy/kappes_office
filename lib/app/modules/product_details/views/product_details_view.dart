@@ -410,7 +410,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 children: [
                   Expanded(
                     child: AppCommonButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(Routes.myCart);
+                      },
                       title: AppStaticKey.addToCart,
                       backgroundColor: AppColors.white200,
                       borderColor: AppColors.lightGray,
