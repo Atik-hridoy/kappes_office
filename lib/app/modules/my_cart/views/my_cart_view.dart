@@ -26,93 +26,100 @@ class MyCartView extends GetView<MyCartController> {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: AppSize.height(height: 2.0)),
-        child: Obx(
-              () {
-            // Check if the cart is empty
-            if (controller.cartItems.isEmpty) {
-              return Center(child: Text('No items in cart.'));
-            }
+        child: Obx(() {
+          // Check if the cart is empty
+          if (controller.cartItems.isEmpty) {
+            return Center(child: Text('No items in cart.'));
+          }
 
-            return ListView.separated(
-              itemCount: controller.cartItems.length.toInt(),
-              itemBuilder: (context, index) {
-                var item = controller.cartItems[index];
-                return Container(
-                  padding: EdgeInsets.all(AppSize.height(height: 2.0)),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.lightGray),
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
+          return ListView.separated(
+            itemCount: controller.cartItems.length.toInt(),
+            itemBuilder: (context, index) {
+              var item = controller.cartItems[index];
+              return Container(
+                padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.lightGray),
+                  borderRadius: BorderRadius.circular(
+                    AppSize.height(height: 1.0),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
-                        child: AppImage(
-                          imagePath: item['logo'] ?? AppImages.banner2,  // Use the logo or a placeholder
-                          height: AppSize.height(height: 9.0),
-                          width: AppSize.height(height: 9.0),
-                          fit: BoxFit.cover,
-                        ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 0.5),
                       ),
-                      SizedBox(width: AppSize.height(height: 1.0)),
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          // spacing: AppSize.height(height: 1.0), // Remove if not using a custom Column with spacing property
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                AppText(
-                                  title: item['name'] ?? 'Unknown Item',  // Fallback if name is missing
-                                  style: Theme.of(context).textTheme.titleSmall!
-                                      .copyWith(letterSpacing: 0.0),
-                                ),
-                                Spacer(),
-                                IconButton(
-                                  icon: Icon(Icons.cancel),
-                                  onPressed: () {
-                                    // Handle remove item from cart
-                                  },
-                                ),
-                              ],
-                            ),
-                            AppText(
-                              title: "Size: ${item['size'] ?? 'M'}     Color: ${item['color'] ?? 'Yellow'}",
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Row(
-                              children: [
-                                AppText(
-                                  title: "\$${item['price'] ?? 0.0}",
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                ),
-                                Spacer(),
-                                QuantityButton(
-                                  buttonSize: 1.5,
-                                  buttonCircularSize: 2.0,
-                                  spacing: 3.5,
-                                  textSize: AppSize.height(height: 1.5),
-                                  onChanged: (newQuantity) {
-                                    // Handle quantity update
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      child: AppImage(
+                        imagePath:
+                            item['logo'] ??
+                            AppImages.banner2, // Use the logo or a placeholder
+                        height: AppSize.height(height: 9.0),
+                        width: AppSize.height(height: 9.0),
+                        fit: BoxFit.cover,
                       ),
-                    ],
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return SizedBox(height: AppSize.height(height: 2.0));
-              },
-            );
-          },
-        ),
+                    ),
+                    SizedBox(width: AppSize.height(height: 1.0)),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        // spacing: AppSize.height(height: 1.0), // Remove if not using a custom Column with spacing property
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              AppText(
+                                title:
+                                    item['name'] ??
+                                    'Unknown Item', // Fallback if name is missing
+                                style: Theme.of(context).textTheme.titleSmall!
+                                    .copyWith(letterSpacing: 0.0),
+                              ),
+                              Spacer(),
+                              IconButton(
+                                icon: Icon(Icons.cancel),
+                                onPressed: () {
+                                  // Handle remove item from cart
+                                },
+                              ),
+                            ],
+                          ),
+                          AppText(
+                            title:
+                                "Size: ${item['size'] ?? 'M'}     Color: ${item['color'] ?? 'Yellow'}",
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Row(
+                            children: [
+                              AppText(
+                                title: "\$${item['price'] ?? 0.0}",
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              Spacer(),
+                              QuantityButton(
+                                buttonSize: 1.5,
+                                buttonCircularSize: 2.0,
+                                spacing: 3.5,
+                                textSize: AppSize.height(height: 1.5),
+                                onChanged: (newQuantity) {
+                                  // Handle quantity update
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            separatorBuilder: (context, index) {
+              return SizedBox(height: AppSize.height(height: 2.0));
+            },
+          );
+        }),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -139,7 +146,7 @@ class MyCartView extends GetView<MyCartController> {
           ),
           child: AppCommonButton(
             onPressed: () {
-              Get.toNamed(Routes.checkoutView);  // Navigate to checkout view
+              Get.toNamed(Routes.checkoutView); // Navigate to checkout view
             },
             title: "Checkout: \$${controller.totalAmount.value}",
             style: Theme.of(context).textTheme.titleMedium!.copyWith(

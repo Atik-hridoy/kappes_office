@@ -1,5 +1,4 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../routes/app_pages.dart';
 import '../../utils/log/app_log.dart';
 import 'storage_keys.dart';
 
@@ -39,17 +38,6 @@ class LocalStorage {
   }
 
   // Reset LocalStorage Data
-  static void _resetLocalStorageData() {
-    final localStorage = preferences!;
-    localStorage.setString(LocalStorageKeys.token, "");
-    localStorage.setString(LocalStorageKeys.cookie, "");
-    localStorage.setString(LocalStorageKeys.refreshToken, "");
-    localStorage.setString(LocalStorageKeys.userId, "");
-    localStorage.setString(LocalStorageKeys.myImage, "");
-    localStorage.setString(LocalStorageKeys.myName, "");
-    localStorage.setString(LocalStorageKeys.myEmail, "");
-    localStorage.setBool(LocalStorageKeys.isLogIn, false);
-  }
 
   // Save Data To SharedPreferences
   static Future<void> setString(String key, String value) async {
@@ -65,8 +53,9 @@ class LocalStorage {
   // Get Data From SharedPreferences (Retrieve string values)
   static Future<String> getString(String key) async {
     final localStorage = await _getStorage();
-    return localStorage.getString(key) ?? '';  // Return empty string if the value is not found
+    return localStorage.getString(key) ??
+        ''; // Return empty string if the value is not found
   }
 
-// Optionally, you can add similar methods for retrieving other types like bool, int, etc.
+  // Optionally, you can add similar methods for retrieving other types like bool, int, etc.
 }

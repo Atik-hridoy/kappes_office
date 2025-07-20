@@ -61,4 +61,6 @@ class ProductDetailsController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void addToCart() {}
 }

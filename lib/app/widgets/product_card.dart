@@ -114,13 +114,21 @@ class _ProductCardState extends State<ProductCard> {
                         setState(() {
                           isFavourite = !isFavourite;
                         });
-                        await savedController.saveProduct({
-                          'id': widget.productId,
-                          'name': widget.title,
-                          'imageUrl': widget.imageUrl,
-                          'price': widget.price,
-                        });
-                        Get.snackbar('Saved', 'Product added to wishlist');
+                        if (isFavourite) {
+                          await savedController.saveProduct({
+                            'id': widget.productId,
+                            'name': widget.title,
+                            'imageUrl': widget.imageUrl,
+                            'price': widget.price,
+                          });
+                          Get.snackbar('Saved', 'Product added to wishlist');
+                        } else {
+                          await savedController.deleteProduct(widget.productId);
+                          Get.snackbar(
+                            'Removed',
+                            'Product removed from wishlist',
+                          );
+                        }
                       },
                       child: Container(
                         padding: EdgeInsets.all(AppSize.height(height: 0.5)),
