@@ -9,7 +9,14 @@ class QuantityButton extends StatefulWidget {
   final double? spacing;
   final double? textSize;
   final ValueChanged<int>? onChanged;
-  const QuantityButton({super.key, this.buttonSize, this.spacing, this.textSize,this.buttonCircularSize, this.onChanged});
+  const QuantityButton({
+    super.key,
+    this.buttonSize,
+    this.spacing,
+    this.textSize,
+    this.buttonCircularSize,
+    this.onChanged,
+  });
 
   @override
   State<QuantityButton> createState() => _QuantityButtonState();
@@ -34,43 +41,47 @@ class _QuantityButtonState extends State<QuantityButton> {
         spacing: AppSize.width(width: widget.spacing ?? 5.0),
         children: [
           InkWell(
-            onTap: (){
-             if(quantity > 1){
-               setState(() {
-                 --quantity;
-               });
-               widget.onChanged?.call(quantity);
-             }
+            onTap: () {
+              if (quantity > 1) {
+                setState(() {
+                  --quantity;
+                });
+                widget.onChanged?.call(quantity);
+              }
             },
-            borderRadius: BorderRadius.circular(
-              AppSize.height(height: 100.0),
-            ),
+            borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
             child: Container(
               height: AppSize.height(height: widget.buttonCircularSize ?? 3.0),
-              width:  AppSize.height(height: widget.buttonCircularSize ?? 3.0),
+              width: AppSize.height(height: widget.buttonCircularSize ?? 3.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(
                   AppSize.height(height: 100.0),
                 ),
                 border: Border.all(color: AppColors.lightGray),
               ),
-              child: Icon(Icons.remove, size: AppSize.height(height: widget.buttonSize ?? 2.5)),
+              child: Icon(
+                Icons.remove,
+                size: AppSize.height(height: widget.buttonSize ?? 2.5),
+              ),
             ),
           ),
-          AppText(title: quantity.toString(), style: Theme.of(context).textTheme.titleSmall!.copyWith(fontSize: widget.textSize)),
+          AppText(
+            title: quantity.toString(),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall!.copyWith(fontSize: widget.textSize),
+          ),
           InkWell(
-            onTap: (){
+            onTap: () {
               setState(() {
                 ++quantity;
               });
               widget.onChanged?.call(quantity);
             },
-            borderRadius: BorderRadius.circular(
-              AppSize.height(height: 100.0),
-            ),
+            borderRadius: BorderRadius.circular(AppSize.height(height: 100.0)),
             child: Container(
               height: AppSize.height(height: widget.buttonCircularSize ?? 3.0),
-              width:  AppSize.height(height: widget.buttonCircularSize ?? 3.0),
+              width: AppSize.height(height: widget.buttonCircularSize ?? 3.0),
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(
