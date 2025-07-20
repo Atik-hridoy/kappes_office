@@ -426,7 +426,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () {
-                        Get.toNamed(Routes.myCart);
+                        Get.toNamed(Routes.checkoutView);
                       },
                       title: AppStaticKey.buyNow,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(

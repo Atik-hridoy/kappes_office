@@ -9,11 +9,7 @@ class MyCartService {
     try {
       final response = await _dio.get(
         '${AppUrls.baseUrl}${AppUrls.myCart}',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200 && response.data['items'] != null) {
@@ -38,7 +34,9 @@ class MyCartService {
         data: cartData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      print('Add to cart response: \nStatus: ${response.statusCode}\nBody: ${response.data}');
+      print(
+        'Add to cart response: \nStatus: ${response.statusCode}\nBody: ${response.data}',
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       } else {
