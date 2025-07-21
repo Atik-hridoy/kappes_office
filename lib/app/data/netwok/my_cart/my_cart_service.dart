@@ -24,14 +24,12 @@ class CartService extends GetConnect {
 
       // Print the request details for debugging
       print("Request URL: $cartUrl");
-      print("Headers: ${dio.options.headers}");
 
       // Make the GET request
       final response = await dio.get(cartUrl);
 
       // Print response data for debugging
       print("Response Status Code: ${response.statusCode}");
-      print("Response Data: ${response.data}");
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the response body
