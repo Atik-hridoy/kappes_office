@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
@@ -12,8 +14,6 @@ import 'package:canuck_mall/app/widgets/app_button/quantity_button.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/tipple.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../controllers/product_details_controller.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
@@ -32,7 +32,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
         actions: [
           Tipple(
             onTap: () {
-              // AppUtils.appLog("Hello world!");
+              // Handle share functionality
             },
             height: AppSize.height(height: 5.0),
             width: AppSize.height(height: 5.0),
@@ -60,13 +60,18 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           return const Center(child: Text('Product not found'));
         }
 
-        // Use image URL directly if already normalized, else construct
+        // Get the first image URL
         final imageUrl =
             product.images.isNotEmpty
                 ? (product.images.first.startsWith('http')
                     ? product.images.first
                     : AppUrls.imageUrl + product.images.first)
                 : AppImages.banner3;
+
+        // Get available colors and sizes
+        final variants = product.productVariantDetails;
+        final colors = variants.map((v) => v.variantId.color).toSet().toList();
+        final sizes = variants.map((v) => v.variantId.size).toSet().toList();
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -234,13 +239,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Spacer(),
                   InkWell(
                     onTap: () {
-                      print(
-                        '[ProductDetailsView] Navigating to store with ID: ${product.shop.id}',
-                      );
-                      Get.toNamed(
-                        Routes.store,
-                        arguments: product.shop.id,
-                      ); // Pass store ID as arguments
+                      Get.toNamed(Routes.store, arguments: product.shop.id);
                     },
                     borderRadius: BorderRadius.circular(
                       AppSize.height(height: 0.5),
@@ -284,78 +283,100 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               SizedBox(height: AppSize.height(height: 1.0)),
 
               // Color Palette
-              Divider(color: AppColors.lightGray),
-              SizedBox(height: AppSize.height(height: 0.5)),
-              AppText(
-                title: "${AppStaticKey.color}:",
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontSize: AppSize.height(height: 2.0),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0,
+              if (colors.isNotEmpty) ...[
+                Divider(color: AppColors.lightGray),
+                SizedBox(height: AppSize.height(height: 0.5)),
+                AppText(
+                  title: "${AppStaticKey.color}:",
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontSize: AppSize.height(height: 2.0),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              SizedBox(height: AppSize.height(height: 1.0)),
-              Obx(() {
-                return Row(
-                  children:
-                      product.productVariantDetails.map((variant) {
-                        String code = variant.variantId.color.code;
-                        if (code.length == 7 && code.startsWith('#')) {
-                          code = code.replaceFirst('#', '0xFF');
-                        } else if (code.length == 9 && code.startsWith('#')) {
-                          code = code.replaceFirst('#', '0x');
-                        }
-                        final color = Color(int.parse(code));
-                        return Column(
-                          children: [
-                            ColorPalette(
-                              onChanged: (value) {
-                                controller.selectColor.value = value;
-                              },
-                              value: variant.variantId.color.name,
-                              group: controller.selectColor.value,
-                              color: color,
+                SizedBox(height: AppSize.height(height: 1.0)),
+                Obx(() {
+                  return Row(
+                    children:
+                        colors.map((color) {
+                          String code = color.code;
+                          if (code.length == 7 && code.startsWith('#')) {
+                            code = code.replaceFirst('#', '0xFF');
+                          } else if (code.length == 9 && code.startsWith('#')) {
+                            code = code.replaceFirst('#', '0x');
+                          }
+                          final colorValue = Color(int.parse(code));
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              right: AppSize.width(width: 2.0),
                             ),
-                            SizedBox(height: AppSize.height(height: 0.5)),
-                            AppText(
-                              title:
-                                  variant.variantId.color.name.isNotEmpty
-                                      ? variant.variantId.color.name
-                                      : code,
-                              style: Theme.of(context).textTheme.bodySmall,
+                            child: Column(
+                              children: [
+                                ColorPalette(
+                                  onChanged: (value) {
+                                    controller.selectColor.value = value;
+                                    // Find corresponding variant ID
+                                    final selectedVariant = variants.firstWhere(
+                                      (v) => v.variantId.color.name == value,
+                                      orElse: () => variants.first,
+                                    );
+                                    controller.selectedVariantId.value =
+                                        selectedVariant.variantId.id;
+                                  },
+                                  value: color.name,
+                                  group: controller.selectColor.value,
+                                  color: colorValue,
+                                ),
+                                SizedBox(height: AppSize.height(height: 0.5)),
+                                AppText(
+                                  title:
+                                      color.name.isNotEmpty ? color.name : code,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      }).toList(),
-                );
-              }),
-              SizedBox(height: AppSize.height(height: 3.0)),
+                          );
+                        }).toList(),
+                  );
+                }),
+                SizedBox(height: AppSize.height(height: 3.0)),
+              ],
 
-              // Size Selector (dynamically fetched)
-              AppText(
-                title: "${AppStaticKey.size}:",
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontSize: AppSize.height(height: 2.0),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0,
+              // Size Selector
+              if (sizes.isNotEmpty) ...[
+                AppText(
+                  title: "${AppStaticKey.size}:",
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontSize: AppSize.height(height: 2.0),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              SizedBox(height: AppSize.height(height: 1.0)),
-              Obx(() {
-                return Row(
-                  children:
-                      product.productVariantDetails.map((variant) {
-                        return ProductSizeSelector(
-                          value: variant.variantId.size,
-                          group: controller.selectedProductSize.value,
-                          onChanged: (value) {
-                            controller.selectedProductSize.value = value;
-                          },
-                        );
-                      }).toList(),
-                );
-              }),
-              SizedBox(height: AppSize.height(height: 1.0)),
+                SizedBox(height: AppSize.height(height: 1.0)),
+                Obx(() {
+                  return Wrap(
+                    spacing: AppSize.width(width: 2.0),
+                    children:
+                        sizes.map((size) {
+                          return ProductSizeSelector(
+                            value: size,
+                            group: controller.selectedProductSize.value,
+                            onChanged: (value) {
+                              controller.selectedProductSize.value = value;
+                              // Find corresponding variant ID
+                              final selectedVariant = variants.firstWhere(
+                                (v) => v.variantId.size == value,
+                                orElse: () => variants.first,
+                              );
+                              controller.selectedVariantId.value =
+                                  selectedVariant.variantId.id;
+                            },
+                          );
+                        }).toList(),
+                  );
+                }),
+                SizedBox(height: AppSize.height(height: 1.0)),
+              ],
 
               // Quantity Selector
               Divider(color: AppColors.lightGray),
@@ -369,7 +390,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ),
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
-              QuantityButton(),
+              QuantityButton(
+                onChanged: (qty) => controller.selectedQuantity.value = qty,
+              ),
               SizedBox(height: AppSize.height(height: 0.5)),
               Divider(color: AppColors.lightGray),
             ],
@@ -397,7 +420,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppCommonButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Handle send message to seller
+                },
                 title: AppStaticKey.sendMessageToSeller,
                 backgroundColor: AppColors.white,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -410,8 +435,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 children: [
                   Expanded(
                     child: AppCommonButton(
-                      onPressed: () {
-                        Get.toNamed(Routes.myCart);
+                      onPressed: () async {
+                        await controller.addProductToCart();
                       },
                       title: AppStaticKey.addToCart,
                       backgroundColor: AppColors.white200,
