@@ -1,11 +1,16 @@
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart/add_to_cart_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart/create_order_service.dart';
+
+import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import '../../../model/recomended_product_model.dart';
 
 class ProductDetailsController extends GetxController {
   final ProductDetailsService _productDetailsService = ProductDetailsService();
+
+  // Existing observables
   final Rx<ProductData?> product = Rx<ProductData?>(null);
   final RxBool isLoading = false.obs;
   final RxBool isFavourite = false.obs;
@@ -17,10 +22,33 @@ class ProductDetailsController extends GetxController {
   final RxList<String> availableColors = <String>[].obs;
   final RxList<String> availableSizes = <String>[].obs;
 
+  // Order-related observables
+  final RxBool isCreatingOrder = false.obs;
+  final Rx<OrderData?> createdOrder = Rx<OrderData?>(null);
+  final RxString orderErrorMessage = ''.obs;
+
+  // Order form data
+  final RxString selectedShop = ''.obs;
+  final RxString shippingAddress = ''.obs;
+  final RxString selectedPaymentMethod = ''.obs;
+  final RxString selectedDeliveryOption = ''.obs;
+  final RxString couponCode = ''.obs;
+
+  // Order service instance
+  OrderService? _orderService;
+
   @override
   void onInit() {
     super.onInit();
     onAppInitialDataLoadFunction();
+    _initializeOrderService();
+  }
+
+  void _initializeOrderService() {
+    final token = LocalStorage.token;
+    if (token.isNotEmpty) {
+      _orderService = OrderService(token);
+    }
   }
 
   Future<void> onAppInitialDataLoadFunction() async {
@@ -167,5 +195,272 @@ class ProductDetailsController extends GetxController {
       isFavourite.toggle(); // Revert on error
       print('❌ Error toggling favorite: $e');
     }
+  }
+
+  // ============ ORDER CREATION METHODS ============
+
+  /// Creates an order with the currently selected product
+  Future<bool> createDirectOrder({
+    required String shopId,
+    required String shippingAddressText,
+    required String paymentMethod,
+    required String deliveryOption,
+    String? coupon,
+  }) async {
+    final token = LocalStorage.token;
+    final productId = product.value?.id ?? '';
+    final variantId = selectedVariantId.value;
+
+    // Validation
+    if (token.isEmpty) {
+      Get.snackbar('Error', 'Please login to create order');
+      return false;
+    }
+
+    if (productId.isEmpty || variantId.isEmpty) {
+      Get.snackbar('Error', 'Please select product options');
+      return false;
+    }
+
+    if (!_validateOrderInput(
+      shippingAddressText,
+      paymentMethod,
+      deliveryOption,
+    )) {
+      return false;
+    }
+
+    try {
+      isCreatingOrder(true);
+      orderErrorMessage('');
+
+      // Initialize order service if not already done
+      if (_orderService == null) {
+        _orderService = OrderService(token);
+      }
+
+      // Create order products list
+      final orderProducts = [
+        OrderProduct(
+          product: productId,
+          variant: variantId,
+          quantity: selectedQuantity.value,
+        ),
+      ];
+
+      // Create order request
+      final orderRequest = OrderRequest(
+        shop: shopId,
+        products: orderProducts,
+        coupon: coupon?.isNotEmpty == true ? coupon : null,
+        shippingAddress: shippingAddressText,
+        paymentMethod: paymentMethod,
+        deliveryOptions: deliveryOption,
+      );
+
+      print('🔄 Creating order for product: ${product.value?.name}');
+
+      final response = await _orderService!.createOrder(orderRequest);
+
+      if (response.success) {
+        createdOrder.value = response.data;
+        Get.snackbar('Success', 'Order created successfully!');
+        print('✅ Order created successfully: ${response.data?.id}');
+
+        // Optional: Navigate to order confirmation screen
+        // Get.toNamed('/order-confirmation', arguments: response.data);
+
+        return true;
+      } else {
+        orderErrorMessage(response.message);
+        Get.snackbar('Error', response.message);
+        return false;
+      }
+    } on ApiException catch (e) {
+      print('❌ API Error creating order: ${e.message}');
+      orderErrorMessage(e.message);
+      Get.snackbar('Error', e.message);
+      return false;
+    } catch (e) {
+      print('❌ Unexpected error creating order: $e');
+      orderErrorMessage('An unexpected error occurred');
+      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+      return false;
+    } finally {
+      isCreatingOrder(false);
+    }
+  }
+
+  /// Creates an order with multiple products (for cart checkout)
+  Future<bool> createOrderFromProducts({
+    required String shopId,
+    required List<OrderProduct> products,
+    required String shippingAddressText,
+    required String paymentMethod,
+    required String deliveryOption,
+    String? coupon,
+  }) async {
+    final token = LocalStorage.token;
+
+    if (token.isEmpty) {
+      Get.snackbar('Error', 'Please login to create order');
+      return false;
+    }
+
+    if (!_validateOrderInput(
+      shippingAddressText,
+      paymentMethod,
+      deliveryOption,
+    )) {
+      return false;
+    }
+
+    if (products.isEmpty) {
+      Get.snackbar('Error', 'No products selected for order');
+      return false;
+    }
+
+    try {
+      isCreatingOrder(true);
+      orderErrorMessage('');
+
+      if (_orderService == null) {
+        _orderService = OrderService(token);
+      }
+
+      final orderRequest = OrderRequest(
+        shop: shopId,
+        products: products,
+        coupon: coupon?.isNotEmpty == true ? coupon : null,
+        shippingAddress: shippingAddressText,
+        paymentMethod: paymentMethod,
+        deliveryOptions: deliveryOption,
+      );
+
+      print('🔄 Creating order with ${products.length} products');
+
+      final response = await _orderService!.createOrder(orderRequest);
+
+      if (response.success) {
+        createdOrder.value = response.data;
+        Get.snackbar('Success', 'Order created successfully!');
+        print('✅ Order created successfully: ${response.data?.id}');
+        return true;
+      } else {
+        orderErrorMessage(response.message);
+        Get.snackbar('Error', response.message);
+        return false;
+      }
+    } on ApiException catch (e) {
+      print('❌ API Error creating order: ${e.message}');
+      orderErrorMessage(e.message);
+      Get.snackbar('Error', e.message);
+      return false;
+    } catch (e) {
+      print('❌ Unexpected error creating order: $e');
+      orderErrorMessage('An unexpected error occurred');
+      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+      return false;
+    } finally {
+      isCreatingOrder(false);
+    }
+  }
+
+  /// Buy now functionality - creates order directly
+  Future<void> buyNow({
+    required String shopId,
+    required String shippingAddressText,
+    required String paymentMethod,
+    required String deliveryOption,
+    String? coupon,
+  }) async {
+    final success = await createDirectOrder(
+      shopId: shopId,
+      shippingAddressText: shippingAddressText,
+      paymentMethod: paymentMethod,
+      deliveryOption: deliveryOption,
+      coupon: coupon,
+    );
+
+    if (success && createdOrder.value != null) {
+      // Navigate to order confirmation or payment screen
+      Get.toNamed('/order-confirmation', arguments: createdOrder.value);
+    }
+  }
+
+  /// Validates order input data
+  bool _validateOrderInput(
+    String shippingAddress,
+    String paymentMethod,
+    String deliveryOption,
+  ) {
+    if (shippingAddress.trim().isEmpty) {
+      Get.snackbar('Error', 'Shipping address is required');
+      return false;
+    }
+
+    if (paymentMethod.trim().isEmpty) {
+      Get.snackbar('Error', 'Please select a payment method');
+      return false;
+    }
+
+    if (deliveryOption.trim().isEmpty) {
+      Get.snackbar('Error', 'Please select a delivery option');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Updates order form fields
+  void updateShippingAddress(String address) {
+    shippingAddress.value = address;
+  }
+
+  void updatePaymentMethod(String method) {
+    selectedPaymentMethod.value = method;
+  }
+
+  void updateDeliveryOption(String option) {
+    selectedDeliveryOption.value = option;
+  }
+
+  void updateCouponCode(String code) {
+    couponCode.value = code;
+  }
+
+  void updateSelectedShop(String shop) {
+    selectedShop.value = shop;
+  }
+
+  /// Clears order-related data
+  void clearOrderData() {
+    createdOrder.value = null;
+    orderErrorMessage('');
+    shippingAddress('');
+    selectedPaymentMethod('');
+    selectedDeliveryOption('');
+    couponCode('');
+    selectedShop('');
+  }
+
+  /// Gets the current product as OrderProduct
+  OrderProduct? getCurrentProductAsOrderProduct() {
+    if (product.value?.id == null || selectedVariantId.value.isEmpty) {
+      return null;
+    }
+
+    return OrderProduct(
+      product: product.value!.id,
+      variant: selectedVariantId.value,
+      quantity: selectedQuantity.value,
+    );
+  }
+
+  @override
+  void onClose() {
+    // Clean up resources
+    clearOrderData();
+    super.onClose();
   }
 }

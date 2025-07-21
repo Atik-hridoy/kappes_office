@@ -33,7 +33,7 @@ abstract class AppUrls {
   static const String readNotification = '/notifications/';
 
   // orders
-  static const String order = 'order/my-orders';
+  static const String createOrder = '/order/create';
 
   // product details
   static const String getProduct = '/product';
