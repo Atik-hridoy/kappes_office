@@ -1,41 +1,72 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:canuck_mall/app/constants/app_icons.dart';
+import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/localization/app_static_key.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
+import 'package:canuck_mall/app/widgets/app_button/quantity_button.dart';
+import 'package:canuck_mall/app/widgets/app_text.dart';
+import 'package:canuck_mall/app/widgets/tipple.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../../constants/app_images.dart';
-import '../../../routes/app_pages.dart';
-import '../../../widgets/app_button/quantity_button.dart';
+import '../../../constants/app_urls.dart';
 import '../controllers/my_cart_controller.dart';
 
-class MyCartView extends GetView<MyCartController> {
+class MyCartView extends StatelessWidget {
   const MyCartView({super.key});
+
+  // Helper function to build full image URL
+  String getFullImageUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'assets/images/placeholder.png'; // fallback image
+    }
+    return '${AppUrls.imageUrl}$path';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(MyCartController());
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
         title: AppText(
-          title: "My Cart",
+          title: AppStaticKey.myCart,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: AppSize.height(height: 2.0)),
-        child: Obx(() {
-          // Check if the cart is empty
-          if (controller.cartItems.isEmpty) {
-            return Center(child: Text('No items in cart.'));
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          return ListView.separated(
-            itemCount: controller.cartItems.length.toInt(),
+        final items = controller.cartData.value?.data?.items ?? [];
+
+        if (items.isEmpty) {
+          return Center(
+            child: AppText(
+              title: "Your cart is empty",
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSize.height(height: 2.0),
+          ),
+          child: ListView.separated(
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              var item = controller.cartItems[index];
+              final item = items[index];
+              final product = item.productId;
+              final variant = item.variantId;
+
+              final imageUrl = getFullImageUrl(product?.images?.first);
+
               return Container(
                 padding: EdgeInsets.all(AppSize.height(height: 2.0)),
                 decoration: BoxDecoration(
@@ -51,49 +82,61 @@ class MyCartView extends GetView<MyCartController> {
                       borderRadius: BorderRadius.circular(
                         AppSize.height(height: 0.5),
                       ),
-                      child: AppImage(
-                        imagePath:
-                            item['logo'] ??
-                            AppImages.banner2, // Use the logo or a placeholder
+                      child: Image.network(
+                        imageUrl,
                         height: AppSize.height(height: 9.0),
                         width: AppSize.height(height: 9.0),
                         fit: BoxFit.cover,
+                        errorBuilder:
+                            (_, __, ___) => Image.asset(
+                              AppImages.banner2,
+                              height: AppSize.height(height: 9.0),
+                              width: AppSize.height(height: 9.0),
+                              fit: BoxFit.cover,
+                            ),
                       ),
                     ),
-                    SizedBox(width: AppSize.height(height: 1.0)),
-                    Flexible(
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        // spacing: AppSize.height(height: 1.0), // Remove if not using a custom Column with spacing property
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             children: [
-                              AppText(
-                                title:
-                                    item['name'] ??
-                                    'Unknown Item', // Fallback if name is missing
-                                style: Theme.of(context).textTheme.titleSmall!
-                                    .copyWith(letterSpacing: 0.0),
+                              Expanded(
+                                child: AppText(
+                                  title: product?.name ?? "Product Name",
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
                               ),
-                              Spacer(),
-                              IconButton(
-                                icon: Icon(Icons.cancel),
-                                onPressed: () {
-                                  // Handle remove item from cart
+                              Tipple(
+                                onTap: () {
+                                  controller.removeCartItem(product?.id ?? '');
                                 },
+                                height: AppSize.height(height: 5.0),
+                                width: AppSize.height(height: 5.0),
+                                borderRadius: BorderRadius.circular(
+                                  AppSize.height(height: 100.0),
+                                ),
+                                positionTop: -10,
+                                positionRight: -11,
+                                child: ImageIcon(
+                                  AssetImage(AppIcons.cancel),
+                                  size: AppSize.height(height: 2.2),
+                                ),
                               ),
                             ],
                           ),
                           AppText(
                             title:
-                                "Size: ${item['size'] ?? 'M'}     Color: ${item['color'] ?? 'Yellow'}",
+                                "Size: ${variant?.storage ?? '-'} | Color: ${variant?.colorName ?? '-'}",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Row(
                             children: [
                               AppText(
-                                title: "\$${item['price'] ?? 0.0}",
+                                title:
+                                    "\$${item.totalPrice.toStringAsFixed(2)}",
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                               Spacer(),
@@ -103,7 +146,8 @@ class MyCartView extends GetView<MyCartController> {
                                 spacing: 3.5,
                                 textSize: AppSize.height(height: 1.5),
                                 onChanged: (newQuantity) {
-                                  // Handle quantity update
+                                  // TODO: Call API to update quantity here
+                                  print('Updated quantity: $newQuantity');
                                 },
                               ),
                             ],
@@ -115,47 +159,51 @@ class MyCartView extends GetView<MyCartController> {
                 ),
               );
             },
-            separatorBuilder: (context, index) {
-              return SizedBox(height: AppSize.height(height: 2.0));
-            },
-          );
-        }),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(AppSize.height(height: 2.0)),
-            topRight: Radius.circular(AppSize.height(height: 2.0)),
+            separatorBuilder:
+                (context, index) =>
+                    SizedBox(height: AppSize.height(height: 2.0)),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha((0.2 * 255).toInt()),
-              spreadRadius: 3,
-              blurRadius: 8,
-              offset: Offset(0, 2), // changes position of shadow
+        );
+      }),
+      bottomNavigationBar: Obx(() {
+        double total = controller.calculateTotalPrice();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(AppSize.height(height: 2.0)),
+              topRight: Radius.circular(AppSize.height(height: 2.0)),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: AppSize.height(height: 2.0),
-            right: AppSize.height(height: 2.0),
-            top: AppSize.height(height: 2.0),
-            bottom: AppSize.height(height: 7.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 3,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: AppCommonButton(
-            onPressed: () {
-              Get.toNamed(Routes.checkoutView); // Navigate to checkout view
-            },
-            title: "Checkout: \$${controller.totalAmount.value}",
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              fontSize: AppSize.height(height: 2.0),
-              color: AppColors.white,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: AppSize.height(height: 2.0),
+              right: AppSize.height(height: 2.0),
+              top: AppSize.height(height: 2.0),
+              bottom: AppSize.height(height: 7.0),
+            ),
+            child: AppCommonButton(
+              onPressed: () {
+                Get.toNamed(Routes.checkoutView);
+              },
+              title: "${AppStaticKey.checkout} : \$${total.toStringAsFixed(2)}",
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontSize: AppSize.height(height: 2.0),
+                color: AppColors.white,
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
