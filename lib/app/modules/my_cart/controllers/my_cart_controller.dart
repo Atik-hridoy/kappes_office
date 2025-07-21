@@ -1,5 +1,5 @@
 import 'package:canuck_mall/app/data/local/storage_service.dart';
-import 'package:canuck_mall/app/data/netwok/my_cart/my_cart_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/my_cart_service.dart';
 import 'package:canuck_mall/app/model/get_cart_model.dart';
 import 'package:get/get.dart';
 
