@@ -1,44 +1,77 @@
+import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart/my_cart_service.dart';
+import 'package:canuck_mall/app/model/get_cart_model.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../data/netwok/my_cart/my_cart_service.dart';
 
 class MyCartController extends GetxController {
-  var cartItems = <Map<String, dynamic>>[].obs;
-  var totalAmount = 0.0.obs;
-  final MyCartService _myCartService = MyCartService();
-
-  // Fetch cart items from the service
-  Future<void> fetchCartItems() async {
-    final token = await getToken();
-    if (token.isNotEmpty) {
-      final fetchedCartItems = await _myCartService.getCart(token);
-      print('Fetched cart items:');
-      print(fetchedCartItems);
-      cartItems.value = fetchedCartItems;
-      updateTotalAmount();
-    } else {
-      cartItems.value = [];
-    }
-  }
-
-  // Fetch token from local storage
-  Future<String> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token') ?? '';
-  }
-
-  // Update total cart amount
-  void updateTotalAmount() {
-    totalAmount.value = cartItems.fold(0.0, (sum, item) {
-      final price = double.tryParse(item['price']?.toString() ?? '0.0') ?? 0.0;
-      final qty = item['variantQuantity'] ?? 1;
-      return sum + (price * qty);
-    });
-  }
+  var isLoading = true.obs;
+  var cartData = Rxn<GetCartModel>();
 
   @override
   void onInit() {
     super.onInit();
-    fetchCartItems();
+    print("🛒 MyCartController: onInit triggered.");
+    _initCart();
+  }
+
+  // Load token from local storage and fetch cart
+  Future<void> _initCart() async {
+    print("🔐 Fetching token from LocalStorage...");
+    await LocalStorage.getAllPrefData();
+
+    final token = LocalStorage.token;
+    print("🧾 Token loaded: $token");
+
+    if (token.isEmpty) {
+      print("❌ MyCartController: No token found. Cannot fetch cart.");
+      isLoading(false);
+      return;
+    }
+
+    await fetchCartData(token);
+  }
+
+  Future<void> fetchCartData(String token) async {
+    print("🚀 MyCartController: fetchCartData() called");
+
+    try {
+      isLoading(true);
+      print("⏳ Loading started...");
+
+      final result = await CartService().fetchCartData(token);
+      print("✅ Cart data fetched successfully");
+
+      cartData.value = result;
+      print("📦 Items in cart: ${result.data?.items?.length ?? 0}");
+    } catch (e) {
+      print("❗️ Error fetching cart data: $e");
+    } finally {
+      isLoading(false);
+      print("✅ Loading complete.");
+    }
+  }
+
+  double calculateTotalPrice() {
+    double total = 0;
+    if (cartData.value?.data?.items != null) {
+      for (var item in cartData.value!.data!.items!) {
+        total += item.totalPrice;
+      }
+    }
+    print("💰 Total price calculated: \$${total.toStringAsFixed(2)}");
+    return total;
+  }
+
+  void removeCartItem(String productId) {
+    print("🗑 Removing item with ID: $productId");
+
+    // Example of local removal
+    cartData.update((cart) {
+      cart?.data?.items?.removeWhere((item) => item.productId?.id == productId);
+    });
+
+    print(
+      "🧹 Item removed locally. (Consider calling delete API and re-fetching)",
+    );
   }
 }
