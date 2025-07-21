@@ -1,13 +1,15 @@
-import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/model/get_review_model.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
+
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 
 class ReviewCard extends StatelessWidget {
-  const ReviewCard({super.key, required review});
+  final Review review;
+
+  const ReviewCard({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -28,64 +30,80 @@ class ReviewCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    title: "Randy Orton",
+                    title: review.customer.fullName,
                     style: Theme.of(context).textTheme.titleSmall!.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   AppText(
-                    title: "2 March 2025",
+                    title:
+                        "${review.createdAt.day} ${_getMonthName(review.createdAt.month)} ${review.createdAt.year}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               StarRating(
-                rating: 4.0,
+                rating: review.rating,
                 filledIcon: Icons.star,
-                halfFilledIcon: Icons.star,
-                emptyIcon: Icons.star,
+                halfFilledIcon: Icons.star_half,
+                emptyIcon: Icons.star_border,
                 size: AppSize.height(height: 2.4),
-                color: Colors.amber, // Color for filled and half-filled icons
-                borderColor: Colors.grey, // Color for empty icons
+                color: Colors.amber,
+                borderColor: Colors.grey,
               ),
             ],
           ),
           AppText(
-            title:
-                """Absolutely love this sweater! So soft perfect for layering or wearing on its own. It feels luxurious!""",
+            title: review.comment,
             maxLine: 500,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          Row(
-            spacing: AppSize.width(width: 2.0),
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  AppSize.height(height: 1.0),
-                ),
-                child: AppImage(
-                  imagePath: AppImages.shirt2,
-                  height: AppSize.height(height: 8.0),
-                  width: AppSize.height(height: 8.0),
-                  fit: BoxFit.cover,
-                ),
+          if (review.images.isNotEmpty) ...[
+            SizedBox(height: AppSize.height(height: 2.0)),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: AppSize.width(width: 2.0),
+                children:
+                    review.images
+                        .map(
+                          (image) => ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              AppSize.height(height: 1.0),
+                            ),
+                            child: Image.network(
+                              image,
+                              height: AppSize.height(height: 8.0),
+                              width: AppSize.height(height: 8.0),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                        .toList(),
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  AppSize.height(height: 1.0),
-                ),
-                child: AppImage(
-                  imagePath: AppImages.shirt1,
-                  height: AppSize.height(height: 8.0),
-                  width: AppSize.height(height: 8.0),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return months[month - 1];
   }
 }

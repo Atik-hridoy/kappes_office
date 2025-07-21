@@ -140,8 +140,7 @@ abstract class AppStaticKey {
   static const String territory = "Territory";
   static const String tradesAndServices = "Trades & Services";
   static const String searchService = "Search Service";
-  static const String findTrusted =
-      "Find Trusted";
+  static const String findTrusted = "Find Trusted";
   static const String tradesServicesNearYou = "Trades & Services near you";
   static const searchTradesServices = "Search Trades & Services";
   static const companyDetails = "Company Details";
@@ -154,7 +153,7 @@ abstract class AppStaticKey {
   static const enterYourEmail = "Enter your email";
   static const enterYourMessage = "Enter your message";
   static const send = "Send";
-  static const copy  = "Copy ";
+  static const copy = "Copy ";
   static const searchMessage = "Search message";
   static const String writeAMessage = "Write a message";
   static const String profileSettings = "Profile Settings";
@@ -186,4 +185,11 @@ abstract class AppStaticKey {
   static const String ongoing = "Ongoing";
   static const String completed = "Completed";
   static const String viewDetails = "View Details";
+  static const String retry = "Retry";
+  static const String addFirstReview = "Be the first to review";
+  static const String sortBy = "Sort By";
+  static const String highestRating = "Highest Rating";
+  static const String lowestRating = "Lowest Rating";
+  static const String newestFirst = "Newest First";
+  static const String oldestFirst = "Oldest First";
 }

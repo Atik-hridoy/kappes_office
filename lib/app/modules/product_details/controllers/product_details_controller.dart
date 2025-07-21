@@ -1,6 +1,6 @@
 import 'package:canuck_mall/app/data/local/storage_service.dart';
-import 'package:canuck_mall/app/data/netwok/my_cart/add_to_cart_service.dart';
-import 'package:canuck_mall/app/data/netwok/my_cart/create_order_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 
 import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:get/get.dart';
