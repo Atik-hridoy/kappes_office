@@ -19,7 +19,9 @@ class OrderService {
         onError: (error, handler) {
           // Handle 401 unauthorized errors
           if (error.response?.statusCode == 401) {
-            // Add your token refresh logic here if needed
+            // Token refresh logic could go here, for example:
+            // refreshToken();
+            print('Unauthorized - Token expired or invalid');
           }
           return handler.next(error);
         },
@@ -34,15 +36,20 @@ class OrderService {
         data: request.toJson(),
       );
 
+      // Check for a successful status code (201 indicates resource creation)
       if (response.statusCode == 201) {
         return OrderResponse.fromJson(response.data);
       } else {
         throw _handleError(response);
       }
     } on DioException catch (e) {
+      // Handle Dio specific errors like connectivity issues, etc.
+      print('DioException: ${e.message}');
       throw _handleError(e.response);
     } catch (e) {
-      throw ApiException(message: 'Unknown error occurred');
+      // Handle other types of errors
+      print('Unexpected error: $e');
+      throw ApiException(message: 'An unexpected error occurred');
     }
   }
 
@@ -50,9 +57,14 @@ class OrderService {
     final statusCode = response?.statusCode ?? 500;
     final errorData = response?.data as Map<String, dynamic>?;
 
+    // You can log the response for debugging purposes
+    print('Error response: ${errorData ?? 'No error data available'}');
+
     return ApiException(
       code: statusCode,
-      message: errorData?['message'] ?? 'Failed to create order',
+      message:
+          errorData?['message'] ??
+          'An error occurred while processing your request.',
       details: errorData,
     );
   }

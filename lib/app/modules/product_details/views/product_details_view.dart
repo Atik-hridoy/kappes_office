@@ -364,62 +364,62 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
     );
   }
 
-  void _showOrderDialog(
-    BuildContext context,
-    ProductDetailsController controller,
-  ) {
-    final addressController = TextEditingController();
-    final paymentController = TextEditingController();
-    final deliveryController = TextEditingController();
+  // void _showOrderDialog(
+  //   BuildContext context,
+  //   ProductDetailsController controller,
+  // ) {
+  //   final addressController = TextEditingController();
+  //   final paymentController = TextEditingController();
+  //   final deliveryController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text('Enter Order Details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Shipping Address',
-                  ),
-                ),
-                TextField(
-                  controller: paymentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Payment Method',
-                  ),
-                ),
-                TextField(
-                  controller: deliveryController,
-                  decoration: const InputDecoration(
-                    labelText: 'Delivery Option',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await controller.buyNow(
-                  shopId: controller.product.value?.shop.id ?? '',
-                  shippingAddressText: addressController.text,
-                  paymentMethod: paymentController.text,
-                  deliveryOption: deliveryController.text,
-                );
-              },
-              child: const Text('Place Order'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // showDialog(
+  //   context: context,
+  //   builder: (_) {
+  //     return AlertDialog(
+  //       title: const Text('Enter Order Details'),
+  //       content: SingleChildScrollView(
+  //         child: Column(
+  //           children: [
+  //             TextField(
+  //               controller: addressController,
+  //               decoration: const InputDecoration(
+  //                 labelText: 'Shipping Address',
+  //               ),
+  //             ),
+  //             TextField(
+  //               controller: paymentController,
+  //               decoration: const InputDecoration(
+  //                 labelText: 'Payment Method',
+  //               ),
+  //             ),
+  //             TextField(
+  //               controller: deliveryController,
+  //               decoration: const InputDecoration(
+  //                 labelText: 'Delivery Option',
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Get.back(),
+  //           child: const Text('Cancel'),
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () async {
+  //             await controller.buyNow(
+  //               shopId: controller.product.value?.shop.id ?? '',
+  //               shippingAddressText: addressController.text,
+  //               paymentMethod: paymentController.text,
+  //               deliveryOption: deliveryController.text,
+  //             );
+  //           },
+  //           child: const Text('Place Order'),
+  //         ),
+  //       ],
+  //   //     );
+  //     },
+  //   );
+  // }
 }

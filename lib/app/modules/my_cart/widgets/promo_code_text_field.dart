@@ -6,11 +6,14 @@ import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:flutter/material.dart';
 
 class PromoCodeTextField extends StatelessWidget {
-  const PromoCodeTextField({super.key});
+  const PromoCodeTextField({
+    super.key,
+    required Null Function(dynamic value) onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
+    return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppSize.width(width: 2.0),
         vertical: AppSize.width(width: 2.0),
@@ -19,9 +22,7 @@ class PromoCodeTextField extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.lightGray),
-        borderRadius: BorderRadius.circular(
-          AppSize.height(height: 1.0),
-        ),
+        borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
       ),
       child: Row(
         children: [
@@ -32,14 +33,14 @@ class PromoCodeTextField extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: AppStaticKey.enterPromoCode,
                 border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent),
+                  borderSide: BorderSide(color: Colors.transparent),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),
-                )
+                ),
               ),
             ),
           ),
@@ -48,11 +49,10 @@ class PromoCodeTextField extends StatelessWidget {
             onPressed: () {},
             height: AppSize.height(height: 4.5),
             width: AppSize.width(width: 22.0),
-            style: Theme.of(context).textTheme.titleSmall!
-                .copyWith(color: AppColors.white),
-            borderRadius: BorderRadius.circular(
-              AppSize.height(height: 0.5),
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall!.copyWith(color: AppColors.white),
+            borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
             title: AppStaticKey.apply,
           ),
         ],

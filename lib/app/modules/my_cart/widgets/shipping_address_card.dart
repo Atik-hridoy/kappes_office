@@ -13,9 +13,7 @@ class ShippingAddressCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.lightGray),
-        borderRadius: BorderRadius.circular(
-          AppSize.height(height: 1.0),
-        ),
+        borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
       ),
       child: Column(
         children: [
@@ -38,9 +36,7 @@ class ShippingAddressCard extends StatelessWidget {
                 SizedBox(width: AppSize.width(width: 2.0)),
                 AppText(
                   title: AppStaticKey.shippingAddress,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontSize: AppSize.height(height: 2.0),
                     color: AppColors.white,
                   ),
@@ -89,7 +85,7 @@ class ShippingAddressCard extends StatelessWidget {
                     Flexible(
                       child: AppText(
                         title:
-                        "123 Maple Street ,Apt 456, Toronto, ON M5A 1A1 ,Canada",
+                            "123 Maple Street ,Apt 456, Toronto, ON M5A 1A1 ,Canada",
                         maxLine: 5,
                       ),
                     ),

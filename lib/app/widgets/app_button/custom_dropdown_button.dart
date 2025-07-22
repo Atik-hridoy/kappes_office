@@ -4,24 +4,39 @@ import 'package:flutter/material.dart';
 
 class CustomDropdownButton extends StatefulWidget {
   final String? hintText;
-  const CustomDropdownButton({super.key, this.hintText});
+  final String type; // Can be "deliveryOptions" or "paymentMethod"
+
+  const CustomDropdownButton({
+    super.key,
+    this.hintText,
+    required this.type,
+    required onChanged,
+    required List<String> items,
+  });
 
   @override
   State<CustomDropdownButton> createState() => _CustomDropdownButtonState();
 }
 
 class _CustomDropdownButtonState extends State<CustomDropdownButton> {
-  List<String> items = ["option 1", "option 2", "option 3"];
+  // Example options, you can replace these with actual options
+  List<String> deliveryOptions = ["Standard", "Express", "Overnight"];
+  List<String> paymentMethods = ["Cod", "Card", "Online"];
+
+  // Selected values for both dropdowns
+  String? selectedOption;
+
   @override
   Widget build(BuildContext context) {
+    // Determine which options list to use based on the type passed to the widget
+    List<String> items =
+        widget.type == "deliveryOptions" ? deliveryOptions : paymentMethods;
+
     return DropdownButtonFormField2<String>(
       isExpanded: true,
       decoration: InputDecoration(
-        // Add Horizontal padding using menuItemStyleData.padding so it matches
-        // the menu padding when button's width is not specified.
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        // Add more decoration..
       ),
       hint:
           widget.hintText != null
@@ -38,15 +53,26 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               .toList(),
       validator: (value) {
         if (value == null) {
-          return 'Please select gender.';
+          return 'Please select an option.';
         }
         return null;
       },
       onChanged: (value) {
-        //Do something when selected item is changed.
+        setState(() {
+          selectedOption = value; // Update selected option state
+        });
+
+        // Do something when selected item is changed.
+        if (widget.type == "deliveryOptions") {
+          // You can pass this value to the controller or model.
+          print("Selected Delivery Option: $selectedOption");
+        } else if (widget.type == "paymentMethod") {
+          // Handle payment method selection
+          print("Selected Payment Method: $selectedOption");
+        }
       },
       onSaved: (value) {
-        // selectedValue = value.toString();
+        selectedOption = value?.toString();
       },
       buttonStyleData: const ButtonStyleData(
         padding: EdgeInsets.only(right: 8),

@@ -66,6 +66,16 @@ class OrderData {
   final double deliveryCharge;
   final double finalAmount;
   final DateTime deliveryDate;
+  final String? coupon;
+  final double discount;
+  final String status;
+  final String shippingAddress;
+  final String paymentMethod;
+  final String paymentStatus;
+  final String paymentId;
+  final bool isPaymentTransferdToVendor;
+  final bool isNeedRefund;
+  final double totalAmount;
 
   OrderData({
     required this.id,
@@ -76,6 +86,16 @@ class OrderData {
     required this.deliveryCharge,
     required this.finalAmount,
     required this.deliveryDate,
+    this.coupon,
+    required this.discount,
+    required this.status,
+    required this.shippingAddress,
+    required this.paymentMethod,
+    required this.paymentStatus,
+    required this.paymentId,
+    required this.isPaymentTransferdToVendor,
+    required this.isNeedRefund,
+    required this.totalAmount,
   });
 
   factory OrderData.fromJson(Map<String, dynamic> json) => OrderData(
@@ -90,6 +110,16 @@ class OrderData {
     deliveryDate: DateTime.parse(
       json['deliveryDate'] ?? DateTime.now().toString(),
     ),
+    coupon: json['coupon'], // Optional
+    discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
+    status: json['status'] ?? 'Pending',
+    shippingAddress: json['shippingAddress'] ?? '',
+    paymentMethod: json['paymentMethod'] ?? '',
+    paymentStatus: json['paymentStatus'] ?? 'Unpaid',
+    paymentId: json['payment'] ?? '',
+    isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'] ?? false,
+    isNeedRefund: json['isNeedRefund'] ?? false,
+    totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
   );
 }
 
