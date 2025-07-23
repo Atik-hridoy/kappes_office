@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class PromoCodeTextField extends StatelessWidget {
   const PromoCodeTextField({
     super.key,
-    required Null Function(dynamic value) onChanged,
+    required Function(dynamic code) onApply,
   });
 
   @override

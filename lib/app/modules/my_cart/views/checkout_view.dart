@@ -2,7 +2,7 @@ import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/promo_code_text_field.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/shipping_address_card.dart';
-
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_button/custom_dropdown_button.dart';
@@ -13,7 +13,6 @@ import '../../../themes/app_colors.dart';
 
 class CheckoutView extends GetView<CheckoutViewController> {
   const CheckoutView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,10 +34,15 @@ class CheckoutView extends GetView<CheckoutViewController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// Shipping Address
-                  ShippingAddressCard(),
+                  /// shipping address
+                  ShippingAddressCard(
+                    name: '',
+                    phone: '',
+                    address: '',
+                    onEditTap: () {},
+                  ),
 
-                  /// Delivery Options
+                  /// delivery options
                   SizedBox(height: AppSize.height(height: 2.0)),
                   AppText(
                     title: AppStaticKey.deliveryOptions,
@@ -50,17 +54,13 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
                     hintText: AppStaticKey.chooseDeliveryOption,
-                    type: "deliveryOptions",
-                    onChanged:
-                        controller.updateDeliveryOption, // Pass method here
-                    items: [
-                      "Express",
-                      "Standard",
-                      "Next-Day",
-                    ], // Example options
+                    type: '',
+                    onChanged: null,
+                    items: [],
+                    value: '',
                   ),
 
-                  /// Payment Method
+                  /// payment method
                   SizedBox(height: AppSize.height(height: 2.0)),
                   AppText(
                     title: AppStaticKey.paymentMethod,
@@ -71,18 +71,18 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   ),
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
-                    hintText: AppStaticKey.choosePaymentMethod,
-                    type: "paymentMethod",
-                    onChanged:
-                        controller.updatePaymentMethod, // Pass method here
-                    items: ["Cod", "Credit Card", "PayPal"], // Example options
+                    hintText: AppStaticKey.chooseDeliveryOption,
+                    type: '',
+                    onChanged: null,
+                    items: [],
+                    value: '',
                   ),
                   SizedBox(height: AppSize.height(height: 2.0)),
                 ],
               ),
             ),
 
-            /// Place Order Section
+            /// place order section
             Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
@@ -92,10 +92,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     spreadRadius: 3,
                     blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    offset: const Offset(0, 2), // changes position of shadow
                   ),
                 ],
               ),
@@ -104,11 +104,7 @@ class CheckoutView extends GetView<CheckoutViewController> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    PromoCodeTextField(
-                      onChanged: (value) {
-                        controller.updateCoupon(value);
-                      },
-                    ),
+                    PromoCodeTextField(onApply: (code) {}),
                     SizedBox(height: AppSize.height(height: 2.0)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -117,12 +113,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                           title: AppStaticKey.itemCost,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        Obx(
-                          () => AppText(
-                            title: "\$${controller.itemCost.value}",
-                            style: Theme.of(context).textTheme.bodySmall!
-                                .copyWith(fontWeight: FontWeight.w500),
-                          ),
+                        AppText(
+                          title: "\$449.97",
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -134,12 +128,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                           title: AppStaticKey.shippingFee,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        Obx(
-                          () => AppText(
-                            title: "\$${controller.shippingFee.value}",
-                            style: Theme.of(context).textTheme.bodySmall!
-                                .copyWith(fontWeight: FontWeight.w500),
-                          ),
+                        AppText(
+                          title: "\$29.00",
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -151,12 +143,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                           title: AppStaticKey.discount,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        Obx(
-                          () => AppText(
-                            title: "-\$${controller.discount.value}",
-                            style: Theme.of(context).textTheme.bodySmall!
-                                .copyWith(fontWeight: FontWeight.w500),
-                          ),
+                        AppText(
+                          title: "-\$5.00",
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -169,12 +159,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                           style: Theme.of(context).textTheme.bodySmall!
                               .copyWith(fontWeight: FontWeight.w700),
                         ),
-                        Obx(
-                          () => AppText(
-                            title: "\$${controller.finalAmount.value}",
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(fontWeight: FontWeight.w900),
-                          ),
+                        AppText(
+                          title: "\$492.97",
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(fontWeight: FontWeight.w900),
                         ),
                       ],
                     ),
@@ -231,8 +219,7 @@ class CheckoutView extends GetView<CheckoutViewController> {
                     SizedBox(height: AppSize.height(height: 2.0)),
                     AppCommonButton(
                       onPressed: () {
-                        // When clicked, try to create an order
-                        controller.createOrder();
+                        Get.toNamed(Routes.checkoutSuccessfulView);
                       },
                       title: AppStaticKey.placeOrder,
                       fontSize: AppSize.height(height: 2.0),

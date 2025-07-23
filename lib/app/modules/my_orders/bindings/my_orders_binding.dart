@@ -7,14 +7,8 @@ import '../controllers/my_orders_controller.dart';
 class MyOrdersBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MyOrdersController>(
-      () => MyOrdersController(),
-    );
-    Get.lazyPut<CompletedOrdersViewController>(
-      () => CompletedOrdersViewController(),
-    );
-    Get.lazyPut<OngoingOrdersViewController>(
-      () => OngoingOrdersViewController(),
-    );
+    Get.lazyPut<MyOrdersController>(() => MyOrdersController());
+    Get.lazyPut<CompletedOrdersController>(() => CompletedOrdersController());
+    Get.lazyPut<OngoingOrdersController>(() => OngoingOrdersController());
   }
 }

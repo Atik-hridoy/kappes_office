@@ -34,6 +34,7 @@ abstract class AppUrls {
 
   // orders
   static const String createOrder = '/order/create';
+  static const String getOrder = '/order/my-orders';
 
   // product details
   static const String getProduct = '/product';

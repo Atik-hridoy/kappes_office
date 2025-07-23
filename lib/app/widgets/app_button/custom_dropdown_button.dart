@@ -12,6 +12,7 @@ class CustomDropdownButton extends StatefulWidget {
     required this.type,
     required onChanged,
     required List<String> items,
+    required String value,
   });
 
   @override

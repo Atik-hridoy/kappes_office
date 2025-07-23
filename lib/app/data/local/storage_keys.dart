@@ -7,4 +7,6 @@ class LocalStorageKeys {
   static const String myImage = "myImage";
   static const String myName = "myName";
   static const String myEmail = "myEmail";
+  static const String myAddress = "myAddress";
+  static const String phone = "phone"; // For storing multiple addresses
 }

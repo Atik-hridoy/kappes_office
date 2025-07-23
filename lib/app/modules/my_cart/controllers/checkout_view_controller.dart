@@ -1,111 +1,157 @@
+// checkout_view_controller.dart
+import 'package:canuck_mall/app/data/local/storage_keys.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:get/get.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
-import 'package:get/get.dart';
 
 class CheckoutViewController extends GetxController {
-  // Observables for managing the order state and UI feedback
-  var isOrderProcessing = false.obs;
-  var orderResponse = Rx<OrderResponse?>(null);
-  var errorMessage = "".obs;
+  // User Details
+  final RxString userName = ''.obs;
+  final RxString userPhone = ''.obs;
+  final RxString userAddress = ''.obs;
 
-  // Inputs for creating the order
-  var shopId = ''.obs;
-  var products = <OrderProduct>[].obs;
-  var coupon = ''.obs;
-  var shippingAddress = ''.obs;
-  var paymentMethod = 'Cod'.obs;
-  var deliveryOptions = 'Express'.obs;
+  // Editable Fields
+  final RxString name = ''.obs;
+  final RxString phone = ''.obs;
+  final RxString address = ''.obs;
 
-  // Observable values for costs
-  var itemCost = 449.97.obs; // Example item cost
-  var shippingFee = 29.00.obs; // Example shipping fee
-  var discount = 5.00.obs; // Example discount
-  var finalAmount =
-      (449.97 + 29.00 - 5.00)
-          .obs; // Final amount (item cost + shipping fee - discount)
+  // Selection Options
+  final RxString selectedDeliveryOption = 'Standard (5-7 days)'.obs;
+  final RxString selectedPaymentMethod = 'Cod (Cash on Delivery)'.obs;
+  final RxString couponCode = ''.obs;
 
-  // OrderService instance to handle API calls
-  final OrderService orderService = OrderService('YOUR_AUTH_TOKEN');
+  // UI State
+  final RxBool isLoading = false.obs;
+  final RxBool isEditingAddress = false.obs;
+  final RxBool termsAccepted = false.obs;
 
-  get isRemember => null; // Replace with your actual auth token
+  // Options
+  final List<String> deliveryOptions = [
+    'Standard (5-7 days)',
+    'Express (2-3 days)',
+    'Overnight (1 day)',
+  ];
 
-  // Method to update the delivery option
-  void updateDeliveryOption(String value) {
-    deliveryOptions.value = value;
-    // Recalculate the final amount based on delivery option if needed
-    _recalculateFinalAmount();
+  final List<String> paymentMethods = [
+    'Cod (Cash on Delivery)',
+    'Credit Card',
+    'Online Payment',
+  ];
+
+  get isRemember => null;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadUserData();
   }
 
-  // Method to update the payment method
-  void updatePaymentMethod(String value) {
-    paymentMethod.value = value;
+  void loadUserData() {
+    userName.value = LocalStorage.myName;
+    userPhone.value = LocalStorage.phone;
+    userAddress.value = LocalStorage.myAddress;
+
+    name.value = userName.value;
+    phone.value = userPhone.value;
+    address.value = userAddress.value;
   }
 
-  // Method to update coupon code
-  void updateCoupon(String value) {
-    coupon.value = value;
-    // Recalculate discount based on coupon code (mocked in this example)
-    if (coupon.value.isNotEmpty) {
-      discount.value = 10.00; // Example discount change when coupon is applied
-    } else {
-      discount.value = 5.00; // Reset to default discount if coupon is empty
+  void toggleAddressEditing() {
+    isEditingAddress.toggle();
+    if (!isEditingAddress.value) {
+      saveAddress();
     }
-    _recalculateFinalAmount(); // Recalculate the final amount after coupon update
   }
 
-  // Method to recalculate the final amount
-  void _recalculateFinalAmount() {
-    finalAmount.value = itemCost.value + shippingFee.value - discount.value;
-  }
-
-  // Create Order function that will handle the API call to place an order
-  Future<void> createOrder() async {
+  Future<void> saveAddress() async {
     try {
-      isOrderProcessing.value = true; // Show loading state
+      await LocalStorage.setString(LocalStorageKeys.myName, name.value);
+      await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
+      await LocalStorage.setString(LocalStorageKeys.myAddress, address.value);
+
+      // Refresh from storage
+      userName.value = name.value;
+      userPhone.value = phone.value;
+      userAddress.value = address.value;
+
+      Get.snackbar('Success', 'Address updated successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to save address');
+    }
+  }
+
+  Future<void> createOrder(List<OrderProduct> products, String shopId) async {
+    if (!termsAccepted.value) {
+      Get.snackbar('Error', 'Please accept terms and conditions');
+      return;
+    }
+
+    if (address.value.isEmpty) {
+      Get.snackbar('Error', 'Shipping address is required');
+      return;
+    }
+
+    try {
+      isLoading(true);
 
       final orderRequest = OrderRequest(
-        shop: shopId.value,
+        shop: shopId,
         products: products,
-        coupon: coupon.value.isEmpty ? null : coupon.value,
-        shippingAddress: shippingAddress.value,
-        paymentMethod: paymentMethod.value,
-        deliveryOptions: deliveryOptions.value,
+        coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
+        shippingAddress: address.value,
+        paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
+        deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
       );
 
-      final response = await orderService.createOrder(orderRequest);
+      final response = await OrderService(
+        LocalStorage.token,
+      ).createOrder(orderRequest);
 
-      orderResponse.value = response; // Store the response
-      isOrderProcessing.value = false; // Hide loading
-
-      // Handle success response
       if (response.success) {
-        Get.snackbar("Order Successful", "Your order has been placed.");
-        // Navigate to success page or update the UI accordingly
+        Get.offNamed(Routes.checkoutSuccessfulView, arguments: response.data);
       } else {
-        errorMessage.value = response.message;
-        Get.snackbar("Order Failed", response.message);
+        Get.snackbar('Error', response.message);
       }
     } catch (e) {
-      isOrderProcessing.value = false;
-      errorMessage.value = "An error occurred while creating the order.";
-      Get.snackbar("Error", "Failed to place order. Please try again.");
+      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+    } finally {
+      isLoading(false);
     }
   }
 
-  // Reset any order-related information, used after order placement or failure
-  void resetOrderState() {
-    isOrderProcessing.value = false;
-    orderResponse.value = null;
-    errorMessage.value = '';
-    shopId.value = '';
-    products.clear();
-    coupon.value = '';
-    shippingAddress.value = '';
-    paymentMethod.value = 'Cod';
-    deliveryOptions.value = 'Express';
-    itemCost.value = 449.97;
-    shippingFee.value = 29.00;
-    discount.value = 5.00;
-    finalAmount.value = 449.97 + 29.00 - 5.00;
+  /// Parses the payment method from the given display text.
+  ///
+  /// This method checks if the provided `displayText` contains certain keywords
+  /// and returns the corresponding payment method:
+  /// - Returns 'Cod' if `displayText` contains 'Cod'
+  /// - Returns 'Card' if `displayText` contains 'Credit'
+  /// - Returns 'Online' if no known option is found
+  ///
+  /// - Parameter displayText: The text to parse for a payment method.
+  /// - Returns: A string representing the payment method.
+
+  String parsePaymentMethod(String displayText) {
+    if (displayText.contains('Cod')) return 'Cod';
+    if (displayText.contains('Credit')) return 'Card';
+    return 'Online';
+  }
+
+  /// Parses the delivery option from the given display text.
+  ///
+  /// This method checks if the provided `displayText` contains certain keywords
+  /// and returns the corresponding delivery option:
+  /// - Returns 'Standard' if `displayText` contains 'Standard'
+  /// - Returns 'Express' if `displayText` contains 'Express'
+  /// - Returns 'Overnight' if no known option is found
+  ///
+  /// - Parameter displayText: The text to parse for a delivery option.
+  /// - Returns: A string representing the delivery option.
+
+  String parseDeliveryOption(String displayText) {
+    if (displayText.contains('Standard')) return 'Standard';
+    if (displayText.contains('Express')) return 'Express';
+    return 'Overnight';
   }
 }
