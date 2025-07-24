@@ -5,14 +5,17 @@ import 'package:flutter/material.dart';
 class CustomDropdownButton extends StatefulWidget {
   final String? hintText;
   final String type; // Can be "deliveryOptions" or "paymentMethod"
+  final Function(String?)? onChanged;
+  final List<String> items;
+  final String? value;
 
   const CustomDropdownButton({
     super.key,
     this.hintText,
     required this.type,
-    required onChanged,
-    required List<String> items,
-    required String value,
+    required this.onChanged,
+    required this.items,
+    this.value,
   });
 
   @override
@@ -20,28 +23,33 @@ class CustomDropdownButton extends StatefulWidget {
 }
 
 class _CustomDropdownButtonState extends State<CustomDropdownButton> {
-  // Example options, you can replace these with actual options
-  List<String> deliveryOptions = ["Standard", "Express", "Overnight"];
-  List<String> paymentMethods = ["Cod", "Card", "Online"];
-
-  // Selected values for both dropdowns
   String? selectedOption;
 
   @override
-  Widget build(BuildContext context) {
-    // Determine which options list to use based on the type passed to the widget
-    List<String> items =
-        widget.type == "deliveryOptions" ? deliveryOptions : paymentMethods;
+  void initState() {
+    super.initState();
+    selectedOption = widget.value;
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    List<String> items =
+        widget.type == "deliveryOptions"
+            ? ["Standard", "Express", "Overnight"]
+            : ["Cod", "Card", "Online"];
     return DropdownButtonFormField2<String>(
+      value: selectedOption,
       isExpanded: true,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
       ),
       hint:
           widget.hintText != null
-              ? AppText(title: widget.hintText!, style: TextStyle(fontSize: 14))
+              ? AppText(
+                title: widget.hintText!,
+                style: const TextStyle(fontSize: 14),
+              )
               : null,
       items:
           items
@@ -60,20 +68,19 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
       },
       onChanged: (value) {
         setState(() {
-          selectedOption = value; // Update selected option state
+          selectedOption = value;
         });
-
-        // Do something when selected item is changed.
+        if (widget.onChanged != null) {
+          widget.onChanged!(value);
+        }
         if (widget.type == "deliveryOptions") {
-          // You can pass this value to the controller or model.
           print("Selected Delivery Option: $selectedOption");
         } else if (widget.type == "paymentMethod") {
-          // Handle payment method selection
           print("Selected Payment Method: $selectedOption");
         }
       },
       onSaved: (value) {
-        selectedOption = value?.toString();
+        selectedOption = value;
       },
       buttonStyleData: const ButtonStyleData(
         padding: EdgeInsets.only(right: 8),

@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
@@ -345,8 +346,32 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () {
-                        // _showOrderDialog(context, controller);
-                        Get.toNamed(Routes.checkoutView);
+                        final productId = controller.product.value?.id ?? '';
+                        final variantId = controller.selectedVariantId.value;
+                        final qty = controller.selectedQuantity.value;
+                        final shopId = controller.product.value?.shop?.id ?? '';
+
+                        if (productId.isEmpty || variantId.isEmpty) {
+                          Get.snackbar(
+                            'Error',
+                            'Please select product options',
+                          );
+                          return;
+                        }
+
+                        final orderProduct = OrderProduct(
+                          product: productId,
+                          variant: variantId,
+                          quantity: qty,
+                        );
+
+                        Get.toNamed(
+                          Routes.checkoutView,
+                          arguments: {
+                            'shopId': shopId,
+                            'products': [orderProduct],
+                          },
+                        );
                       },
                       title: AppStaticKey.buyNow,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -363,63 +388,4 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
       ),
     );
   }
-
-  // void _showOrderDialog(
-  //   BuildContext context,
-  //   ProductDetailsController controller,
-  // ) {
-  //   final addressController = TextEditingController();
-  //   final paymentController = TextEditingController();
-  //   final deliveryController = TextEditingController();
-
-  // showDialog(
-  //   context: context,
-  //   builder: (_) {
-  //     return AlertDialog(
-  //       title: const Text('Enter Order Details'),
-  //       content: SingleChildScrollView(
-  //         child: Column(
-  //           children: [
-  //             TextField(
-  //               controller: addressController,
-  //               decoration: const InputDecoration(
-  //                 labelText: 'Shipping Address',
-  //               ),
-  //             ),
-  //             TextField(
-  //               controller: paymentController,
-  //               decoration: const InputDecoration(
-  //                 labelText: 'Payment Method',
-  //               ),
-  //             ),
-  //             TextField(
-  //               controller: deliveryController,
-  //               decoration: const InputDecoration(
-  //                 labelText: 'Delivery Option',
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Get.back(),
-  //           child: const Text('Cancel'),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () async {
-  //             await controller.buyNow(
-  //               shopId: controller.product.value?.shop.id ?? '',
-  //               shippingAddressText: addressController.text,
-  //               paymentMethod: paymentController.text,
-  //               deliveryOption: deliveryController.text,
-  //             );
-  //           },
-  //           child: const Text('Place Order'),
-  //         ),
-  //       ],
-  //   //     );
-  //     },
-  //   );
-  // }
 }

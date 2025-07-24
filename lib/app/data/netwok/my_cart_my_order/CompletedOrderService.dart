@@ -1,6 +1,4 @@
 import 'package:canuck_mall/app/model/get_my_order.dart';
-import 'package:canuck_mall/app/model/get_my_order_model.dart'
-    hide GetMyOrder, Order;
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
@@ -32,26 +30,28 @@ class CompletedOrderService {
 
       final response = await _dio.get(
         AppUrls.getOrders,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+        },
       );
 
       if (response.statusCode == 200 && response.data != null) {
         final GetMyOrder orderResponse = GetMyOrder.fromJson(response.data);
         // Filter for completed statuses
-        final List<Order> completedOrders =
-            orderResponse.data.result.where((order) {
-              final status = order.status.toLowerCase();
-              return status == 'delivered' ||
-                  status == 'refunded' ||
-                  status == 'returned' ||
-                  status == 'cancelled';
-            }).toList();
+        final List<Order> completedOrders = orderResponse.data.result.where((order) {
+          final status = order.status.toLowerCase();
+          return status == 'delivered' || status == 'refunded' || status == 'returned' || status == 'cancelled';
+        }).toList();
 
         // Return a new GetMyOrder object containing only completed orders
         return GetMyOrder(
           success: orderResponse.success,
           message: orderResponse.message,
-          data: Data(meta: orderResponse.data.meta, result: completedOrders),
+          data: Data(
+            meta: orderResponse.data.meta,
+            result: completedOrders,
+          ),
           errorMessages: orderResponse.errorMessages,
           statusCode: orderResponse.statusCode,
         );

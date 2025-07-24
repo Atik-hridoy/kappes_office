@@ -60,6 +60,7 @@ class ReviewsService {
           'images': images ?? [],
         },
       );
+      print('🟢 Response: ${response.data}');
 
       return response.statusCode == 200 &&
           (response.data['success'] as bool? ?? false);

@@ -35,12 +35,7 @@ class CheckoutView extends GetView<CheckoutViewController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// shipping address
-                  ShippingAddressCard(
-                    name: '',
-                    phone: '',
-                    address: '',
-                    onEditTap: () {},
-                  ),
+                  ShippingAddressCard(),
 
                   /// delivery options
                   SizedBox(height: AppSize.height(height: 2.0)),
@@ -54,10 +49,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
                     hintText: AppStaticKey.chooseDeliveryOption,
-                    type: '',
-                    onChanged: null,
-                    items: [],
-                    value: '',
+                    type: 'deliveryOptions',
+                    onChanged: (String? value) {},
+                    items: ['Standard', 'Express', 'Overnight'],
+                    value: 'Express',
                   ),
 
                   /// payment method
@@ -72,10 +67,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
                     hintText: AppStaticKey.chooseDeliveryOption,
-                    type: '',
-                    onChanged: null,
-                    items: [],
-                    value: '',
+                    type: 'paymentMethod',
+                    onChanged: (v) {},
+                    items: ['Cod', 'Card', 'Online'],
+                    value: 'Cod',
                   ),
                   SizedBox(height: AppSize.height(height: 2.0)),
                 ],

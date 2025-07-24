@@ -17,9 +17,22 @@ class CheckoutViewController extends GetxController {
   final RxString phone = ''.obs;
   final RxString address = ''.obs;
 
-  // Selection Options
+  // Delivery and Payment Options
+  final List<String> deliveryOptions = [
+    'Standard (5-7 days)', // maps to 'Standard'
+    'Express (2-3 days)', // maps to 'Express'
+    'Overnight (1 day)', // maps to 'Overnight'
+  ];
   final RxString selectedDeliveryOption = 'Standard (5-7 days)'.obs;
+
+  final List<String> paymentMethods = [
+    'Cod (Cash on Delivery)', // maps to 'Cod'
+    'Credit Card', // maps to 'Card'
+    'Online Payment', // maps to 'Online'
+  ];
   final RxString selectedPaymentMethod = 'Cod (Cash on Delivery)'.obs;
+
+  // Selection Options
   final RxString couponCode = ''.obs;
 
   // UI State
@@ -27,20 +40,7 @@ class CheckoutViewController extends GetxController {
   final RxBool isEditingAddress = false.obs;
   final RxBool termsAccepted = false.obs;
 
-  // Options
-  final List<String> deliveryOptions = [
-    'Standard (5-7 days)',
-    'Express (2-3 days)',
-    'Overnight (1 day)',
-  ];
-
-  final List<String> paymentMethods = [
-    'Cod (Cash on Delivery)',
-    'Credit Card',
-    'Online Payment',
-  ];
-
-  get isRemember => null;
+  final RxBool isRemember = false.obs;
 
   @override
   void onInit() {
@@ -65,6 +65,24 @@ class CheckoutViewController extends GetxController {
     }
   }
 
+  void setDeliveryOption(String value) {
+    selectedDeliveryOption.value = value;
+  }
+
+  void setPaymentMethod(String value) {
+    selectedPaymentMethod.value = value;
+  }
+
+  void editShippingAddress({
+    String? newName,
+    String? newPhone,
+    String? newAddress,
+  }) {
+    if (newName != null) name.value = newName;
+    if (newPhone != null) phone.value = newPhone;
+    if (newAddress != null) address.value = newAddress;
+  }
+
   Future<void> saveAddress() async {
     try {
       await LocalStorage.setString(LocalStorageKeys.myName, name.value);
@@ -87,15 +105,16 @@ class CheckoutViewController extends GetxController {
       Get.snackbar('Error', 'Please accept terms and conditions');
       return;
     }
-
-    if (address.value.isEmpty) {
-      Get.snackbar('Error', 'Shipping address is required');
+    if (name.value.isEmpty || phone.value.isEmpty || address.value.isEmpty) {
+      Get.snackbar('Error', 'Name, phone, and shipping address are required');
       return;
     }
-
+    if (products.isEmpty) {
+      Get.snackbar('Error', 'Your cart is empty');
+      return;
+    }
     try {
       isLoading(true);
-
       final orderRequest = OrderRequest(
         shop: shopId,
         products: products,
@@ -104,18 +123,16 @@ class CheckoutViewController extends GetxController {
         paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
         deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
       );
-
       final response = await OrderService(
         LocalStorage.token,
       ).createOrder(orderRequest);
-
       if (response.success) {
         Get.offNamed(Routes.checkoutSuccessfulView, arguments: response.data);
       } else {
         Get.snackbar('Error', response.message);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+      Get.snackbar('Error', 'Failed to create order: [31m${e.toString()}[0m');
     } finally {
       isLoading(false);
     }

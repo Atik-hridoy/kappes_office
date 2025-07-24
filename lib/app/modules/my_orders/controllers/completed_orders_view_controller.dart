@@ -29,7 +29,7 @@ class CompletedOrdersController extends GetxController {
     try {
       final result = await _completedOrderService.getCompletedOrders();
       print('📦 Completed orders fetched successfully!');
-      _completedOrders.value = result;
+      _completedOrders.value = result as GetMyOrder?;
     } catch (e) {
       print('🚫 Error fetching completed orders: $e');
       _errorMessage.value = e.toString();
