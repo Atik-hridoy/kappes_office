@@ -15,17 +15,15 @@ class CustomProductOrderCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppSize.height(height: 1.0)),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
-          border: Border.all(color: AppColors.lightGray)
+        borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
+        border: Border.all(color: AppColors.lightGray),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSize.width(width: 2.0),
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(
-              AppSize.height(height: 0.5),
-            ),
+            borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
             child: AppImage(
               imagePath: AppImages.product1,
               height: AppSize.height(height: 10.0),
@@ -41,14 +39,16 @@ class CustomProductOrderCard extends StatelessWidget {
                 AppText(
                   title: "Hiking Traveler",
                   maxLine: 5,
-                  style: Theme.of(context).textTheme.bodySmall!
-                      .copyWith(fontWeight: FontWeight.w500),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
                 ),
                 AppText(
                   title: "Backpack",
                   maxLine: 5,
-                  style: Theme.of(context).textTheme.bodySmall!
-                      .copyWith(fontWeight: FontWeight.w500),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: AppSize.height(height: 2.0)),
                 Row(
@@ -57,9 +57,7 @@ class CustomProductOrderCard extends StatelessWidget {
                     AppText(
                       title: "\$149.99",
                       maxLine: 5,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall!.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w900,
                       ),
@@ -70,9 +68,12 @@ class CustomProductOrderCard extends StatelessWidget {
                       width: AppSize.width(width: 27.0),
                       height: AppSize.height(height: 4.0),
                       title: AppStaticKey.viewDetails,
-                      borderRadius: BorderRadius.circular(AppSize.height(height: 0.8)),
-                      style: Theme.of(context).textTheme.bodySmall!
-                          .copyWith(color: AppColors.white),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 0.8),
+                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall!.copyWith(color: AppColors.white),
                       padding: EdgeInsets.zero,
                     ),
                   ],

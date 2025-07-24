@@ -7,30 +7,42 @@ class ReviewsService {
 
   Future<GetReviewModel> fetchReviews(String productId) async {
     try {
+      print('🟡 Fetching reviews for product: $productId');
       final response = await _dio.get(
         '${AppUrls.baseUrl}/review/product/$productId',
       );
 
+      print('🟢 Raw response: ${response.data}');
+
       if (response.statusCode == 200) {
-        // Parse the response using our model
-        return GetReviewModel.fromJson(response.data);
+        try {
+          final parsedData = GetReviewModel.fromJson(response.data);
+          print(
+            '🟢 Successfully parsed ${parsedData.data.result.length} reviews',
+          );
+          return parsedData;
+        } catch (e) {
+          print('🔴 Parsing error: $e');
+          throw Exception('Failed to parse reviews: $e');
+        }
       } else {
-        throw Exception('Failed to fetch reviews: ${response.statusCode}');
+        throw Exception(
+          'Failed to fetch reviews. Status code: ${response.statusCode}',
+        );
       }
     } on DioException catch (e) {
-      print('🔴 Dio Error fetching reviews: ${e.message}');
+      print('🔴 Dio Error: ${e.message}');
       if (e.response != null) {
         print('🔴 Response data: ${e.response?.data}');
-        print('🔴 Response status: ${e.response?.statusCode}');
+        print('🔴 Status code: ${e.response?.statusCode}');
       }
-      rethrow;
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
-      print('🔴 Error fetching reviews: $e');
-      rethrow;
+      print('🔴 Unexpected error: $e');
+      throw Exception('Unexpected error: $e');
     }
   }
 
-  // Optional: Add method to post a new review
   Future<bool> postReview({
     required String productId,
     required double rating,
@@ -45,13 +57,18 @@ class ReviewsService {
           'comment': comment,
           'refferenceId': productId,
           'review_type': 'Product',
-          'images': images,
+          'images': images ?? [],
         },
       );
+      print('🟢 Response: ${response.data}');
 
-      return response.statusCode == 200 && response.data['success'] == true;
+      return response.statusCode == 200 &&
+          (response.data['success'] as bool? ?? false);
     } on DioException catch (e) {
       print('🔴 Error posting review: ${e.message}');
+      if (e.response != null) {
+        print('🔴 Response data: ${e.response?.data}');
+      }
       return false;
     }
   }

@@ -192,4 +192,18 @@ abstract class AppStaticKey {
   static const String lowestRating = "Lowest Rating";
   static const String newestFirst = "Newest First";
   static const String oldestFirst = "Oldest First";
+
+  static var choosePaymentMethod;
+
+  static var editShippingAddress;
+
+  static var fullAddress;
+
+  static String error = "Error";
+
+  static String pleaseAcceptTerms = "Please accept terms and conditions";
+
+  static var editAddress;
+
+  static var cancel;
 }

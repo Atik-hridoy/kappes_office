@@ -11,11 +11,11 @@ class OngoingOrdersView extends GetView {
     return Scaffold(
       body: ListView.separated(
         itemCount: 5,
-        itemBuilder: (context, index){
+        itemBuilder: (context, index) {
           return CustomProductOrderCard();
         },
-        separatorBuilder: (context, index){
-          return SizedBox(height: AppSize.height(height: 2.0),);
+        separatorBuilder: (context, index) {
+          return SizedBox(height: AppSize.height(height: 2.0));
         },
       ),
     );

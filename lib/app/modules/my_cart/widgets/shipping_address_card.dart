@@ -5,6 +5,9 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
+
 class ShippingAddressCard extends StatelessWidget {
   const ShippingAddressCard({super.key});
 
@@ -13,9 +16,7 @@ class ShippingAddressCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.lightGray),
-        borderRadius: BorderRadius.circular(
-          AppSize.height(height: 1.0),
-        ),
+        borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
       ),
       child: Column(
         children: [
@@ -38,9 +39,7 @@ class ShippingAddressCard extends StatelessWidget {
                 SizedBox(width: AppSize.width(width: 2.0)),
                 AppText(
                   title: AppStaticKey.shippingAddress,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontSize: AppSize.height(height: 2.0),
                     color: AppColors.white,
                   ),
@@ -59,41 +58,56 @@ class ShippingAddressCard extends StatelessWidget {
             child: Column(
               spacing: AppSize.height(height: 1.0),
               children: [
-                Row(
-                  spacing: AppSize.width(width: 1.5),
-                  children: [
-                    ImageIcon(
-                      AssetImage(AppIcons.person),
-                      size: AppSize.height(height: 2.0),
-                    ),
-                    AppText(title: "Jack Taylor"),
-                  ],
-                ),
-                Row(
-                  spacing: AppSize.width(width: 1.5),
-                  children: [
-                    ImageIcon(
-                      AssetImage(AppIcons.phone),
-                      size: AppSize.height(height: 2.0),
-                    ),
-                    AppText(title: "+123456789101"),
-                  ],
-                ),
-                Row(
-                  spacing: AppSize.width(width: 1.5),
-                  children: [
-                    ImageIcon(
-                      AssetImage(AppIcons.marker),
-                      size: AppSize.height(height: 2.0),
-                    ),
-                    Flexible(
-                      child: AppText(
-                        title:
-                        "123 Maple Street ,Apt 456, Toronto, ON M5A 1A1 ,Canada",
-                        maxLine: 5,
-                      ),
-                    ),
-                  ],
+                // Use Obx to reactively show user info from CheckoutViewController
+                Builder(
+                  builder: (_) {
+                    final controller = Get.find<CheckoutViewController>();
+                    return Column(
+                      children: [
+                        Row(
+                          spacing: AppSize.width(width: 1.5),
+                          children: [
+                            ImageIcon(
+                              AssetImage(AppIcons.person),
+                              size: AppSize.height(height: 2.0),
+                            ),
+                            Obx(
+                              () => AppText(title: controller.userName.value),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: AppSize.width(width: 1.5),
+                          children: [
+                            ImageIcon(
+                              AssetImage(AppIcons.phone),
+                              size: AppSize.height(height: 2.0),
+                            ),
+                            Obx(
+                              () => AppText(title: controller.userPhone.value),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: AppSize.width(width: 1.5),
+                          children: [
+                            ImageIcon(
+                              AssetImage(AppIcons.marker),
+                              size: AppSize.height(height: 2.0),
+                            ),
+                            Flexible(
+                              child: Obx(
+                                () => AppText(
+                                  title: controller.userAddress.value,
+                                  maxLine: 5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

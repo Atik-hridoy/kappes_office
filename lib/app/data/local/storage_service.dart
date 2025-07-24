@@ -11,17 +11,18 @@ class LocalStorage {
   static String myImage = "";
   static String myName = "";
   static String myEmail = "";
+  static String myAddress = ""; // Address storage
+  static String phone = ""; // Phone number storage
 
-  // Create Local Storage Instance
   static SharedPreferences? preferences;
 
-  /// Get SharedPreferences Instance
+  /// Get SharedPreferences instance
   static Future<SharedPreferences> _getStorage() async {
     preferences ??= await SharedPreferences.getInstance();
     return preferences!;
   }
 
-  /// Get All Data From SharedPreferences
+  /// Load all values from SharedPreferences
   static Future<void> getAllPrefData() async {
     final localStorage = await _getStorage();
 
@@ -33,29 +34,46 @@ class LocalStorage {
     myImage = localStorage.getString(LocalStorageKeys.myImage) ?? "";
     myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
     myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
+    myAddress = localStorage.getString(LocalStorageKeys.myAddress) ?? "";
+    phone = localStorage.getString(LocalStorageKeys.phone) ?? ""; // ✅ added
 
-    appLog(userId, source: "Local Storage");
+    appLog("UserID: $userId", source: "Local Storage", isError: false);
   }
 
-  // Reset LocalStorage Data
-
-  // Save Data To SharedPreferences
+  /// Save String
   static Future<void> setString(String key, String value) async {
     final localStorage = await _getStorage();
     await localStorage.setString(key, value);
   }
 
+  /// Save Bool
   static Future<void> setBool(String key, bool value) async {
     final localStorage = await _getStorage();
     await localStorage.setBool(key, value);
   }
 
-  // Get Data From SharedPreferences (Retrieve string values)
+  /// Get String by key
   static Future<String> getString(String key) async {
     final localStorage = await _getStorage();
-    return localStorage.getString(key) ??
-        ''; // Return empty string if the value is not found
+    return localStorage.getString(key) ?? '';
   }
 
-  // Optionally, you can add similar methods for retrieving other types like bool, int, etc.
+  /// Optional: Clear everything (on logout)
+  static Future<void> clearAll() async {
+    final localStorage = await _getStorage();
+    await localStorage.clear();
+
+    token = "";
+    cookie = "";
+    refreshToken = "";
+    isLogIn = false;
+    userId = "";
+    myImage = "";
+    myName = "";
+    myEmail = "";
+    myAddress = "";
+    phone = "";
+
+    appLog("🔐 Local storage cleared", source: "LocalStorage", isError: false);
+  }
 }

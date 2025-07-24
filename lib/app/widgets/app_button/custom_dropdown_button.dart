@@ -4,28 +4,52 @@ import 'package:flutter/material.dart';
 
 class CustomDropdownButton extends StatefulWidget {
   final String? hintText;
-  const CustomDropdownButton({super.key, this.hintText});
+  final String type; // Can be "deliveryOptions" or "paymentMethod"
+  final Function(String?)? onChanged;
+  final List<String> items;
+  final String? value;
+
+  const CustomDropdownButton({
+    super.key,
+    this.hintText,
+    required this.type,
+    required this.onChanged,
+    required this.items,
+    this.value,
+  });
 
   @override
   State<CustomDropdownButton> createState() => _CustomDropdownButtonState();
 }
 
 class _CustomDropdownButtonState extends State<CustomDropdownButton> {
-  List<String> items = ["option 1", "option 2", "option 3"];
+  String? selectedOption;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedOption = widget.value;
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> items =
+        widget.type == "deliveryOptions"
+            ? ["Standard", "Express", "Overnight"]
+            : ["Cod", "Card", "Online"];
     return DropdownButtonFormField2<String>(
+      value: selectedOption,
       isExpanded: true,
       decoration: InputDecoration(
-        // Add Horizontal padding using menuItemStyleData.padding so it matches
-        // the menu padding when button's width is not specified.
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        // Add more decoration..
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
       ),
       hint:
           widget.hintText != null
-              ? AppText(title: widget.hintText!, style: TextStyle(fontSize: 14))
+              ? AppText(
+                title: widget.hintText!,
+                style: const TextStyle(fontSize: 14),
+              )
               : null,
       items:
           items
@@ -38,15 +62,25 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               .toList(),
       validator: (value) {
         if (value == null) {
-          return 'Please select gender.';
+          return 'Please select an option.';
         }
         return null;
       },
       onChanged: (value) {
-        //Do something when selected item is changed.
+        setState(() {
+          selectedOption = value;
+        });
+        if (widget.onChanged != null) {
+          widget.onChanged!(value);
+        }
+        if (widget.type == "deliveryOptions") {
+          print("Selected Delivery Option: $selectedOption");
+        } else if (widget.type == "paymentMethod") {
+          print("Selected Payment Method: $selectedOption");
+        }
       },
       onSaved: (value) {
-        // selectedValue = value.toString();
+        selectedOption = value;
       },
       buttonStyleData: const ButtonStyleData(
         padding: EdgeInsets.only(right: 8),

@@ -10,9 +10,8 @@ class ProfileController extends GetxController {
   var email = ''.obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
-  
-
-
+  var phone = ''.obs;
+  var address = ''.obs;
 
   void fetchProfile() async {
     print("=====================>>>   Fetching profile data");
@@ -23,7 +22,7 @@ class ProfileController extends GetxController {
       // First try to get name and email from local storage
       final storedFullName = LocalStorage.myName;
       final storedEmail = LocalStorage.myEmail;
-      
+
       // Set the values from local storage first for immediate UI update
       fullName.value = storedFullName;
       email.value = storedEmail;
@@ -42,12 +41,13 @@ class ProfileController extends GetxController {
 
       if (response['success'] == true) {
         final profileData = response['data'] ?? {};
-        
+
         // Update with fresh data from server
-        fullName.value = profileData['full_name']?.toString() ??
-                    profileData['name']?.toString() ??
+        fullName.value =
+            profileData['full_name']?.toString() ??
+            profileData['name']?.toString() ??
             storedFullName;
-                    
+
         email.value = profileData['email']?.toString() ?? storedEmail;
 
         // Update local storage with fresh data
@@ -57,8 +57,19 @@ class ProfileController extends GetxController {
         if (email.value.isNotEmpty) {
           await LocalStorage.setString(LocalStorageKeys.myEmail, email.value);
         }
+        if (phone.value.isNotEmpty) {
+          await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
+        }
+        if (address.value.isNotEmpty) {
+          await LocalStorage.setString(
+            LocalStorageKeys.myAddress,
+            address.value,
+          );
+        }
 
-        print("=====================>>>   Updated profile data - Name: ${fullName.value}, Email: ${email.value}");
+        print(
+          "=====================>>>   Updated profile data - Name: ${fullName.value}, Email: ${email.value}, Phone: ${phone.value}, Address: ${address.value},",
+        );
       } else {
         final errorMsg = response['message'] ?? 'Failed to fetch profile data';
         print("=====================>>>   Profile API error: $errorMsg");
@@ -80,6 +91,4 @@ class ProfileController extends GetxController {
     super.onInit();
     fetchProfile();
   }
-
-
 }

@@ -49,6 +49,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
                     hintText: AppStaticKey.chooseDeliveryOption,
+                    type: 'deliveryOptions',
+                    onChanged: (String? value) {},
+                    items: ['Standard', 'Express', 'Overnight'],
+                    value: 'Express',
                   ),
 
                   /// payment method
@@ -63,6 +67,10 @@ class CheckoutView extends GetView<CheckoutViewController> {
                   SizedBox(height: AppSize.height(height: 1.0)),
                   CustomDropdownButton(
                     hintText: AppStaticKey.chooseDeliveryOption,
+                    type: 'paymentMethod',
+                    onChanged: (v) {},
+                    items: ['Cod', 'Card', 'Online'],
+                    value: 'Cod',
                   ),
                   SizedBox(height: AppSize.height(height: 2.0)),
                 ],
@@ -91,7 +99,7 @@ class CheckoutView extends GetView<CheckoutViewController> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    PromoCodeTextField(),
+                    PromoCodeTextField(onApply: (code) {}),
                     SizedBox(height: AppSize.height(height: 2.0)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

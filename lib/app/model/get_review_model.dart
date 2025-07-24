@@ -11,9 +11,9 @@ class GetReviewModel {
 
   factory GetReviewModel.fromJson(Map<String, dynamic> json) {
     return GetReviewModel(
-      success: json['success'] as bool,
-      message: json['message'] as String,
-      data: ReviewData.fromJson(json['data'] as Map<String, dynamic>),
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      data: ReviewData.fromJson(json['data'] as Map<String, dynamic>? ?? {}),
     );
   }
 
@@ -30,10 +30,10 @@ class ReviewData {
 
   factory ReviewData.fromJson(Map<String, dynamic> json) {
     return ReviewData(
-      meta: Meta.fromJson(json['meta'] as Map<String, dynamic>),
+      meta: Meta.fromJson(json['meta'] as Map<String, dynamic>? ?? {}),
       result:
-          (json['result'] as List)
-              .map((e) => Review.fromJson(e as Map<String, dynamic>))
+          (json['result'] as List? ?? [])
+              .map((e) => Review.fromJson(e as Map<String, dynamic>? ?? {}))
               .toList(),
     );
   }
@@ -61,10 +61,10 @@ class Meta {
 
   factory Meta.fromJson(Map<String, dynamic> json) {
     return Meta(
-      total: json['total'] as int,
-      limit: json['limit'] as int,
-      page: json['page'] as int,
-      totalPage: json['totalPage'] as int,
+      total: (json['total'] as num?)?.toInt() ?? 0,
+      limit: (json['limit'] as num?)?.toInt() ?? 0,
+      page: (json['page'] as num?)?.toInt() ?? 0,
+      totalPage: (json['totalPage'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -107,21 +107,39 @@ class Review {
     required this.images,
   });
 
-  factory Review.fromJson(Map<String, dynamic> json) {
+  factory Review.fromJson(Map<String, dynamic>? json) {
+    json ??= {};
     return Review(
-      id: json['_id'] as String,
-      customer: Customer.fromJson(json['customer'] as Map<String, dynamic>),
-      comment: json['comment'] as String,
-      rating: (json['rating'] as num).toDouble(),
-      refferenceId: json['refferenceId'] as String?,
-      reviewType: json['review_type'] as String,
-      isDeleted: json['isDeleted'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      v: json['__v'] as int,
-      isApproved: json['isApproved'] as bool,
-      images: (json['images'] as List).map((e) => e as String).toList(),
+      id: json['_id'] as String? ?? '',
+      customer: Customer.fromJson(
+        json['customer'] as Map<String, dynamic>? ?? {},
+      ),
+      comment: json['comment'] as String? ?? '',
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      refferenceId: _parseReferenceId(json['refferenceId']),
+      reviewType: json['review_type'] as String? ?? '',
+      isDeleted: json['isDeleted'] as bool? ?? false,
+      createdAt: _parseDateTime(json['createdAt']),
+      updatedAt: _parseDateTime(json['updatedAt']),
+      v: (json['__v'] as num?)?.toInt() ?? 0,
+      isApproved: json['isApproved'] as bool? ?? false,
+      images: (json['images'] as List? ?? []).map((e) => e.toString()).toList(),
     );
+  }
+
+  static String? _parseReferenceId(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is Map) return value.toString();
+    return value.toString();
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    try {
+      return DateTime.parse(value.toString());
+    } catch (e) {
+      return DateTime.now();
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -149,11 +167,12 @@ class Customer {
 
   Customer({required this.id, required this.fullName, required this.email});
 
-  factory Customer.fromJson(Map<String, dynamic> json) {
+  factory Customer.fromJson(Map<String, dynamic>? json) {
+    json ??= {};
     return Customer(
-      id: json['_id'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String,
+      id: json['_id'] as String? ?? '',
+      fullName: json['full_name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
     );
   }
 
