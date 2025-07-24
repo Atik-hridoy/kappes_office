@@ -16,6 +16,7 @@ abstract class AppStaticKey {
   static const String logInToContinueShoppingAndEnjoyPersonalizedOffers =
       "Log in to continue shopping and enjoy personalized offers";
   static const String email = "Email";
+  static const String promoCode = 'promo_code';
   static const String enterYourEmailAddress = "Enter your email address";
   static const String password = "Password";
   static const confirmPassword = "Confirm Password";

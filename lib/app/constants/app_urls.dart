@@ -56,6 +56,9 @@ abstract class AppUrls {
 
   // Wishlist endpoints
   static const String myCart = '/cart';
+
+  // Coupon endpoint
+  static const String getCoupon = '/coupon';
   static const String addToCart = '/cart/create';
   static const String wishlist = '/wishlist';
 }
