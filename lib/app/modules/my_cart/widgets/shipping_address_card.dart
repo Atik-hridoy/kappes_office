@@ -4,7 +4,6 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 
@@ -45,10 +44,60 @@ class ShippingAddressCard extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-                ImageIcon(
-                  AssetImage(AppIcons.edit),
-                  size: AppSize.height(height: 2.2),
-                  color: AppColors.white,
+                GestureDetector(
+                  onTap: () {
+                    final controller = Get.find<CheckoutViewController>();
+                    final nameController = TextEditingController(text: controller.userName.value);
+                    final addressController = TextEditingController(text: controller.userAddress.value);
+                    final phoneController = TextEditingController(text: controller.userPhone.value);
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Edit Shipping Address'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: nameController,
+                                decoration: InputDecoration(labelText: 'Name'),
+                              ),
+                              TextField(
+                                controller: addressController,
+                                decoration: InputDecoration(labelText: 'Address'),
+                              ),
+                              TextField(
+                                controller: phoneController,
+                                decoration: InputDecoration(labelText: 'Phone'),
+                                keyboardType: TextInputType.phone,
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                controller.userName.value = nameController.text.trim();
+                                controller.userAddress.value = addressController.text.trim();
+                                controller.userPhone.value = phoneController.text.trim();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('Save'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: ImageIcon(
+                    AssetImage(AppIcons.edit),
+                    size: AppSize.height(height: 2.2),
+                    color: AppColors.white,
+                  ),
                 ),
               ],
             ),

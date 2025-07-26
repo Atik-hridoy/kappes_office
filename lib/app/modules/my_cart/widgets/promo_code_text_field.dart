@@ -5,11 +5,22 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:flutter/material.dart';
 
-class PromoCodeTextField extends StatelessWidget {
-  const PromoCodeTextField({
-    super.key,
-    required Function(dynamic code) onApply,
-  });
+class PromoCodeTextField extends StatefulWidget {
+  final void Function(String code) onApply;
+  const PromoCodeTextField({super.key, required this.onApply});
+
+  @override
+  State<PromoCodeTextField> createState() => _PromoCodeTextFieldState();
+}
+
+class _PromoCodeTextFieldState extends State<PromoCodeTextField> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +41,7 @@ class PromoCodeTextField extends StatelessWidget {
           SizedBox(width: AppSize.width(width: 2.0)),
           Expanded(
             child: TextField(
+              controller: _controller,
               decoration: InputDecoration(
                 hintText: AppStaticKey.enterPromoCode,
                 border: OutlineInputBorder(
@@ -46,7 +58,9 @@ class PromoCodeTextField extends StatelessWidget {
           ),
           SizedBox(width: AppSize.width(width: 2.0)),
           AppCommonButton(
-            onPressed: () {},
+            onPressed: () {
+              widget.onApply(_controller.text.trim());
+            },
             height: AppSize.height(height: 4.5),
             width: AppSize.width(width: 22.0),
             style: Theme.of(
