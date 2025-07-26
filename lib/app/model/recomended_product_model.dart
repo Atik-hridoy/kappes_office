@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ProductResponse {
   final bool success;
   final String message;
@@ -11,11 +9,12 @@ class ProductResponse {
     required this.data,
   });
 
-  factory ProductResponse.fromJson(Map<String, dynamic> json) => ProductResponse(
-    success: json['success'] ?? false,
-    message: json['message'] ?? '',
-    data: ProductData.fromJson(json['data'] ?? {}),
-  );
+  factory ProductResponse.fromJson(Map<String, dynamic> json) =>
+      ProductResponse(
+        success: json['success'] ?? false,
+        message: json['message'] ?? '',
+        data: ProductData.fromJson(json['data'] ?? {}),
+      );
 }
 
 class ProductData {
@@ -79,7 +78,10 @@ class ProductData {
     isFeatured: json['isFeatured'] ?? false,
     tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
     avgRating: (json['avg_rating'] as num?)?.toDouble() ?? 0.0,
-    purchaseCount: json['purchaseCount'] != null && json['purchaseCount'] is num ? int.tryParse(json['purchaseCount'].toString()) ?? 0 : 0,
+    purchaseCount:
+        json['purchaseCount'] != null && json['purchaseCount'] is num
+            ? int.tryParse(json['purchaseCount'].toString()) ?? 0
+            : 0,
     viewCount: json['viewCount'] ?? 0,
     category: Category.fromJson(json['categoryId'] ?? {}),
     subcategory: Category.fromJson(json['subcategoryId'] ?? {}),
@@ -88,9 +90,10 @@ class ProductData {
     createdBy: json['createdBy'] ?? '',
     reviews: json['reviews'] ?? [],
     totalReviews: json['totalReviews'] ?? 0,
-    productVariantDetails: (json['product_variant_Details'] as List)
-        .map((e) => ProductVariantDetails.fromJson(e))
-        .toList(),
+    productVariantDetails:
+        (json['product_variant_Details'] as List)
+            .map((e) => ProductVariantDetails.fromJson(e))
+            .toList(),
     isDeleted: json['isDeleted'] ?? false,
     isRecommended: json['isRecommended'] ?? false,
     createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toString()),
@@ -102,30 +105,20 @@ class Category {
   final String id;
   final String name;
 
-  Category({
-    required this.id,
-    required this.name,
-  });
+  Category({required this.id, required this.name});
 
-  factory Category.fromJson(Map<String, dynamic> json) => Category(
-    id: json['_id'] ?? '',
-    name: json['name'] ?? '',
-  );
+  factory Category.fromJson(Map<String, dynamic> json) =>
+      Category(id: json['_id'] ?? '', name: json['name'] ?? '');
 }
 
 class Brand {
   final String id;
   final String name;
 
-  Brand({
-    required this.id,
-    required this.name,
-  });
+  Brand({required this.id, required this.name});
 
-  factory Brand.fromJson(Map<String, dynamic> json) => Brand(
-    id: json['_id'] ?? '',
-    name: json['name'] ?? '',
-  );
+  factory Brand.fromJson(Map<String, dynamic> json) =>
+      Brand(id: json['_id'] ?? '', name: json['name'] ?? '');
 }
 
 class Shop {
@@ -238,13 +231,8 @@ class ColorData {
   final String name;
   final String code;
 
-  ColorData({
-    required this.name,
-    required this.code,
-  });
+  ColorData({required this.name, required this.code});
 
-  factory ColorData.fromJson(Map<String, dynamic> json) => ColorData(
-    name: json['name'] ?? '',
-    code: json['code'] ?? '',
-  );
+  factory ColorData.fromJson(Map<String, dynamic> json) =>
+      ColorData(name: json['name'] ?? '', code: json['code'] ?? '');
 }

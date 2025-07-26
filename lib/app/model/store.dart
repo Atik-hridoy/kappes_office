@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Shop {
   bool success;
   String message;
@@ -16,11 +14,7 @@ class Shop {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'data': data?.toJson(),
-    };
+    return {'success': success, 'message': message, 'data': data?.toJson()};
   }
 }
 
@@ -89,20 +83,29 @@ class ShopData {
 
   factory ShopData.fromJson(Map<String, dynamic> json) {
     return ShopData(
-      address: json['address'] != null ? Address.fromJson(json['address']) : null,
-      location: json['location'] != null ? Location.fromJson(json['location']) : null,
-      settings: json['settings'] != null ? ShopSettings.fromJson(json['settings']) : null,
+      address:
+          json['address'] != null ? Address.fromJson(json['address']) : null,
+      location:
+          json['location'] != null ? Location.fromJson(json['location']) : null,
+      settings:
+          json['settings'] != null
+              ? ShopSettings.fromJson(json['settings'])
+              : null,
       id: json['_id'] ?? '',
       name: json['name'] ?? '',
       categories: List<String>.from(json['categories'] ?? []),
-      owner: json['owner'] != null ? Owner.fromJson(json['owner']) : Owner(id: '', email: ''),
+      owner:
+          json['owner'] != null
+              ? Owner.fromJson(json['owner'])
+              : Owner(id: '', email: ''),
       phone: json['phone'] ?? '',
       email: json['email'] ?? '',
       isDeleted: json['isDeleted'] ?? false,
       isActive: json['isActive'] ?? false,
-      workingHours: (json['working_hours'] as List)
-          .map((i) => WorkingHour.fromJson(i))
-          .toList(),
+      workingHours:
+          (json['working_hours'] as List)
+              .map((i) => WorkingHour.fromJson(i))
+              .toList(),
       reviews: List<dynamic>.from(json['reviews'] ?? []),
       admins: List<dynamic>.from(json['admins'] ?? []),
       followers: List<dynamic>.from(json['followers'] ?? []),
@@ -165,17 +168,11 @@ class Owner {
   Owner({required this.id, required this.email});
 
   factory Owner.fromJson(Map<String, dynamic> json) {
-    return Owner(
-      id: json['_id'] ?? '',
-      email: json['email'] ?? '',
-    );
+    return Owner(id: json['_id'] ?? '', email: json['email'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'email': email,
-    };
+    return {'_id': id, 'email': email};
   }
 }
 
@@ -229,10 +226,7 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'coordinates': coordinates,
-    };
+    return {'type': type, 'coordinates': coordinates};
   }
 }
 
@@ -280,10 +274,6 @@ class WorkingHour {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'day': day,
-      'start': start,
-      'end': end,
-    };
+    return {'day': day, 'start': start, 'end': end};
   }
 }

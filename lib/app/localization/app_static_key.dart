@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 abstract class AppStaticKey {
   static const String welcomeMessage = "Welcome to The Canuck Mall";
   static const String onboardOneDescription =
@@ -36,6 +38,7 @@ abstract class AppStaticKey {
   joinUsToExploreTopCanadianMadeProductsExclusiveDealsAndGreatRewards =
       "Join us to explore top Canadian-made products, exclusive deals, and great rewards";
   static const fullName = "Full Name";
+
   static const phone = "Phone";
   static const enterYourFullName = "Enter your full name";
   static const enterYourPhoneNumber = "Enter your phone number";
@@ -77,6 +80,7 @@ abstract class AppStaticKey {
   static const address = "Address";
   static const search = "Search";
   static const popularCategories = "Popular Categories";
+
   static const String seeAll = "See all";
   static const String recommendedForYou = "Recommended for you";
   static const String trendingProducts = "Trending Products";
@@ -143,6 +147,7 @@ abstract class AppStaticKey {
   static const String searchService = "Search Service";
   static const String findTrusted = "Find Trusted";
   static const String tradesServicesNearYou = "Trades & Services near you";
+
   static const searchTradesServices = "Search Trades & Services";
   static const companyDetails = "Company Details";
   static const services = "Services";
@@ -156,6 +161,7 @@ abstract class AppStaticKey {
   static const send = "Send";
   static const copy = "Copy ";
   static const searchMessage = "Search message";
+
   static const String writeAMessage = "Write a message";
   static const String profileSettings = "Profile Settings";
   static const String personalInformation = "Personal Information";

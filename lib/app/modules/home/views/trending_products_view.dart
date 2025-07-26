@@ -1,7 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/trending_products_view_controller.dart';
 import 'package:canuck_mall/app/widgets/product_card.dart';
-
 
 class TrendingProductsView extends GetView<TrendingProductsController> {
   const TrendingProductsView({super.key});
@@ -55,9 +53,8 @@ class TrendingProductsView extends GetView<TrendingProductsController> {
                         SizedBox(width: AppSize.width(width: 2.0)),
                         AppText(
                           title: AppStaticKey.filter,
-                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(fontWeight: FontWeight.w500),
                         ),
                         const Spacer(),
                         ImageIcon(
@@ -67,9 +64,8 @@ class TrendingProductsView extends GetView<TrendingProductsController> {
                         SizedBox(width: AppSize.width(width: 2.0)),
                         AppText(
                           title: AppStaticKey.sort,
-                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -88,9 +84,10 @@ class TrendingProductsView extends GetView<TrendingProductsController> {
                         final product = controller.products[index];
                         final List images = product['images'] ?? [];
 
-                        final imageUrl = images.isNotEmpty
-                            ? '${AppUrls.imageUrl}${images.first}'
-                            : 'https://via.placeholder.com/150';
+                        final imageUrl =
+                            images.isNotEmpty
+                                ? '${AppUrls.imageUrl}${images.first}'
+                                : 'https://via.placeholder.com/150';
 
                         return ProductCard(
                           imageUrl: imageUrl,

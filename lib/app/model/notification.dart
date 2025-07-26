@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Notification {
   final String id;
   final String message;
@@ -54,25 +52,16 @@ class Receiver {
   final String id;
   final String email;
 
-  Receiver({
-    required this.id,
-    required this.email,
-  });
+  Receiver({required this.id, required this.email});
 
   // Factory constructor to create Receiver object from JSON
   factory Receiver.fromJson(Map<String, dynamic> json) {
-    return Receiver(
-      id: json['_id'] ?? '',
-      email: json['email'] ?? '',
-    );
+    return Receiver(id: json['_id'] ?? '', email: json['email'] ?? '');
   }
 
   // Method to convert Receiver object back to JSON
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'email': email,
-    };
+    return {'_id': id, 'email': email};
   }
 }
 
@@ -108,9 +97,7 @@ class NotificationResponse {
       'message': message,
       'data': {
         'meta': meta.toJson(),
-        'result': {
-          'result': notifications.map((x) => x.toJson()).toList(),
-        },
+        'result': {'result': notifications.map((x) => x.toJson()).toList()},
       },
     };
   }

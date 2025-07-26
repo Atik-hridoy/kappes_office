@@ -1,6 +1,6 @@
+// ignore_for_file: file_names
+
 import 'package:canuck_mall/app/model/get_my_order.dart';
-import 'package:canuck_mall/app/model/get_my_order_model.dart'
-    hide GetMyOrder, Order;
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 // Main Product Model
 class TrendingProductModel {
   final bool success;
@@ -21,11 +19,7 @@ class TrendingProductModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'data': data.toJson(),
-    };
+    return {'success': success, 'message': message, 'data': data.toJson()};
   }
 }
 
@@ -34,15 +28,14 @@ class ProductData {
   final ProductMeta meta;
   final List<Product> result;
 
-  ProductData({
-    required this.meta,
-    required this.result,
-  });
+  ProductData({required this.meta, required this.result});
 
   factory ProductData.fromJson(Map<String, dynamic> json) {
     return ProductData(
       meta: ProductMeta.fromJson(json['meta']),
-      result: List<Product>.from(json['result'].map((item) => Product.fromJson(item))),
+      result: List<Product>.from(
+        json['result'].map((item) => Product.fromJson(item)),
+      ),
     );
   }
 
@@ -159,7 +152,11 @@ class Product {
       createdBy: json['createdBy'],
       reviews: List<String>.from(json['reviews']),
       totalReviews: json['totalReviews'],
-      productVariantDetails: List<ProductVariant>.from(json['product_variant_Details'].map((item) => ProductVariant.fromJson(item))),
+      productVariantDetails: List<ProductVariant>.from(
+        json['product_variant_Details'].map(
+          (item) => ProductVariant.fromJson(item),
+        ),
+      ),
       isDeleted: json['isDeleted'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
@@ -187,7 +184,8 @@ class Product {
       'createdBy': createdBy,
       'reviews': reviews,
       'totalReviews': totalReviews,
-      'product_variant_Details': productVariantDetails.map((item) => item.toJson()).toList(),
+      'product_variant_Details':
+          productVariantDetails.map((item) => item.toJson()).toList(),
       'isDeleted': isDeleted,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
@@ -201,23 +199,14 @@ class Category {
   final String id;
   final String name;
 
-  Category({
-    required this.id,
-    required this.name,
-  });
+  Category({required this.id, required this.name});
 
   factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['_id'],
-      name: json['name'],
-    );
+    return Category(id: json['_id'], name: json['name']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-    };
+    return {'_id': id, 'name': name};
   }
 }
 
@@ -226,23 +215,14 @@ class Shop {
   final String id;
   final String name;
 
-  Shop({
-    required this.id,
-    required this.name,
-  });
+  Shop({required this.id, required this.name});
 
   factory Shop.fromJson(Map<String, dynamic> json) {
-    return Shop(
-      id: json['_id'],
-      name: json['name'],
-    );
+    return Shop(id: json['_id'], name: json['name']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-    };
+    return {'_id': id, 'name': name};
   }
 }
 
@@ -251,23 +231,14 @@ class Brand {
   final String id;
   final String name;
 
-  Brand({
-    required this.id,
-    required this.name,
-  });
+  Brand({required this.id, required this.name});
 
   factory Brand.fromJson(Map<String, dynamic> json) {
-    return Brand(
-      id: json['_id'],
-      name: json['name'],
-    );
+    return Brand(id: json['_id'], name: json['name']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-    };
+    return {'_id': id, 'name': name};
   }
 }
 

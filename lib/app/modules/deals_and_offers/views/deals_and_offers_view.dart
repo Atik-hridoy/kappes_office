@@ -4,15 +4,7 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/modules/company_details/widget/coupon.dart';
-
-import '../controllers/deals_and_offers_controller.dart';  // Assuming Coupon is a widget to display each offer
-import 'package:flutter/material.dart';
-
-
-
-
-
+import '../controllers/deals_and_offers_controller.dart';
 
 class DealsAndOffersView extends GetView<DealsAndOffersController> {
   const DealsAndOffersView({super.key});
@@ -34,7 +26,9 @@ class DealsAndOffersView extends GetView<DealsAndOffersController> {
         child: Obx(() {
           // If data is being fetched and dealsAndOffers is empty
           if (controller.dealsAndOffers.isEmpty) {
-            return Center(child: CircularProgressIndicator()); // Show loading spinner
+            return Center(
+              child: CircularProgressIndicator(),
+            ); // Show loading spinner
           }
 
           return ListView.separated(
@@ -42,11 +36,10 @@ class DealsAndOffersView extends GetView<DealsAndOffersController> {
             itemBuilder: (context, index) {
               var deal = controller.dealsAndOffers[index];
 
-              // Ensure that data exists for each deal
               return Coupon(
-                productName: deal['name'] ?? 'N/A', // Fallback if missing
-                basePrice: deal['basePrice'] ?? 0.0, // Fallback if missing
-                offerPrice: deal['offerPrice'] ?? 0.0, // Fallback if missing
+                productName: deal['name'] ?? 'N/A',
+                basePrice: deal['basePrice'] ?? 0.0,
+                offerPrice: deal['offerPrice'] ?? 0.0,
               );
             },
             separatorBuilder: (context, index) {
@@ -58,12 +51,6 @@ class DealsAndOffersView extends GetView<DealsAndOffersController> {
     );
   }
 }
-
-
-
-
-
-
 
 class Coupon extends StatelessWidget {
   final String productName;
@@ -88,4 +75,3 @@ class Coupon extends StatelessWidget {
     );
   }
 }
-

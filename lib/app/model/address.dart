@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Shop {
   String id;
   String name;
@@ -14,12 +12,12 @@ class Shop {
   Address address;
   Location location;
   List<WorkingHour> workingHours;
-  List<dynamic> reviews; // Reviews could be a list of objects
-  List<dynamic> admins; // Admins can be an array of user objects
-  List<dynamic> followers; // Followers can also be dynamic
-  List<dynamic> coupons; // List of coupons
-  List<dynamic> chats; // List of chat objects
-  List<dynamic> orders; // List of orders
+  List<dynamic> reviews;
+  List<dynamic> admins;
+  List<dynamic> followers;
+  List<dynamic> coupons;
+  List<dynamic> chats;
+  List<dynamic> orders;
   String website;
   int rating;
   int totalReviews;
@@ -74,7 +72,8 @@ class Shop {
       address: Address.fromJson(json['address']),
       location: Location.fromJson(json['location']),
       workingHours: List<WorkingHour>.from(
-          json['working_hours'].map((x) => WorkingHour.fromJson(x))),
+        json['working_hours'].map((x) => WorkingHour.fromJson(x)),
+      ),
       reviews: List<dynamic>.from(json['reviews']),
       admins: List<dynamic>.from(json['admins']),
       followers: List<dynamic>.from(json['followers']),
@@ -91,8 +90,6 @@ class Shop {
       distance: json['distance'],
     );
   }
-
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -167,10 +164,7 @@ class Location {
   String type;
   List<double> coordinates;
 
-  Location({
-    required this.type,
-    required this.coordinates,
-  });
+  Location({required this.type, required this.coordinates});
 
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
@@ -180,10 +174,7 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'coordinates': coordinates,
-    };
+    return {'type': type, 'coordinates': coordinates};
   }
 }
 
@@ -192,11 +183,7 @@ class WorkingHour {
   String start;
   String end;
 
-  WorkingHour({
-    required this.day,
-    required this.start,
-    required this.end,
-  });
+  WorkingHour({required this.day, required this.start, required this.end});
 
   factory WorkingHour.fromJson(Map<String, dynamic> json) {
     return WorkingHour(
@@ -207,11 +194,7 @@ class WorkingHour {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'day': day,
-      'start': start,
-      'end': end,
-    };
+    return {'day': day, 'start': start, 'end': end};
   }
 }
 
@@ -219,10 +202,7 @@ class Settings {
   bool allowChat;
   bool autoAcceptOrders;
 
-  Settings({
-    required this.allowChat,
-    required this.autoAcceptOrders,
-  });
+  Settings({required this.allowChat, required this.autoAcceptOrders});
 
   factory Settings.fromJson(Map<String, dynamic> json) {
     return Settings(
@@ -232,9 +212,6 @@ class Settings {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'allowChat': allowChat,
-      'autoAcceptOrders': autoAcceptOrders,
-    };
+    return {'allowChat': allowChat, 'autoAcceptOrders': autoAcceptOrders};
   }
 }

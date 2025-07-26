@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class GetCartModel {
   final bool success;
   final String message;

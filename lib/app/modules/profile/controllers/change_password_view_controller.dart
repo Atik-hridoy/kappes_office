@@ -1,17 +1,15 @@
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import '../../../data/netwok/profile/change_password_service.dart';
 
-
 class ChangePasswordViewController extends GetxController {
   final TextEditingController currentPasswordTextEditingController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController createPasswordTextEditingController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController confirmPasswordTextEditingController =
-  TextEditingController();
+      TextEditingController();
 
   final RxBool isCurrentPasswordVisible = false.obs;
   final RxBool isCreatePasswordVisible = false.obs;

@@ -1,11 +1,11 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 
 class ShippingAddressCard extends StatelessWidget {
   const ShippingAddressCard({super.key});
@@ -47,15 +47,21 @@ class ShippingAddressCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     final controller = Get.find<CheckoutViewController>();
-                    final nameController = TextEditingController(text: controller.userName.value);
-                    final addressController = TextEditingController(text: controller.userAddress.value);
-                    final phoneController = TextEditingController(text: controller.userPhone.value);
+                    final nameController = TextEditingController(
+                      text: controller.userName.value,
+                    );
+                    final addressController = TextEditingController(
+                      text: controller.userAddress.value,
+                    );
+                    final phoneController = TextEditingController(
+                      text: controller.userPhone.value,
+                    );
                     showDialog(
                       context: context,
                       barrierDismissible: false,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text('Edit Shipping Address'),
+                          title: Text("Edit Shipping Address"),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -65,7 +71,9 @@ class ShippingAddressCard extends StatelessWidget {
                               ),
                               TextField(
                                 controller: addressController,
-                                decoration: InputDecoration(labelText: 'Address'),
+                                decoration: InputDecoration(
+                                  labelText: 'Address',
+                                ),
                               ),
                               TextField(
                                 controller: phoneController,
@@ -80,10 +88,15 @@ class ShippingAddressCard extends StatelessWidget {
                               child: Text('Cancel'),
                             ),
                             ElevatedButton(
-                              onPressed: () {
-                                controller.userName.value = nameController.text.trim();
-                                controller.userAddress.value = addressController.text.trim();
-                                controller.userPhone.value = phoneController.text.trim();
+                              onPressed: () async {
+                                controller.userName.value =
+                                    nameController.text.trim();
+                                controller.userAddress.value =
+                                    addressController.text.trim();
+                                controller.userPhone.value =
+                                    phoneController.text.trim();
+                                await controller.saveUserData();
+                                // ignore: use_build_context_synchronously
                                 Navigator.of(context).pop();
                               },
                               child: Text('Save'),
@@ -107,9 +120,8 @@ class ShippingAddressCard extends StatelessWidget {
             child: Column(
               spacing: AppSize.height(height: 1.0),
               children: [
-                // Use Obx to reactively show user info from CheckoutViewController
                 Builder(
-                  builder: (_) {
+                  builder: (context) {
                     final controller = Get.find<CheckoutViewController>();
                     return Column(
                       children: [

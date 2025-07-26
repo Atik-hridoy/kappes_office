@@ -1,5 +1,4 @@
 import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
@@ -20,16 +19,18 @@ class ForgotPasswordView extends StatelessWidget {
         builder: (controller) {
           return SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(AppSize.height(height: 2.0),),
+              padding: EdgeInsets.all(AppSize.height(height: 2.0)),
               child: Form(
                 key: controller.formKey,
                 child: Column(
                   children: [
-                    SizedBox(height: AppSize.height(height: 5.0),),
+                    SizedBox(height: AppSize.height(height: 5.0)),
                     Center(
                       child: AppText(
                         title: AppStaticKey.forgotPassword,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium!.copyWith(
                           color: AppColors.primary,
                           fontSize: AppSize.height(height: 2.50),
                           fontWeight: FontWeight.w900,
@@ -40,8 +41,8 @@ class ForgotPasswordView extends StatelessWidget {
                       width: AppSize.width(width: 73.0),
                       child: AppText(
                         title:
-                        AppStaticKey
-                            .enterTheEmailAssociatedWithYourAccountAndWeWillSendAnEmailWithCodeToResetYourPassword,
+                            AppStaticKey
+                                .enterTheEmailAssociatedWithYourAccountAndWeWillSendAnEmailWithCodeToResetYourPassword,
                         maxLine: 3,
                         textAlign: TextAlign.center,
                         style: Theme.of(
@@ -49,7 +50,7 @@ class ForgotPasswordView extends StatelessWidget {
                         ).textTheme.bodySmall!.copyWith(letterSpacing: 0.0),
                       ),
                     ),
-                    SizedBox(height: AppSize.height(height: 4.0),),
+                    SizedBox(height: AppSize.height(height: 4.0)),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: AppText(
@@ -57,7 +58,7 @@ class ForgotPasswordView extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
-                    SizedBox(height: AppSize.height(height: 0.5),),
+                    SizedBox(height: AppSize.height(height: 0.5)),
                     TextFormField(
                       controller: controller.emailController,
                       decoration: InputDecoration(
@@ -90,7 +91,7 @@ class ForgotPasswordView extends StatelessWidget {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }

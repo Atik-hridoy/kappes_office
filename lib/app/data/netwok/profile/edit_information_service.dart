@@ -22,12 +22,6 @@ class EditInformationViewService {
       final formData = FormData();
 
       // Add fields only if they are not empty after trimming
-      void addIfNotEmpty(String key, String value) {
-        final trimmed = value.trim();
-        if (trimmed.isNotEmpty) {
-          formData.fields.add(MapEntry(key, trimmed));
-        }
-      }
 
       // // Add fields with proper null/empty checks
       // addIfNotEmpty('full_name', fullName);

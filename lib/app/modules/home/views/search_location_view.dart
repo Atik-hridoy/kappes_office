@@ -1,4 +1,3 @@
-import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -99,15 +98,17 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppText(
-                        title: marker != null
-                            ? "Selected Location"
-                            : "Toronto, Canada",
+                        title:
+                            marker != null
+                                ? "Selected Location"
+                                : "Toronto, Canada",
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       AppText(
-                        title: marker != null
-                            ? "${marker.position.latitude}, ${marker.position.longitude}"
-                            : "43.651070, -79.347015",
+                        title:
+                            marker != null
+                                ? "${marker.position.latitude}, ${marker.position.longitude}"
+                                : "43.651070, -79.347015",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -162,15 +163,17 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
 
     return Obx(() {
       final camPos =
-          controller.dynamicCameraPosition.value ?? controller.initialCameraPosition;
+          controller.dynamicCameraPosition.value ??
+          controller.initialCameraPosition;
 
       return GoogleMap(
         onMapCreated: controller.onMapCreated,
         initialCameraPosition: camPos,
         mapType: controller.mapType.value,
-        markers: controller.selectedMarker.value != null
-            ? {controller.selectedMarker.value!}
-            : {},
+        markers:
+            controller.selectedMarker.value != null
+                ? {controller.selectedMarker.value!}
+                : {},
         myLocationEnabled: true,
         myLocationButtonEnabled: true,
         compassEnabled: true,
@@ -192,9 +195,7 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
       padding: EdgeInsets.all(AppSize.height(height: 1.5)),
       width: double.maxFinite,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-          AppSize.height(height: 1.5),
-        ),
+        borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
         border: Border.all(color: AppColors.lightGray),
       ),
       child: Column(

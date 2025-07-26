@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -349,7 +351,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                         final productId = controller.product.value?.id ?? '';
                         final variantId = controller.selectedVariantId.value;
                         final qty = controller.selectedQuantity.value;
-                        final shopId = controller.product.value?.shop?.id ?? '';
+                        final shopId = controller.product.value?.shop.id ?? '';
 
                         if (productId.isEmpty || variantId.isEmpty) {
                           Get.snackbar(

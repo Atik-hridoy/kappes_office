@@ -23,7 +23,10 @@ class ForgetPasswordService {
         return {'success': true, ...jsonDecode(response.body)};
       } else {
         final data = jsonDecode(response.body);
-        return {'success': false, 'message': data['message'] ?? 'OTP request failed'};
+        return {
+          'success': false,
+          'message': data['message'] ?? 'OTP request failed',
+        };
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
@@ -31,7 +34,10 @@ class ForgetPasswordService {
   }
 
   // Accepts only email for OTP verification
-  Future<Map<String, dynamic>> verifyOtp({required String email, required int otp}) async {
+  Future<Map<String, dynamic>> verifyOtp({
+    required String email,
+    required int otp,
+  }) async {
     final url = Uri.parse(AppUrls.baseUrl + AppUrls.verifyEmail);
     if (email.isEmpty) {
       return {'success': false, 'message': 'Email is required'};
@@ -50,14 +56,21 @@ class ForgetPasswordService {
         return {'success': true, ...jsonDecode(response.body)};
       } else {
         final data = jsonDecode(response.body);
-        return {'success': false, 'message': data['message'] ?? 'OTP verification failed'};
+        return {
+          'success': false,
+          'message': data['message'] ?? 'OTP verification failed',
+        };
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
 
-  Future<Map<String, dynamic>> resetPassword({required String token, required String newPassword, required String confirmPassword}) async {
+  Future<Map<String, dynamic>> resetPassword({
+    required String token,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
     final url = Uri.parse(AppUrls.baseUrl + AppUrls.resetPassword);
     try {
       final response = await http.put(
@@ -76,7 +89,10 @@ class ForgetPasswordService {
         return {'success': true, ...jsonDecode(response.body)};
       } else {
         final data = jsonDecode(response.body);
-        return {'success': false, 'message': data['message'] ?? 'Password reset failed'};
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Password reset failed',
+        };
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};

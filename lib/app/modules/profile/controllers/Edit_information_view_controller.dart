@@ -1,12 +1,9 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:canuck_mall/app/data/netwok/profile/edit_information_service.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
-
-
 
 class EditInformationViewController extends GetxController {
   // ✅ Add this to fix the isLoading error
@@ -25,7 +22,7 @@ class EditInformationViewController extends GetxController {
     super.onInit();
     fullName.value = LocalStorage.myName;
     email.value = LocalStorage.myEmail;
-    phone.value = '';   // preload if available
+    phone.value = ''; // preload if available
     address.value = ''; // preload if available
     print('✅ Loaded user from LocalStorage: $fullName | $email');
   }

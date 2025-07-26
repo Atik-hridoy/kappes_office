@@ -1,7 +1,7 @@
 // checkout_view_controller.dart
+import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
-import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
@@ -19,16 +19,16 @@ class CheckoutViewController extends GetxController {
 
   // Delivery and Payment Options
   final List<String> deliveryOptions = [
-    'Standard (5-7 days)', // maps to 'Standard'
-    'Express (2-3 days)', // maps to 'Express'
-    'Overnight (1 day)', // maps to 'Overnight'
+    'Standard (5-7 days)',
+    'Express (2-3 days)',
+    'Overnight (1 day)',
   ];
   final RxString selectedDeliveryOption = 'Standard (5-7 days)'.obs;
 
   final List<String> paymentMethods = [
-    'Cod (Cash on Delivery)', // maps to 'Cod'
-    'Credit Card', // maps to 'Card'
-    'Online Payment', // maps to 'Online'
+    'Cod (Cash on Delivery)',
+    'Credit Card',
+    'Online Payment',
   ];
   final RxString selectedPaymentMethod = 'Cod (Cash on Delivery)'.obs;
 
@@ -56,6 +56,12 @@ class CheckoutViewController extends GetxController {
     name.value = userName.value;
     phone.value = userPhone.value;
     address.value = userAddress.value;
+  }
+
+  Future<void> saveUserData() async {
+    await LocalStorage.setString(LocalStorageKeys.myName, userName.value);
+    await LocalStorage.setString(LocalStorageKeys.myAddress, userAddress.value);
+    await LocalStorage.setString(LocalStorageKeys.phone, userPhone.value);
   }
 
   void toggleAddressEditing() {
@@ -89,7 +95,6 @@ class CheckoutViewController extends GetxController {
       await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
       await LocalStorage.setString(LocalStorageKeys.myAddress, address.value);
 
-      // Refresh from storage
       userName.value = name.value;
       userPhone.value = phone.value;
       userAddress.value = address.value;
@@ -132,39 +137,17 @@ class CheckoutViewController extends GetxController {
         Get.snackbar('Error', response.message);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create order: [31m${e.toString()}[0m');
+      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
     } finally {
       isLoading(false);
     }
   }
-
-  /// Parses the payment method from the given display text.
-  ///
-  /// This method checks if the provided `displayText` contains certain keywords
-  /// and returns the corresponding payment method:
-  /// - Returns 'Cod' if `displayText` contains 'Cod'
-  /// - Returns 'Card' if `displayText` contains 'Credit'
-  /// - Returns 'Online' if no known option is found
-  ///
-  /// - Parameter displayText: The text to parse for a payment method.
-  /// - Returns: A string representing the payment method.
 
   String parsePaymentMethod(String displayText) {
     if (displayText.contains('Cod')) return 'Cod';
     if (displayText.contains('Credit')) return 'Card';
     return 'Online';
   }
-
-  /// Parses the delivery option from the given display text.
-  ///
-  /// This method checks if the provided `displayText` contains certain keywords
-  /// and returns the corresponding delivery option:
-  /// - Returns 'Standard' if `displayText` contains 'Standard'
-  /// - Returns 'Express' if `displayText` contains 'Express'
-  /// - Returns 'Overnight' if no known option is found
-  ///
-  /// - Parameter displayText: The text to parse for a delivery option.
-  /// - Returns: A string representing the delivery option.
 
   String parseDeliveryOption(String displayText) {
     if (displayText.contains('Standard')) return 'Standard';

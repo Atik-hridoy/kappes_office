@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/local/storage_service.dart';
 import '../../../data/netwok/home/deals_offers_service.dart'; // For token retrieval
 

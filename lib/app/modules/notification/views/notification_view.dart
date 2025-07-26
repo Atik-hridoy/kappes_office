@@ -2,7 +2,6 @@ import 'package:canuck_mall/app/modules/notification/widgets/notification_card.d
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/modules/notification/controllers/notification_controller.dart';
-import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 
@@ -42,16 +41,14 @@ class NotificationView extends GetView<NotificationController> {
         }
 
         if (controller.notifications.isEmpty) {
-          return const Center(
-            child: Text("No notifications available."),
-          );
+          return const Center(child: Text("No notifications available."));
         }
 
         return ListView.separated(
           padding: EdgeInsets.all(AppSize.height(height: 2.0)),
           itemCount: controller.notifications.length,
-          separatorBuilder: (_, __) =>
-              SizedBox(height: AppSize.height(height: 1.5)),
+          separatorBuilder:
+              (_, __) => SizedBox(height: AppSize.height(height: 1.5)),
           itemBuilder: (context, index) {
             final item = controller.notifications[index];
 

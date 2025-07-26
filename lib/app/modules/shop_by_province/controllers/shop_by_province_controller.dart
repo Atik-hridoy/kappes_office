@@ -1,10 +1,9 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/local/storage_service.dart';
 import '../../../data/netwok/store/shop_by_province_service.dart';
 
 class ShopByProvinceController extends GetxController {
-  var shops = <dynamic>[].obs; 
+  var shops = <dynamic>[].obs;
   final ShopByProvinceService _shopByProvinceService = ShopByProvinceService();
 
   // Fetch shops by province using the token from LocalStorage
@@ -14,7 +13,10 @@ class ShopByProvinceController extends GetxController {
     if (token.isNotEmpty) {
       final response = await _shopByProvinceService.getShopsByProvince(token);
       print('🌐 Raw shops response: $response');
-      if (response.isNotEmpty && response['success'] == true && response['data'] is Map && response['data']['result'] is List) {
+      if (response.isNotEmpty &&
+          response['success'] == true &&
+          response['data'] is Map &&
+          response['data']['result'] is List) {
         shops.value = response['data']['result'];
       } else {
         shops.value = [];
@@ -25,13 +27,13 @@ class ShopByProvinceController extends GetxController {
       }
     } else {
       print('⚠️ No token found. Returning empty shop list.');
-      shops.value = [];  
+      shops.value = [];
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    fetchShopsByProvince();  
+    fetchShopsByProvince();
   }
 }

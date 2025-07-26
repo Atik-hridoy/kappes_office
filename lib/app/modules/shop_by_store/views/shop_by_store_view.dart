@@ -12,14 +12,11 @@ import '../../../routes/app_pages.dart';
 import '../controllers/shop_by_store_controller.dart';
 import '../widgets/store_card.dart';
 
-
 class ShopByStoreView extends GetView<ShopByStoreController> {
   const ShopByStoreView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width; // For responsiveness
-
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -95,7 +92,9 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Get.toNamed(Routes.store); // Navigate to the store details page
+                        Get.toNamed(
+                          Routes.store,
+                        ); // Navigate to the store details page
                       },
                       splashColor: Colors.transparent,
                       highlightColor: Colors.transparent,

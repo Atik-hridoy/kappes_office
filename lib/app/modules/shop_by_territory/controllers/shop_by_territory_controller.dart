@@ -1,30 +1,29 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../constants/app_urls.dart';
 import '../../../data/local/storage_service.dart';
-import '../../../data/netwok/store/store_by_territory.dart'; // For token retrieval
+import '../../../data/netwok/store/store_by_territory.dart';
 
 class ShopByTerritoryController extends GetxController {
   var shops = <dynamic>[].obs; // Observable list for storing shop data
-  final ShopByTerritoryService _shopByTerritoryService = ShopByTerritoryService();
+  final ShopByTerritoryService _shopByTerritoryService =
+      ShopByTerritoryService();
   final String baseUrl = AppUrls.imageUrl;
-
 
   // Fetch shops by territory based on the search term
   Future<void> fetchShopsByTerritory(String searchTerm) async {
-    final token = LocalStorage.token;  // Use token from LocalStorage
-    print('🔑 Using token: $token');  // Debugging: Print token
+    final token = LocalStorage.token; // Use token from LocalStorage
+    print('🔑 Using token: $token'); // Debugging: Print token
 
     if (token.isNotEmpty) {
-      List<dynamic> fetchedShops = await _shopByTerritoryService.getShopsByTerritory(token, searchTerm);
+      List<dynamic> fetchedShops = await _shopByTerritoryService
+          .getShopsByTerritory(token, searchTerm);
 
       // Debugging: Print fetched data
       print('Fetched shops: $fetchedShops');
 
       shops.value = fetchedShops;
     } else {
-      shops.value = [];  // Handle case where token is missing
+      shops.value = []; // Handle case where token is missing
       print('🔑 Token is missing');
     }
   }
@@ -51,6 +50,8 @@ class ShopByTerritoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchShopsByTerritory('Toronto');  // Fetch data for Toronto by default or modify as needed
+    fetchShopsByTerritory(
+      'Toronto',
+    ); // Fetch data for Toronto by default or modify as needed
   }
 }

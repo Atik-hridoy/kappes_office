@@ -21,7 +21,8 @@ class StoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width; // For responsiveness
+    double screenWidth =
+        MediaQuery.of(context).size.width; // For responsiveness
 
     return Container(
       decoration: BoxDecoration(
@@ -34,19 +35,22 @@ class StoreCard extends StatelessWidget {
           // Cover image (with fallback)
           ClipRRect(
             borderRadius: BorderRadius.circular(AppSize.height(height: 1.9)),
-            child: shopCover != null && shopCover.isNotEmpty
-                ? AppImage(
-              imagePath: shopCover,
-              fit: BoxFit.cover,
-              width: double.maxFinite,
-              height: AppSize.height(height: 25.0), // Set height for cover photo
-            )
-                : Image.asset(
-              'assets/images/placeholder_cover.png', // Default placeholder
-              fit: BoxFit.cover,
-              width: double.maxFinite,
-              height: AppSize.height(height: 25.0),
-            ),
+            child:
+                shopCover.isNotEmpty
+                    ? AppImage(
+                      imagePath: shopCover,
+                      fit: BoxFit.cover,
+                      width: double.maxFinite,
+                      height: AppSize.height(
+                        height: 25.0,
+                      ), // Set height for cover photo
+                    )
+                    : Image.asset(
+                      'assets/images/placeholder_cover.png', // Default placeholder
+                      fit: BoxFit.cover,
+                      width: double.maxFinite,
+                      height: AppSize.height(height: 25.0),
+                    ),
           ),
 
           // Curve background to overlay the cover image
@@ -80,23 +84,27 @@ class StoreCard extends StatelessWidget {
                   height: AppSize.height(height: 13.0),
                   width: AppSize.height(height: 12.0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 1.5),
+                    ),
                     border: Border.all(color: AppColors.white),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
-                    child: shopLogo != null && shopLogo.isNotEmpty
-                        ? AppImage(
-                      imagePath: shopLogo,
-                      fit: BoxFit.cover,
-                    )
-                        : Image.asset(
-                      'assets/images/placeholder_logo.png', // Default placeholder
-                      fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 1.5),
                     ),
+                    child:
+                        shopLogo.isNotEmpty
+                            ? AppImage(imagePath: shopLogo, fit: BoxFit.cover)
+                            : Image.asset(
+                              'assets/images/placeholder_logo.png', // Default placeholder
+                              fit: BoxFit.cover,
+                            ),
                   ),
                 ),
-                SizedBox(width: screenWidth * 0.05), // Add spacing between logo and text
+                SizedBox(
+                  width: screenWidth * 0.05,
+                ), // Add spacing between logo and text
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -113,12 +121,17 @@ class StoreCard extends StatelessWidget {
                           AssetImage(AppIcons.marker),
                           size: AppSize.height(height: 2.0),
                         ),
-                        SizedBox(width: screenWidth * 0.02), // Responsive spacing
+                        SizedBox(
+                          width: screenWidth * 0.02,
+                        ), // Responsive spacing
                         Expanded(
                           child: Text(
                             address,
-                            style: TextStyle(fontSize: AppSize.height(height: 1.5)),
-                            overflow: TextOverflow.ellipsis, // Handle long address
+                            style: TextStyle(
+                              fontSize: AppSize.height(height: 1.5),
+                            ),
+                            overflow:
+                                TextOverflow.ellipsis, // Handle long address
                           ),
                         ),
                       ],
