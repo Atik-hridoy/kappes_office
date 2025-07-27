@@ -7,11 +7,14 @@ import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:canuck_mall/app/model/create_order_model.dart';
 
-class CheckoutSuccessfulView extends GetView {
+class CheckoutSuccessfulView extends StatelessWidget {
   const CheckoutSuccessfulView({super.key});
   @override
   Widget build(BuildContext context) {
+    final orderData = Get.arguments;
+    final List<OrderItem> products = orderData?.products ?? [];
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -30,7 +33,7 @@ class CheckoutSuccessfulView extends GetView {
             Container(
               padding: EdgeInsets.all(AppSize.height(height: 2.0)),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
+                color: Colors.red.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(
                   AppSize.height(height: 100.0),
                 ),
@@ -66,6 +69,30 @@ class CheckoutSuccessfulView extends GetView {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            SizedBox(height: AppSize.height(height: 2.0)),
+            // --- Product List ---
+            if (products.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 4),
+                      child: ListTile(
+                        title: Text('Product: ${product.product}'),
+                        subtitle: Text('Quantity: ${product.quantity}'),
+                        trailing: Text('Variant: ${product.variant}'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            if (products.isEmpty)
+              AppText(
+                title: 'No products found in this order.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             SizedBox(height: AppSize.height(height: 2.0)),
             AppCommonButton(
               onPressed: () {

@@ -1,4 +1,6 @@
 class OrderRequest {
+  @override
+  String toString() => toJson().toString();
   final String shop;
   final List<OrderProduct> products;
   final String? coupon;
@@ -26,6 +28,18 @@ class OrderRequest {
 }
 
 class OrderProduct {
+  @override
+  String toString() => toJson().toString();
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is OrderProduct &&
+      product == other.product &&
+      variant == other.variant &&
+      quantity == other.quantity;
+  }
+  @override
+  int get hashCode => product.hashCode ^ variant.hashCode ^ quantity.hashCode;
   final String product;
   final String variant;
   final int quantity;
@@ -55,17 +69,18 @@ class OrderProduct {
 }
 
 class OrderResponse {
-  final bool success;
-  final String message;
-  final OrderData? data;
-
-  OrderResponse({required this.success, required this.message, this.data});
-
   factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
     success: json['success'] ?? false,
     message: json['message'] ?? '',
     data: json['data'] != null ? OrderData.fromJson(json['data']) : null,
   );
+  @override
+  String toString() => '{success: $success, message: $message, data: $data}';
+  final bool success;
+  final String message;
+  final OrderData? data;
+
+  OrderResponse({required this.success, required this.message, this.data});
 }
 
 class OrderData {

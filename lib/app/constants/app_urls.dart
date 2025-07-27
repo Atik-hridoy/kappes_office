@@ -18,7 +18,6 @@ abstract class AppUrls {
 
   // User endpoints
   static const String profile = '/users/profile';
-  static const String myOrders = '/order/my-orders';
   static const String orders = '/user/orders';
   static const String changePassword = '/auth/change-password';
   static const String getPrivacy = '/settings/privacy-policy';

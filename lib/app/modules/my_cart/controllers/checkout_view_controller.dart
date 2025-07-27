@@ -7,6 +7,9 @@ import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_servic
 import 'package:canuck_mall/app/model/create_order_model.dart';
 
 class CheckoutViewController extends GetxController {
+  OrderRequest? _lastOrderRequest;
+  String? _lastOrderUserId;
+
   // User Details
   final RxString userName = ''.obs;
   final RxString userPhone = ''.obs;
@@ -106,6 +109,23 @@ class CheckoutViewController extends GetxController {
   }
 
   Future<void> createOrder(List<OrderProduct> products, String shopId) async {
+    final userId = LocalStorage.userId; // Ensure this is set in LocalStorage
+    final token = LocalStorage.token;
+    // Prevent duplicate order
+    final orderRequest = OrderRequest(
+      shop: shopId,
+      products: products,
+      coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
+      shippingAddress: address.value,
+      paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
+      deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
+    );
+    if (_lastOrderRequest != null && _lastOrderRequest == orderRequest && _lastOrderUserId == userId) {
+      print('Order already placed with these credentials and data. Skipping order creation.');
+      Get.snackbar('Info', 'Order already placed with these credentials and data.');
+      return;
+    }
+
     if (!termsAccepted.value) {
       Get.snackbar('Error', 'Please accept terms and conditions');
       return;
@@ -120,18 +140,14 @@ class CheckoutViewController extends GetxController {
     }
     try {
       isLoading(true);
-      final orderRequest = OrderRequest(
-        shop: shopId,
-        products: products,
-        coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
-        shippingAddress: address.value,
-        paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
-        deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
-      );
-      final response = await OrderService(
-        LocalStorage.token,
-      ).createOrder(orderRequest);
+      final response = await OrderService(token).createOrder(orderRequest);
       if (response.success) {
+        _lastOrderRequest = orderRequest;
+        _lastOrderUserId = userId;
+        print('Order stored on backend:');
+        print('User ID: $userId');
+        print('Order Data: \\${response.data?.toString()}');
+        print('Order Request: \\${orderRequest.toJson()}');
         Get.offNamed(Routes.checkoutSuccessfulView, arguments: response.data);
       } else {
         Get.snackbar('Error', response.message);

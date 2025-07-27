@@ -1,6 +1,4 @@
 import 'package:canuck_mall/app/modules/company_details/views/company_about_us_view.dart';
-import 'package:canuck_mall/app/modules/my_orders/views/completed_orders_view.dart';
-import 'package:canuck_mall/app/modules/my_orders/views/ongoing_orders_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/about_us_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/change_password_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/data_privacy_view.dart';
@@ -208,16 +206,6 @@ class AppPages {
     GetPage(
       name: _Paths.myOrders,
       page: () => const MyOrdersView(),
-      binding: MyOrdersBinding(),
-    ),
-    GetPage(
-      name: _Paths.completedOrdersView,
-      page: () => const CompletedOrdersView(),
-      binding: MyOrdersBinding(),
-    ),
-    GetPage(
-      name: _Paths.ongoingOrdersView,
-      page: () => const OngoingOrdersView(),
       binding: MyOrdersBinding(),
     ),
     GetPage(
