@@ -1,4 +1,5 @@
 import 'package:canuck_mall/app/localization/app_static_key.dart';
+import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/promo_code_text_field.dart';
@@ -21,10 +22,11 @@ class CheckoutView extends StatefulWidget {
 }
 
 class _CheckoutViewState extends State<CheckoutView> {
-  double itemCost = 449.97;
-  double shippingFee = 29.00;
-  double discount = 5.00;
+  double itemCost = 0.0;
+  double shippingFee = 0.0;
+  double discount = 0.0;
   double total = 0.0;
+  bool _agreedToTnC = false;
   String? shopId;
 
   @override
@@ -155,7 +157,8 @@ class _CheckoutViewState extends State<CheckoutView> {
                                 final MyCartController cartController =
                                     Get.find<MyCartController>();
                                 String? effectiveShopId = shopId;
-                                if (effectiveShopId == null || effectiveShopId.isEmpty) {
+                                if (effectiveShopId == null ||
+                                    effectiveShopId.isEmpty) {
                                   if (cartController
                                               .cartData
                                               .value
@@ -181,7 +184,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                                         '';
                                   }
                                 }
-                                print('Coupon apply params: code=$code, shopId=$effectiveShopId, orderAmount=$itemCost');
+                                print(
+                                  'Coupon apply params: code=$code, shopId=$effectiveShopId, orderAmount=$itemCost',
+                                );
                                 await couponController.applyCoupon(
                                   code,
                                   shopId: effectiveShopId ?? '',
@@ -340,25 +345,24 @@ class _CheckoutViewState extends State<CheckoutView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Obx(
-                          () => SizedBox(
-                            height: AppSize.height(height: 2.0),
-                            width: AppSize.height(height: 2.0),
-                            child: Checkbox(
-                              value: controller.isRemember.value,
-                              onChanged: (value) {
-                                controller.isRemember.value =
-                                    !controller.isRemember.value;
-                              },
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              visualDensity: VisualDensity.compact,
-                              side: const BorderSide(
-                                width: 1.0,
-                                color: AppColors.lightGray,
-                              ),
-                              activeColor: AppColors.primary,
+                        SizedBox(
+                          height: AppSize.height(height: 2.0),
+                          width: AppSize.height(height: 2.0),
+                          child: Checkbox(
+                            value: _agreedToTnC,
+                            onChanged: (val) {
+                              setState(() {
+                                _agreedToTnC = val ?? false;
+                              });
+                            },
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            side: const BorderSide(
+                              width: 1.0,
+                              color: AppColors.lightGray,
                             ),
+                            activeColor: AppColors.primary,
                           ),
                         ),
                         SizedBox(width: AppSize.width(width: 2.0)),
@@ -387,9 +391,60 @@ class _CheckoutViewState extends State<CheckoutView> {
                     ),
                     SizedBox(height: AppSize.height(height: 2.0)),
                     AppCommonButton(
-                      onPressed: () {
-                        Get.toNamed(Routes.checkoutSuccessfulView);
-                      },
+                      onPressed:
+                          _agreedToTnC
+                              ? () async {
+                                final controller =
+                                    Get.find<CheckoutViewController>();
+                                final cartController =
+                                    Get.find<MyCartController>();
+                                final items =
+                                    cartController
+                                        .cartData
+                                        .value
+                                        ?.data
+                                        ?.items ??
+                                    [];
+                                final products =
+                                    items
+                                        .map(
+                                          (item) =>
+                                              OrderProduct.fromCartItem(item),
+                                        )
+                                        .toList();
+                                print('🛒 Creating order on backend...');
+                                print('Order products: ' + products.toString());
+                                print('Order shopId: ' + (shopId ?? ''));
+                                try {
+                                  await controller.createOrder(
+                                    products,
+                                    shopId ?? '',
+                                  );
+                                  print('✅ Order creation success!');
+                                  Get.snackbar(
+                                    'Order',
+                                    'Order created successfully!',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                  );
+                                  Get.toNamed(Routes.checkoutSuccessfulView);
+                                } catch (e) {
+                                  print(
+                                    '❌ Order creation failed: ' + e.toString(),
+                                  );
+                                  Get.snackbar(
+                                    'Order',
+                                    'Order creation failed: ' + e.toString(),
+                                    snackPosition: SnackPosition.BOTTOM,
+                                  );
+                                }
+                              }
+                              : () {
+                                Get.snackbar(
+                                  'Terms and Conditions',
+                                  'You must agree to the terms and conditions before placing your order.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
                       title: AppStaticKey.placeOrder,
                       fontSize: AppSize.height(height: 2.0),
                     ),

@@ -10,20 +10,20 @@ class MyCartController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print("🛒 MyCartController: onInit triggered.");
+
     _initCart();
   }
 
   // Load token from local storage and fetch cart
   Future<void> _initCart() async {
-    print("🔐 Fetching token from LocalStorage...");
+
     await LocalStorage.getAllPrefData();
 
     final token = LocalStorage.token;
-    print("🧾 Token loaded: $token");
+
 
     if (token.isEmpty) {
-      print("❌ MyCartController: No token found. Cannot fetch cart.");
+
       isLoading(false);
       return;
     }
@@ -32,22 +32,22 @@ class MyCartController extends GetxController {
   }
 
   Future<void> fetchCartData(String token) async {
-    print("🚀 MyCartController: fetchCartData() called");
+
 
     try {
       isLoading(true);
-      print("⏳ Loading started...");
+
 
       final result = await CartService().fetchCartData(token);
-      print("✅ Cart data fetched successfully");
+
 
       cartData.value = result;
-      print("📦 Items in cart: ${result.data?.items?.length ?? 0}");
+
     } catch (e) {
-      print("❗️ Error fetching cart data: $e");
+
     } finally {
       isLoading(false);
-      print("✅ Loading complete.");
+
     }
   }
 

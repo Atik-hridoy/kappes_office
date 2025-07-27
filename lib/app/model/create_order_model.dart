@@ -30,6 +30,17 @@ class OrderProduct {
   final String variant;
   final int quantity;
 
+  /// Create OrderProduct from CartItem (for checkout)
+  factory OrderProduct.fromCartItem(dynamic cartItem) {
+    // Accepts CartItem from get_cart_model.dart
+    // Defensive: cartItem.productId and cartItem.variantId may be null, so fallback to ''
+    return OrderProduct(
+      product: cartItem.productId?.id ?? '',
+      variant: cartItem.variantId?.id ?? '',
+      quantity: cartItem.variantQuantity ?? 1,
+    );
+  }
+
   OrderProduct({
     required this.product,
     required this.variant,
