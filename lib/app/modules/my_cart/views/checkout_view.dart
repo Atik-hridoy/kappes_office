@@ -415,6 +415,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                                 print('🛒 Creating order on backend...');
                                 print('Order products: ' + products.toString());
                                 print('Order shopId: ' + (shopId ?? ''));
+
                                 try {
                                   await controller.createOrder(
                                     products,
