@@ -1,8 +1,8 @@
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/coupon_service.dart';
 import 'package:canuck_mall/app/model/coupon_response_model.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class CouponController extends ChangeNotifier {
+class CouponController extends GetxController {
   final CouponService _couponService;
   CouponController({CouponService? couponService})
     : _couponService = couponService ?? CouponService();
@@ -11,19 +11,21 @@ class CouponController extends ChangeNotifier {
   String? errorMessage;
   bool isLoading = false;
 
-  Future<void> applyCoupon(String code, {String? token}) async {
+  Future<void> applyCoupon(String code, {required String shopId, required double orderAmount, String? token}) async {
     final trimmedCode = code.trim();
     if (trimmedCode.isEmpty) {
       errorMessage = 'Please enter a coupon code.';
-      notifyListeners();
+      update();
       return;
     }
     isLoading = true;
     errorMessage = null;
-    notifyListeners();
+    update();
     try {
       couponResponse = await _couponService.validateCoupon(
         couponCode: trimmedCode,
+        shopId: shopId,
+        orderAmount: orderAmount,
         token: token,
       );
     } on CouponResponse catch (e) {
@@ -34,7 +36,7 @@ class CouponController extends ChangeNotifier {
       couponResponse = null;
     } finally {
       isLoading = false;
-      notifyListeners();
+      update();
     }
   }
 

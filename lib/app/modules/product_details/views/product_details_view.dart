@@ -361,6 +361,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           return;
                         }
 
+                        final price = controller.product.value?.basePrice ?? 0;
+                        final totalPrice = price * qty;
                         final orderProduct = OrderProduct(
                           product: productId,
                           variant: variantId,
@@ -372,6 +374,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           arguments: {
                             'shopId': shopId,
                             'products': [orderProduct],
+                            'itemCost': totalPrice,
                           },
                         );
                       },

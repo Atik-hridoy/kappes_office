@@ -8,14 +8,22 @@ class CouponService {
 
   Future<CouponResponse> validateCoupon({
     required String couponCode,
+    required String shopId,
+    required double orderAmount,
     String? token,
   }) async {
     try {
       final response = await _dio.post(
-        AppUrls.baseUrl + AppUrls.getCoupon,
-        data: {'coupon_code': couponCode},
+        '${AppUrls.baseUrl}${AppUrls.getCoupon}/$couponCode',
+        data: {
+          'shopId': shopId,
+          'orderAmount': orderAmount,
+        },
         options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+          headers: {
+            if (token != null) 'resettoken': token,
+            'Content-Type': 'application/json',
+          },
         ),
       );
       return CouponResponse.fromJson(response.data);

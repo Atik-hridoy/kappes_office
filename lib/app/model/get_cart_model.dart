@@ -72,8 +72,9 @@ class Product {
   final String? id;
   final String? name;
   final List<String>? images;
+  final String? shopId;
 
-  Product({this.id, this.name, this.images});
+  Product({this.id, this.name, this.images, this.shopId});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     var imagesJson = json['images'] as List?;
@@ -86,6 +87,7 @@ class Product {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       images: imagesList,
+      shopId: json['shopId'] ?? '',
     );
   }
 }

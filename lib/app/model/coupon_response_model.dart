@@ -20,9 +20,12 @@ class CouponResponse {
   });
 
   factory CouponResponse.fromJson(Map<String, dynamic> json) => CouponResponse(
-    success: json["success"] as bool,
-    message: json["message"] as String,
-    data: CouponData.fromJson(json["data"] as Map<String, dynamic>),
+    success: json["success"] as bool? ?? false,
+    message: json["message"] as String? ?? "",
+    data:
+        json["data"] != null
+            ? CouponData.fromJson(json["data"] as Map<String, dynamic>)
+            : CouponData.empty(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -46,7 +49,7 @@ class CouponResponse {
 
 @immutable
 class CouponData {
-  final Coupon coupon;
+  final Coupon? coupon;
   final double discountedPrice;
   final double discountAmount;
 
@@ -57,13 +60,19 @@ class CouponData {
   });
 
   factory CouponData.fromJson(Map<String, dynamic> json) => CouponData(
-    coupon: Coupon.fromJson(json["coupon"] as Map<String, dynamic>),
-    discountedPrice: (json["discountedPrice"] as num).toDouble(),
-    discountAmount: (json["discountAmount"] as num).toDouble(),
+    coupon:
+        json["coupon"] != null
+            ? Coupon.fromJson(json["coupon"] as Map<String, dynamic>)
+            : null,
+    discountedPrice: (json["discountedPrice"] as num?)?.toDouble() ?? 0,
+    discountAmount: (json["discountAmount"] as num?)?.toDouble() ?? 0,
   );
 
+  factory CouponData.empty() =>
+      const CouponData(coupon: null, discountedPrice: 0, discountAmount: 0);
+
   Map<String, dynamic> toJson() => {
-    "coupon": coupon.toJson(),
+    "coupon": coupon?.toJson(),
     "discountedPrice": discountedPrice,
     "discountAmount": discountAmount,
   };

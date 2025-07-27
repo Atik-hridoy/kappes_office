@@ -1,6 +1,8 @@
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/promo_code_text_field.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/coupon_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/shipping_address_card.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -23,10 +25,20 @@ class _CheckoutViewState extends State<CheckoutView> {
   double shippingFee = 29.00;
   double discount = 5.00;
   double total = 0.0;
+  String? shopId;
 
   @override
   void initState() {
     super.initState();
+    final args = Get.arguments;
+    if (args != null) {
+      if (args['itemCost'] != null) {
+        itemCost = (args['itemCost'] as num).toDouble();
+      }
+      if (args['shopId'] != null && (args['shopId'] as String).isNotEmpty) {
+        shopId = args['shopId'] as String;
+      }
+    }
     _calculateTotal();
   }
 
@@ -37,20 +49,14 @@ class _CheckoutViewState extends State<CheckoutView> {
     });
   }
 
-  void _applyCoupon(String code) {
-    // Example: if coupon code is 'SAVE10', discount is 10
-    setState(() {
-      if (code.toUpperCase() == 'SAVE10') {
-        discount = 10.0;
-      } else {
-        discount = 5.0;
-      }
-      _calculateTotal();
-    });
-  }
+  // Coupon logic handled by CouponController and backend
 
   @override
   Widget build(BuildContext context) {
+    return _buildCheckoutContent(context);
+  }
+
+  Widget _buildCheckoutContent(BuildContext context) {
     final CheckoutViewController controller =
         Get.find<CheckoutViewController>();
     return Scaffold(
@@ -138,8 +144,135 @@ class _CheckoutViewState extends State<CheckoutView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     /// coupon field
-                    PromoCodeTextField(
-                      onApply: _applyCoupon,
+                    GetBuilder<CouponController>(
+                      builder: (couponController) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PromoCodeTextField(
+                              onApply: (code) async {
+                                print('Applying coupon: ' + code);
+                                final MyCartController cartController =
+                                    Get.find<MyCartController>();
+                                String? effectiveShopId = shopId;
+                                if (effectiveShopId == null || effectiveShopId.isEmpty) {
+                                  if (cartController
+                                              .cartData
+                                              .value
+                                              ?.data
+                                              ?.items !=
+                                          null &&
+                                      cartController
+                                          .cartData
+                                          .value!
+                                          .data!
+                                          .items!
+                                          .isNotEmpty) {
+                                    // Assuming all items in cart are from the same shop, get the first product's shopId
+                                    effectiveShopId =
+                                        cartController
+                                            .cartData
+                                            .value!
+                                            .data!
+                                            .items!
+                                            .first
+                                            .productId
+                                            ?.shopId ??
+                                        '';
+                                  }
+                                }
+                                print('Coupon apply params: code=$code, shopId=$effectiveShopId, orderAmount=$itemCost');
+                                await couponController.applyCoupon(
+                                  code,
+                                  shopId: effectiveShopId ?? '',
+                                  orderAmount: itemCost,
+                                );
+                                print(
+                                  'Coupon response: ' +
+                                      couponController.couponResponse
+                                          .toString(),
+                                );
+                                print(
+                                  'Coupon error: ' +
+                                      (couponController.errorMessage
+                                              ?.toString() ??
+                                          'none'),
+                                );
+                                if (couponController.couponResponse != null) {
+                                  setState(() {
+                                    discount =
+                                        couponController
+                                            .couponResponse!
+                                            .data
+                                            .discountAmount;
+                                    print(
+                                      'Discount amount from backend: ' +
+                                          discount.toString(),
+                                    );
+                                    _calculateTotal();
+                                  });
+                                  if (couponController
+                                      .couponResponse!
+                                      .message
+                                      .isNotEmpty) {
+                                    Get.snackbar(
+                                      'Coupon',
+                                      couponController.couponResponse!.message,
+                                    );
+                                  }
+                                } else if (couponController.errorMessage !=
+                                    null) {
+                                  setState(() {
+                                    discount = 0.0;
+                                    _calculateTotal();
+                                  });
+                                  Get.snackbar(
+                                    'Coupon Error',
+                                    couponController.errorMessage!,
+                                  );
+                                }
+                              },
+                            ),
+                            if (couponController.isLoading)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            if (couponController.couponResponse != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Coupon applied: '
+                                        '${couponController.couponResponse!.data.coupon?.code}',
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Discount: -\$${couponController.couponResponse!.data.discountAmount.toStringAsFixed(2)}',
+                                        style: TextStyle(color: Colors.green),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                     SizedBox(height: AppSize.height(height: 2.0)),
                     Row(
