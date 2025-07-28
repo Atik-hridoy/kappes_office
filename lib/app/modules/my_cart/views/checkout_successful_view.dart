@@ -11,10 +11,23 @@ import 'package:canuck_mall/app/model/create_order_model.dart';
 
 class CheckoutSuccessfulView extends StatelessWidget {
   const CheckoutSuccessfulView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final orderData = Get.arguments;
-    final List<OrderItem> products = orderData?.products ?? [];
+    final List<dynamic> rawProducts = Get.arguments?['products'] ?? [];
+    final List<OrderItem> orderItems =
+        rawProducts.isNotEmpty
+            ? rawProducts
+                .map((item) {
+                  if (item is OrderItem) return item;
+                  if (item is Map<String, dynamic>)
+                    return OrderItem.fromJson(item);
+                  return null;
+                })
+                .whereType<OrderItem>()
+                .toList()
+            : [];
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -33,7 +46,7 @@ class CheckoutSuccessfulView extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(AppSize.height(height: 2.0)),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.2),
+                color: Colors.red.withAlpha(50),
                 borderRadius: BorderRadius.circular(
                   AppSize.height(height: 100.0),
                 ),
@@ -41,7 +54,7 @@ class CheckoutSuccessfulView extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(AppSize.height(height: 2.0)),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: AppColors.primary.withAlpha(50),
                   borderRadius: BorderRadius.circular(
                     AppSize.height(height: 100.0),
                   ),
@@ -57,7 +70,7 @@ class CheckoutSuccessfulView extends StatelessWidget {
             AppText(
               title: AppStaticKey.thankYouForYourOrder,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontSize: AppSize.height(height: 2.80),
+                fontSize: AppSize.height(height: 2.8),
               ),
             ),
             SizedBox(height: AppSize.height(height: 2.0)),
@@ -70,36 +83,36 @@ class CheckoutSuccessfulView extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             SizedBox(height: AppSize.height(height: 2.0)),
-            // --- Product List ---
-            if (products.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 4),
-                      child: ListTile(
-                        title: Text('Product: ${product.product}'),
-                        subtitle: Text('Quantity: ${product.quantity}'),
-                        trailing: Text('Variant: ${product.variant}'),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            if (products.isEmpty)
-              AppText(
-                title: 'No products found in this order.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+            // --- Order Items ---
+            // if (orderItems.isNotEmpty)
+            //   Expanded(
+            //     child: ListView.builder(
+            //       itemCount: orderItems.length,
+            //       itemBuilder: (context, index) {
+            //         final orderItem = orderItems[index];
+            //         return Card(
+            //           margin: EdgeInsets.symmetric(vertical: 4),
+            //           child: ListTile(
+            //             title: Text('Product: ${orderItem.product}'),
+            //             subtitle: Text('Quantity: ${orderItem.quantity}'),
+            //             trailing: Text('Variant: ${orderItem.variant}'),
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //   ),
+            // // if (orderItems.isEmpty)
+            // //   AppText(
+            // //     title: 'No products found in this order.',
+            // //     style: Theme.of(context).textTheme.bodyMedium,
+            // //   ),
             SizedBox(height: AppSize.height(height: 2.0)),
             AppCommonButton(
               onPressed: () {
                 Get.toNamed(Routes.myOrders);
               },
               title: AppStaticKey.myOrder,
-              fontSize: AppSize.height(height: 2.0),
+              fontSize: AppSize.height(height: 2.2),
             ),
             SizedBox(height: AppSize.height(height: 2.0)),
             AppCommonButton(
@@ -110,7 +123,7 @@ class CheckoutSuccessfulView extends StatelessWidget {
               backgroundColor: AppColors.white,
               borderColor: AppColors.lightGray,
               color: AppColors.black,
-              fontSize: AppSize.height(height: 2.0),
+              fontSize: AppSize.height(height: 2.2),
             ),
           ],
         ),

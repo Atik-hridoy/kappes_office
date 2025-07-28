@@ -375,6 +375,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                             'shopId': shopId,
                             'products': [orderProduct],
                             'itemCost': totalPrice,
+                            'productId': productId,
                           },
                         );
                       },

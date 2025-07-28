@@ -1,6 +1,5 @@
+// Model for Order Creation Request
 class OrderRequest {
-  @override
-  String toString() => toJson().toString();
   final String shop;
   final List<OrderProduct> products;
   final String? coupon;
@@ -17,43 +16,29 @@ class OrderRequest {
     required this.deliveryOptions,
   });
 
+  factory OrderRequest.fromJson(Map<String, dynamic> json) => OrderRequest(
+        shop: json['shop'] ?? '',
+        products: (json['products'] as List<dynamic>?)?.map((e) => OrderProduct.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+        coupon: json['coupon'],
+        shippingAddress: json['shippingAddress'] ?? '',
+        paymentMethod: json['paymentMethod'] ?? '',
+        deliveryOptions: json['deliveryOptions'] ?? '',
+      );
+
   Map<String, dynamic> toJson() => {
-    'shop': shop,
-    'products': products.map((p) => p.toJson()).toList(),
-    if (coupon != null) 'coupon': coupon,
-    'shippingAddress': shippingAddress,
-    'paymentMethod': paymentMethod,
-    'deliveryOptions': deliveryOptions,
-  };
+        'shop': shop,
+        'products': products.map((e) => e.toJson()).toList(),
+        if (coupon != null) 'coupon': coupon,
+        'shippingAddress': shippingAddress,
+        'paymentMethod': paymentMethod,
+        'deliveryOptions': deliveryOptions,
+      };
 }
 
 class OrderProduct {
-  @override
-  String toString() => toJson().toString();
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is OrderProduct &&
-      product == other.product &&
-      variant == other.variant &&
-      quantity == other.quantity;
-  }
-  @override
-  int get hashCode => product.hashCode ^ variant.hashCode ^ quantity.hashCode;
   final String product;
   final String variant;
   final int quantity;
-
-  /// Create OrderProduct from CartItem (for checkout)
-  factory OrderProduct.fromCartItem(dynamic cartItem) {
-    // Accepts CartItem from get_cart_model.dart
-    // Defensive: cartItem.productId and cartItem.variantId may be null, so fallback to ''
-    return OrderProduct(
-      product: cartItem.productId?.id ?? '',
-      variant: cartItem.variantId?.id ?? '',
-      quantity: cartItem.variantQuantity ?? 1,
-    );
-  }
 
   OrderProduct({
     required this.product,
@@ -61,26 +46,42 @@ class OrderProduct {
     required this.quantity,
   });
 
+  factory OrderProduct.fromJson(Map<String, dynamic> json) => OrderProduct(
+        product: json['product'] ?? '',
+        variant: json['variant'] ?? '',
+        quantity: json['quantity'] ?? 0,
+      );
+
   Map<String, dynamic> toJson() => {
-    'product': product,
-    'variant': variant,
-    'quantity': quantity,
-  };
+        'product': product,
+        'variant': variant,
+        'quantity': quantity,
+      };
 }
 
+// Model for Order Creation Response
 class OrderResponse {
-  factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
-    success: json['success'] ?? false,
-    message: json['message'] ?? '',
-    data: json['data'] != null ? OrderData.fromJson(json['data']) : null,
-  );
-  @override
-  String toString() => '{success: $success, message: $message, data: $data}';
   final bool success;
   final String message;
   final OrderData? data;
 
-  OrderResponse({required this.success, required this.message, this.data});
+  OrderResponse({
+    required this.success,
+    required this.message,
+    this.data,
+  });
+
+  factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
+        success: json['success'] ?? false,
+        message: json['message'] ?? '',
+        data: json['data'] != null ? OrderData.fromJson(json['data']) : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'success': success,
+        'message': message,
+        'data': data?.toJson(),
+      };
 }
 
 class OrderData {
@@ -89,19 +90,22 @@ class OrderData {
   final String shop;
   final List<OrderItem> products;
   final String deliveryOptions;
-  final double deliveryCharge;
-  final double finalAmount;
-  final DateTime deliveryDate;
   final String? coupon;
   final double discount;
+  final double deliveryCharge;
   final String status;
   final String shippingAddress;
   final String paymentMethod;
   final String paymentStatus;
-  final String paymentId;
+  final String payment;
   final bool isPaymentTransferdToVendor;
   final bool isNeedRefund;
   final double totalAmount;
+  final double finalAmount;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime deliveryDate;
+  final int v;
 
   OrderData({
     required this.id,
@@ -109,44 +113,71 @@ class OrderData {
     required this.shop,
     required this.products,
     required this.deliveryOptions,
-    required this.deliveryCharge,
-    required this.finalAmount,
-    required this.deliveryDate,
     this.coupon,
     required this.discount,
+    required this.deliveryCharge,
     required this.status,
     required this.shippingAddress,
     required this.paymentMethod,
     required this.paymentStatus,
-    required this.paymentId,
+    required this.payment,
     required this.isPaymentTransferdToVendor,
     required this.isNeedRefund,
     required this.totalAmount,
+    required this.finalAmount,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deliveryDate,
+    required this.v,
   });
 
   factory OrderData.fromJson(Map<String, dynamic> json) => OrderData(
-    id: json['_id'] ?? '',
-    user: json['user'] ?? '',
-    shop: json['shop'] ?? '',
-    products:
-        (json['products'] as List).map((p) => OrderItem.fromJson(p)).toList(),
-    deliveryOptions: json['deliveryOptions'] ?? '',
-    deliveryCharge: (json['deliveryCharge'] as num?)?.toDouble() ?? 0.0,
-    finalAmount: (json['finalAmount'] as num?)?.toDouble() ?? 0.0,
-    deliveryDate: DateTime.parse(
-      json['deliveryDate'] ?? DateTime.now().toString(),
-    ),
-    coupon: json['coupon'], // Optional
-    discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
-    status: json['status'] ?? 'Pending',
-    shippingAddress: json['shippingAddress'] ?? '',
-    paymentMethod: json['paymentMethod'] ?? '',
-    paymentStatus: json['paymentStatus'] ?? 'Unpaid',
-    paymentId: json['payment'] ?? '',
-    isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'] ?? false,
-    isNeedRefund: json['isNeedRefund'] ?? false,
-    totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
-  );
+        id: json['_id'] ?? '',
+        user: json['user'] ?? '',
+        shop: json['shop'] ?? '',
+        products: (json['products'] as List<dynamic>?)?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+        deliveryOptions: json['deliveryOptions'] ?? '',
+        coupon: json['coupon'],
+        discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
+        deliveryCharge: (json['deliveryCharge'] as num?)?.toDouble() ?? 0.0,
+        status: json['status'] ?? '',
+        shippingAddress: json['shippingAddress'] ?? '',
+        paymentMethod: json['paymentMethod'] ?? '',
+        paymentStatus: json['paymentStatus'] ?? '',
+        payment: json['payment'] ?? '',
+        isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'] ?? false,
+        isNeedRefund: json['isNeedRefund'] ?? false,
+        totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+        finalAmount: (json['finalAmount'] as num?)?.toDouble() ?? 0.0,
+        createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+        deliveryDate: DateTime.tryParse(json['deliveryDate'] ?? '') ?? DateTime.now(),
+        v: json['__v'] ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'user': user,
+        'shop': shop,
+        'products': products.map((e) => e.toJson()).toList(),
+        'deliveryOptions': deliveryOptions,
+        'coupon': coupon,
+        'discount': discount,
+        'deliveryCharge': deliveryCharge,
+        'status': status,
+        'shippingAddress': shippingAddress,
+        'paymentMethod': paymentMethod,
+        'paymentStatus': paymentStatus,
+        'payment': payment,
+        'isPaymentTransferdToVendor': isPaymentTransferdToVendor,
+        'isNeedRefund': isNeedRefund,
+        'totalAmount': totalAmount,
+        'finalAmount': finalAmount,
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+        'deliveryDate': deliveryDate.toIso8601String(),
+        '__v': v,
+      };
 }
 
 class OrderItem {
@@ -165,10 +196,18 @@ class OrderItem {
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
-    id: json['_id'] ?? '',
-    product: json['product'] ?? '',
-    variant: json['variant'] ?? '',
-    quantity: json['quantity'] ?? 0,
-    unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
-  );
+        id: json['_id'] ?? '',
+        product: json['product'] ?? '',
+        variant: json['variant'] ?? '',
+        quantity: json['quantity'] ?? 0,
+        unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'product': product,
+        'variant': variant,
+        'quantity': quantity,
+        'unitPrice': unitPrice,
+      };
 }

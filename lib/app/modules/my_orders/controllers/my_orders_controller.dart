@@ -97,7 +97,7 @@ class MyOrdersController extends GetxController {
       final result = await _orderService.getOrders(
         page: _ongoingCurrentPage.value,
         limit: _ongoingLimit.value,
-        status: 'ongoing',
+        status: 'Pending',
         authToken: _authToken.value,
       );
 
@@ -178,7 +178,7 @@ class MyOrdersController extends GetxController {
       final result = await _orderService.getOrders(
         page: _completedCurrentPage.value,
         limit: _completedLimit.value,
-        status: 'completed',
+        status: 'active',
         authToken: _authToken.value,
       );
 
@@ -215,7 +215,7 @@ class MyOrdersController extends GetxController {
       final result = await _orderService.getOrders(
         page: nextPage,
         limit: _completedLimit.value,
-        status: 'completed',
+        status: 'active',
         authToken: _authToken.value,
       );
 

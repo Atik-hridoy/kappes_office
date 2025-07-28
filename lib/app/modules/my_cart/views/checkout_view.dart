@@ -1,15 +1,16 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/promo_code_text_field.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/coupon_controller.dart';
 import 'package:canuck_mall/app/modules/my_cart/widgets/shipping_address_card.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_button/custom_dropdown_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../themes/app_colors.dart';
@@ -59,8 +60,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   }
 
   Widget _buildCheckoutContent(BuildContext context) {
-    final CheckoutViewController controller =
-        Get.find<CheckoutViewController>();
+    final controller = Get.find<CheckoutViewController>();
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -153,7 +153,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                           children: [
                             PromoCodeTextField(
                               onApply: (code) async {
-                                print('Applying coupon: ' + code);
+                                if (kDebugMode) {
+                                  print('Applying coupon: $code');
+                                }
                                 final MyCartController cartController =
                                     Get.find<MyCartController>();
                                 String? effectiveShopId = shopId;
@@ -184,25 +186,26 @@ class _CheckoutViewState extends State<CheckoutView> {
                                         '';
                                   }
                                 }
-                                print(
-                                  'Coupon apply params: code=$code, shopId=$effectiveShopId, orderAmount=$itemCost',
-                                );
+                                if (kDebugMode) {
+                                  print(
+                                    'Coupon apply params: code=$code, shopId=$effectiveShopId, orderAmount=$itemCost',
+                                  );
+                                }
                                 await couponController.applyCoupon(
                                   code,
                                   shopId: effectiveShopId ?? '',
                                   orderAmount: itemCost,
                                 );
-                                print(
-                                  'Coupon response: ' +
-                                      couponController.couponResponse
-                                          .toString(),
-                                );
-                                print(
-                                  'Coupon error: ' +
-                                      (couponController.errorMessage
-                                              ?.toString() ??
-                                          'none'),
-                                );
+                                if (kDebugMode) {
+                                  print(
+                                    'Coupon response: ${couponController.couponResponse}',
+                                  );
+                                }
+                                if (kDebugMode) {
+                                  print(
+                                    'Coupon error: ${couponController.errorMessage?.toString() ?? 'none'}',
+                                  );
+                                }
                                 if (couponController.couponResponse != null) {
                                   setState(() {
                                     discount =
@@ -210,10 +213,11 @@ class _CheckoutViewState extends State<CheckoutView> {
                                             .couponResponse!
                                             .data
                                             .discountAmount;
-                                    print(
-                                      'Discount amount from backend: ' +
-                                          discount.toString(),
-                                    );
+                                    if (kDebugMode) {
+                                      print(
+                                        'Discount amount from backend: $discount',
+                                      );
+                                    }
                                     _calculateTotal();
                                   });
                                   if (couponController
@@ -391,61 +395,14 @@ class _CheckoutViewState extends State<CheckoutView> {
                     ),
                     SizedBox(height: AppSize.height(height: 2.0)),
                     AppCommonButton(
-                      onPressed:
-                          _agreedToTnC
-                              ? () async {
-                                final controller =
-                                    Get.find<CheckoutViewController>();
-                                final cartController =
-                                    Get.find<MyCartController>();
-                                final items =
-                                    cartController
-                                        .cartData
-                                        .value
-                                        ?.data
-                                        ?.items ??
-                                    [];
-                                final products =
-                                    items
-                                        .map(
-                                          (item) =>
-                                              OrderProduct.fromCartItem(item),
-                                        )
-                                        .toList();
-                                print('🛒 Creating order on backend...');
-                                print('Order products: ' + products.toString());
-                                print('Order shopId: ' + (shopId ?? ''));
-
-                                try {
-                                  await controller.createOrder(
-                                    products,
-                                    shopId ?? '',
-                                  );
-                                  print('✅ Order creation success!');
-                                  Get.snackbar(
-                                    'Order',
-                                    'Order created successfully!',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                  );
-                                  Get.toNamed(Routes.checkoutSuccessfulView);
-                                } catch (e) {
-                                  print(
-                                    '❌ Order creation failed: ' + e.toString(),
-                                  );
-                                  Get.snackbar(
-                                    'Order',
-                                    'Order creation failed: ' + e.toString(),
-                                    snackPosition: SnackPosition.BOTTOM,
-                                  );
-                                }
-                              }
-                              : () {
-                                Get.snackbar(
-                                  'Terms and Conditions',
-                                  'You must agree to the terms and conditions before placing your order.',
-                                  snackPosition: SnackPosition.BOTTOM,
-                                );
-                              },
+                      onPressed: () {
+                        final controller = Get.find<CheckoutViewController>();
+                        controller.handleCheckout(
+                          context,
+                          _agreedToTnC,
+                          shopId,
+                        );
+                      },
                       title: AppStaticKey.placeOrder,
                       fontSize: AppSize.height(height: 2.0),
                     ),

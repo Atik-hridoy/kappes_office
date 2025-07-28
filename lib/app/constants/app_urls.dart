@@ -53,9 +53,6 @@ abstract class AppUrls {
   static const String offered = '/offered';
   static const String shopLocation = '/shop/location';
 
-  // Wishlist endpoints
-  static const String myCart = '/cart';
-
   // Coupon endpoint
   static const String getCoupon = '/coupon';
   static const String addToCart = '/cart/create';

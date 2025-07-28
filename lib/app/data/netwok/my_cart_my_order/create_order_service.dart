@@ -31,7 +31,12 @@ class OrderService {
 
   Future<OrderResponse> createOrder(OrderRequest request) async {
     try {
-      print('OrderService: Sending order request: ' + request.toJson().toString());
+      print(
+        'OrderService: Sending order request: ' + request.toJson().toString(),
+      );
+      print(
+        'OrderService: Posting to URL: \x1B[32m${_dio.options.baseUrl}${AppUrls.createOrder}\x1B[0m',
+      );
       final response = await _dio.post(
         AppUrls.createOrder,
         data: request.toJson(),
@@ -39,11 +44,12 @@ class OrderService {
 
       // Check for a successful status code (201 indicates resource creation)
       if (response.statusCode == 201 || response.statusCode == 200) {
+        print("==================>> create order success $response.statusCode");
         return OrderResponse.fromJson(response.data);
       } else {
         throw _handleError(response);
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       // Handle Dio specific errors like connectivity issues, etc.
       print('DioException: ${e.message}');
       throw _handleError(e.response);
