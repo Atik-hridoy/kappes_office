@@ -1,4 +1,5 @@
 import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -28,10 +29,12 @@ class CustomProductOrderCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppSize.height(height: 0.5)),
             child: AppImage(
               imagePath:
-                  (order.products.isNotEmpty &&
-                          order.products[0].product.images.isNotEmpty)
-                      ? order.products[0].product.images[0]
-                      : AppImages.product1,
+  (order.products.isNotEmpty &&
+          order.products[0].product.images.isNotEmpty)
+      ? (order.products[0].product.images[0].startsWith('http')
+          ? order.products[0].product.images[0]
+          : AppUrls.imageUrl + order.products[0].product.images[0])
+      : AppImages.product1,
               height: AppSize.height(height: 10.0),
               width: AppSize.height(height: 10.0),
               fit: BoxFit.cover,

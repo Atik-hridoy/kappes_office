@@ -367,6 +367,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           product: productId,
                           variant: variantId,
                           quantity: qty,
+                          totalPrice: totalPrice,
                         );
 
                         Get.toNamed(

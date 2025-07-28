@@ -1,5 +1,6 @@
 // checkout_view_controller.dart
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -9,9 +10,6 @@ import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
 
 class CheckoutViewController extends GetxController {
-  OrderRequest? _lastOrderRequest;
-  String? _lastOrderUserId;
-
   // User Details
   final RxString userName = ''.obs;
   final RxString userPhone = ''.obs;
@@ -165,6 +163,23 @@ class CheckoutViewController extends GetxController {
   }
 
   Future<void> createOrder(List<OrderProduct> products, String shopId) async {
+    // Use MyCartController to get the cart items with their total price
+    final cartController = Get.find<MyCartController>();
+    final cartItems = cartController.cartData.value?.data?.items ?? [];
+    // Build the products list with totalPrice for each product
+    final orderProducts =
+        cartItems
+            .map(
+              (item) => OrderProduct(
+                product: item.productId?.id ?? '',
+                variant: item.variantId?.id ?? '',
+                quantity: item.variantQuantity,
+                totalPrice: item.totalPrice,
+              ),
+            )
+            .toList();
+    // Use this list instead of the passed-in products
+    products = orderProducts;
     // Validate required fields
     final userId = LocalStorage.userId;
     final token = LocalStorage.token;
@@ -192,6 +207,15 @@ class CheckoutViewController extends GetxController {
       deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
     );
 
+    // Calculate and print total price
+    final totalOrderPrice = products.fold<double>(
+      0,
+      (sum, p) => sum + (p.totalPrice),
+    );
+    print(
+      '[Checkout] Total order price: \$${totalOrderPrice.toStringAsFixed(2)}',
+    );
+
     isLoading(true);
     try {
       print('[Checkout] Creating order with payload: ${orderRequest.toJson()}');
@@ -202,8 +226,6 @@ class CheckoutViewController extends GetxController {
 
       print('[Checkout] OrderService response: ${response.toString()}');
       if (response.success && response.data != null) {
-        _lastOrderRequest = orderRequest;
-        _lastOrderUserId = userId;
         print(
           '[Checkout] Order successfully stored on backend. User ID: $userId',
         );

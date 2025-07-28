@@ -39,23 +39,27 @@ class OrderProduct {
   final String product;
   final String variant;
   final int quantity;
+  final double totalPrice;
 
   OrderProduct({
     required this.product,
     required this.variant,
     required this.quantity,
+    required this.totalPrice,
   });
 
   factory OrderProduct.fromJson(Map<String, dynamic> json) => OrderProduct(
         product: json['product'] ?? '',
         variant: json['variant'] ?? '',
         quantity: json['quantity'] ?? 0,
+        totalPrice: (json['totalPrice'] ?? 0.0).toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
         'product': product,
         'variant': variant,
         'quantity': quantity,
+        'totalPrice': totalPrice,
       };
 }
 
