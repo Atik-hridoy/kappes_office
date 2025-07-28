@@ -18,7 +18,6 @@ abstract class AppUrls {
 
   // User endpoints
   static const String profile = '/users/profile';
-  static const String myOrders = '/order/my-orders';
   static const String orders = '/user/orders';
   static const String changePassword = '/auth/change-password';
   static const String getPrivacy = '/settings/privacy-policy';
@@ -53,9 +52,6 @@ abstract class AppUrls {
   static const String tradeNService = '/business/all';
   static const String offered = '/offered';
   static const String shopLocation = '/shop/location';
-
-  // Wishlist endpoints
-  static const String myCart = '/cart';
 
   // Coupon endpoint
   static const String getCoupon = '/coupon';

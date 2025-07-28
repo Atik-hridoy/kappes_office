@@ -8,8 +8,9 @@ import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CheckoutSuccessfulView extends GetView {
+class CheckoutSuccessfulView extends StatelessWidget {
   const CheckoutSuccessfulView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +31,7 @@ class CheckoutSuccessfulView extends GetView {
             Container(
               padding: EdgeInsets.all(AppSize.height(height: 2.0)),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
+                color: Colors.red.withAlpha(50),
                 borderRadius: BorderRadius.circular(
                   AppSize.height(height: 100.0),
                 ),
@@ -38,7 +39,7 @@ class CheckoutSuccessfulView extends GetView {
               child: Container(
                 padding: EdgeInsets.all(AppSize.height(height: 2.0)),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: AppColors.primary.withAlpha(50),
                   borderRadius: BorderRadius.circular(
                     AppSize.height(height: 100.0),
                   ),
@@ -54,7 +55,7 @@ class CheckoutSuccessfulView extends GetView {
             AppText(
               title: AppStaticKey.thankYouForYourOrder,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontSize: AppSize.height(height: 2.80),
+                fontSize: AppSize.height(height: 2.8),
               ),
             ),
             SizedBox(height: AppSize.height(height: 2.0)),
@@ -72,7 +73,7 @@ class CheckoutSuccessfulView extends GetView {
                 Get.toNamed(Routes.myOrders);
               },
               title: AppStaticKey.myOrder,
-              fontSize: AppSize.height(height: 2.0),
+              fontSize: AppSize.height(height: 2.2),
             ),
             SizedBox(height: AppSize.height(height: 2.0)),
             AppCommonButton(
@@ -83,7 +84,7 @@ class CheckoutSuccessfulView extends GetView {
               backgroundColor: AppColors.white,
               borderColor: AppColors.lightGray,
               color: AppColors.black,
-              fontSize: AppSize.height(height: 2.0),
+              fontSize: AppSize.height(height: 2.2),
             ),
           ],
         ),

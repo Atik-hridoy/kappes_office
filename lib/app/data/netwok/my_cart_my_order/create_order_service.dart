@@ -31,13 +31,20 @@ class OrderService {
 
   Future<OrderResponse> createOrder(OrderRequest request) async {
     try {
+      print(
+        'OrderService: Sending order request: ' + request.toJson().toString(),
+      );
+      print(
+        'OrderService: Posting to URL: \x1B[32m${_dio.options.baseUrl}${AppUrls.createOrder}\x1B[0m',
+      );
       final response = await _dio.post(
         AppUrls.createOrder,
         data: request.toJson(),
       );
 
       // Check for a successful status code (201 indicates resource creation)
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print("==================>> create order success $response.statusCode");
         return OrderResponse.fromJson(response.data);
       } else {
         throw _handleError(response);

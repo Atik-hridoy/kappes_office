@@ -210,6 +210,9 @@ class ProductDetailsController extends GetxController {
     final token = LocalStorage.token;
     final productId = product.value?.id ?? '';
     final variantId = selectedVariantId.value;
+    final qty = selectedQuantity.value;
+    final price = product.value?.basePrice ?? 0;
+    final totalPrice = price * qty;
 
     // Validation
     if (token.isEmpty) {
@@ -244,7 +247,8 @@ class ProductDetailsController extends GetxController {
         OrderProduct(
           product: productId,
           variant: variantId,
-          quantity: selectedQuantity.value,
+          quantity: qty,
+          totalPrice: totalPrice,
         ),
       ];
 
@@ -454,6 +458,7 @@ class ProductDetailsController extends GetxController {
       product: product.value!.id,
       variant: selectedVariantId.value,
       quantity: selectedQuantity.value,
+      totalPrice: product.value?.basePrice ?? 0,
     );
   }
 

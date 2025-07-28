@@ -1,9 +1,12 @@
 // checkout_view_controller.dart
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
+import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
-import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
 
 class CheckoutViewController extends GetxController {
@@ -105,11 +108,86 @@ class CheckoutViewController extends GetxController {
     }
   }
 
-  Future<void> createOrder(List<OrderProduct> products, String shopId) async {
-    if (!termsAccepted.value) {
-      Get.snackbar('Error', 'Please accept terms and conditions');
+  /// Handles full checkout logic, including cart extraction, order creation, and navigation
+  Future<void> handleCheckout(
+    BuildContext context,
+    bool agreedToTnC,
+    String? shopId,
+  ) async {
+    if (!agreedToTnC) {
+      Get.snackbar(
+        'Terms and Conditions',
+        'You must agree to the terms and conditions before placing your order.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
+
+    final args = Get.arguments;
+    final List<OrderProduct> products =
+        (args['products'] as List).cast<OrderProduct>();
+    final String shopIdFromArgs = args['shopId'] ?? shopId ?? '';
+
+    if (products.isEmpty) {
+      Get.snackbar(
+        'Order',
+        'No products found for checkout.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    if (shopIdFromArgs.isEmpty) {
+      Get.snackbar(
+        'Order',
+        'No shop ID found for checkout.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await createOrder(products, shopId ?? '');
+      if (kDebugMode) {
+        print('✅ ====================>> Order creation success!');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Order creation failed: $e');
+      }
+      Get.snackbar(
+        'Order',
+        'Order creation failed: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> createOrder(List<OrderProduct> products, String shopId) async {
+    // Use MyCartController to get the cart items with their total price
+    final cartController = Get.find<MyCartController>();
+    final cartItems = cartController.cartData.value?.data?.items ?? [];
+    // Build the products list with totalPrice for each product
+    final orderProducts =
+        cartItems
+            .map(
+              (item) => OrderProduct(
+                product: item.productId?.id ?? '',
+                variant: item.variantId?.id ?? '',
+                quantity: item.variantQuantity,
+                totalPrice: item.totalPrice,
+              ),
+            )
+            .toList();
+    // Use this list instead of the passed-in products
+    products = orderProducts;
+    // Validate required fields
+    final userId = LocalStorage.userId;
+    final token = LocalStorage.token;
+    if (userId.isEmpty || token.isEmpty) {
+      Get.snackbar('Error', 'User not logged in or token missing');
+      return;
+    }
+
     if (name.value.isEmpty || phone.value.isEmpty || address.value.isEmpty) {
       Get.snackbar('Error', 'Name, phone, and shipping address are required');
       return;
@@ -118,26 +196,63 @@ class CheckoutViewController extends GetxController {
       Get.snackbar('Error', 'Your cart is empty');
       return;
     }
+
+    // Prepare order request
+    final orderRequest = OrderRequest(
+      shop: shopId,
+      products: products,
+      coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
+      shippingAddress: address.value,
+      paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
+      deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
+    );
+
+    // Calculate and print total price
+    final totalOrderPrice = products.fold<double>(
+      0,
+      (sum, p) => sum + (p.totalPrice),
+    );
+    print(
+      '[Checkout] Total order price: \$${totalOrderPrice.toStringAsFixed(2)}',
+    );
+
+    isLoading(true);
     try {
-      isLoading(true);
-      final orderRequest = OrderRequest(
-        shop: shopId,
-        products: products,
-        coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
-        shippingAddress: address.value,
-        paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
-        deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
-      );
-      final response = await OrderService(
-        LocalStorage.token,
-      ).createOrder(orderRequest);
-      if (response.success) {
-        Get.offNamed(Routes.checkoutSuccessfulView, arguments: response.data);
+      print('[Checkout] Creating order with payload: ${orderRequest.toJson()}');
+
+      final response = await OrderService(token).createOrder(orderRequest);
+
+      print("===============status by chironjit $response.body");
+
+      print('[Checkout] OrderService response: ${response.toString()}');
+      if (response.success && response.data != null) {
+        print(
+          '[Checkout] Order successfully stored on backend. User ID: $userId',
+        );
+        print('[Checkout] Order Data: ${response.data}');
+        // Ensure products is a List<Map<String, dynamic>> for safe navigation
+        final productsList =
+            (response.data?.products ?? [])
+                // ignore: unnecessary_type_check
+                .map((item) => item is OrderItem ? item.toJson() : item)
+                .toList();
+        print(
+          '[Checkout] Passing products to success view: type=${productsList.runtimeType}, value=$productsList',
+        );
+        Get.offNamed(
+          Routes.checkoutSuccessfulView,
+          arguments: {'orderData': response.data, 'products': productsList},
+        );
+      } else if (!response.success) {
+        print('[Checkout] Backend responded with error: ${response.message}');
+        Get.snackbar('Order Error', response.message);
       } else {
-        Get.snackbar('Error', response.message);
+        print('[Checkout] Order response missing data!');
+        Get.snackbar('Order Error', 'Order was not created. Try again.');
       }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+    } catch (e, stack) {
+      print('[Checkout] Exception while creating order: $e\n$stack');
+      Get.snackbar('Order Error', 'Failed to create order: ${e.toString()}');
     } finally {
       isLoading(false);
     }
