@@ -348,37 +348,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () {
-                        final productId = controller.product.value?.id ?? '';
-                        final variantId = controller.selectedVariantId.value;
-                        final qty = controller.selectedQuantity.value;
-                        final shopId = controller.product.value?.shop.id ?? '';
-
-                        if (productId.isEmpty || variantId.isEmpty) {
-                          Get.snackbar(
-                            'Error',
-                            'Please select product options',
-                          );
-                          return;
-                        }
-
-                        final price = controller.product.value?.basePrice ?? 0;
-                        final totalPrice = price * qty;
-                        final orderProduct = OrderProduct(
-                          product: productId,
-                          variant: variantId,
-                          quantity: qty,
-                          totalPrice: totalPrice,
-                        );
-
-                        Get.toNamed(
-                          Routes.checkoutView,
-                          arguments: {
-                            'shopId': shopId,
-                            'products': [orderProduct],
-                            'itemCost': totalPrice,
-                            'productId': productId,
-                          },
-                        );
+                        controller.handleCheckoutFromDetails();
                       },
                       title: AppStaticKey.buyNow,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(

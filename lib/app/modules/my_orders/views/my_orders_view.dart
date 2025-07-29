@@ -65,63 +65,28 @@ class _OrdersTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final MyOrdersController controller = Get.find<MyOrdersController>();
     return Obx(() {
-      final isLoading =
-          isOngoing
-              ? controller.ongoingIsLoading
-              : controller.completedIsLoading;
-      final isLoadingMore =
-          isOngoing
-              ? controller.ongoingIsLoadingMore
-              : controller.completedIsLoading;
-      final hasMoreData =
-          isOngoing
-              ? controller.ongoingHasMoreData
-              : controller.completedHasMoreData;
-      final errorMessage =
-          isOngoing
-              ? controller.ongoingErrorMessage
-              : controller.completedErrorMessage;
-      final ordersList =
-          isOngoing
-              ? controller.ongoingOrdersList
-              : controller.completedOrdersList;
-      final refreshOrders =
-          isOngoing
-              ? controller.refreshOngoingOrders
-              : controller.refreshCompletedOrders;
-      final loadMoreOrders =
-          isOngoing
-              ? controller.loadMoreOngoingOrders
-              : controller.loadMoreCompletedOrders;
+      final tabState = controller.getTabState(isOngoing);
 
-      if (isLoading && ordersList.isEmpty) {
+      if (tabState.isLoading && tabState.ordersList.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (errorMessage.isNotEmpty && ordersList.isEmpty) {
-        return Center(child: Text('Error: $errorMessage'));
+      if (tabState.errorMessage.isNotEmpty && tabState.ordersList.isEmpty) {
+        return Center(child: Text('Error: ${tabState.errorMessage}'));
       }
-      if (ordersList.isEmpty) {
+      if (tabState.ordersList.isEmpty) {
         return const Center(child: Text('No orders found.'));
       }
       return RefreshIndicator(
-        onRefresh: refreshOrders,
+        onRefresh: tabState.refreshOrders,
         child: NotificationListener<ScrollNotification>(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (!isLoadingMore &&
-                hasMoreData &&
-                scrollInfo.metrics.pixels >=
-                    scrollInfo.metrics.maxScrollExtent - 100) {
-              loadMoreOrders();
-            }
-            return false;
-          },
+          onNotification: (scrollInfo) => controller.handleScrollNotification(isOngoing, scrollInfo),
           child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: ordersList.length + (isLoadingMore ? 1 : 0),
+            itemCount: tabState.ordersList.length + (tabState.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index < ordersList.length) {
-                // If you want to show real order data, pass order: ordersList[index] to the card.
-                return CustomProductOrderCard(order: ordersList[index]);
+              if (index < tabState.ordersList.length) {
+                // If you want to show real order data, pass order: tabState.ordersList[index] to the card.
+                return CustomProductOrderCard(order: tabState.ordersList[index]);
               } else {
                 // Loading more indicator
                 return const Padding(

@@ -17,14 +17,6 @@ import '../controllers/my_cart_controller.dart';
 class MyCartView extends StatelessWidget {
   const MyCartView({super.key});
 
-  // Helper function to build full image URL
-  String getFullImageUrl(String? path) {
-    if (path == null || path.isEmpty) {
-      return 'assets/images/placeholder.png'; // fallback image
-    }
-    return '${AppUrls.imageUrl}$path';
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(MyCartController());
@@ -65,7 +57,9 @@ class MyCartView extends StatelessWidget {
               final product = item.productId;
               final variant = item.variantId;
 
-              final imageUrl = getFullImageUrl(product?.images?.first);
+              final imageUrl = controller.getFullImageUrl(
+                product?.images?.first,
+              );
 
               return Container(
                 padding: EdgeInsets.all(AppSize.height(height: 2.0)),
@@ -146,8 +140,7 @@ class MyCartView extends StatelessWidget {
                                 spacing: 3.5,
                                 textSize: AppSize.height(height: 1.5),
                                 onChanged: (newQuantity) {
-                                  // TODO: Call API to update quantity here
-                                  print('Updated quantity: $newQuantity');
+                                  controller.updateQuantity(index, newQuantity);
                                 },
                               ),
                             ],
@@ -166,7 +159,7 @@ class MyCartView extends StatelessWidget {
         );
       }),
       bottomNavigationBar: Obx(() {
-        double total = controller.calculateTotalPrice();
+        double total = controller.cartTotalPrice;
 
         return Container(
           decoration: BoxDecoration(
@@ -177,7 +170,7 @@ class MyCartView extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 spreadRadius: 3,
                 blurRadius: 8,
                 offset: const Offset(0, 2),
@@ -192,9 +185,7 @@ class MyCartView extends StatelessWidget {
               bottom: AppSize.height(height: 7.0),
             ),
             child: AppCommonButton(
-              onPressed: () {
-                Get.toNamed(Routes.checkoutView);
-              },
+              onPressed: controller.goToCheckout,
               title: "${AppStaticKey.checkout} : \$${total.toStringAsFixed(2)}",
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                 fontSize: AppSize.height(height: 2.0),

@@ -7,7 +7,38 @@ import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import '../../../model/recomended_product_model.dart';
 
+import 'package:canuck_mall/app/routes/app_pages.dart';
+
 class ProductDetailsController extends GetxController {
+  void handleCheckoutFromDetails() {
+    final productId = product.value?.id ?? '';
+    final variantId = selectedVariantId.value;
+    final qty = selectedQuantity.value;
+    final shopId = product.value?.shop.id ?? '';
+
+    if (productId.isEmpty || variantId.isEmpty) {
+      Get.snackbar('Error', 'Please select product options');
+      return;
+    }
+
+    final price = product.value?.basePrice ?? 0;
+    final totalPrice = price * qty;
+    final orderProduct = OrderProduct(
+      product: productId,
+      variant: variantId,
+      quantity: qty,
+      totalPrice: totalPrice,
+    );
+
+    Get.toNamed(
+      Routes.checkoutView,
+      arguments: {
+        'products': [orderProduct],
+        'shopId': shopId,
+      },
+    );
+  }
+
   final ProductDetailsService _productDetailsService = ProductDetailsService();
 
   // Existing observables
@@ -162,7 +193,7 @@ class ProductDetailsController extends GetxController {
         variantId: variantId,
         quantity: selectedQuantity.value,
       );
-
+      print('Add to cart response:====================>> ${response.data}');
       Get.snackbar('Success', response.message);
 
       // Optional: Update cart count in your app state
@@ -238,9 +269,7 @@ class ProductDetailsController extends GetxController {
       orderErrorMessage('');
 
       // Initialize order service if not already done
-      if (_orderService == null) {
-        _orderService = OrderService(token);
-      }
+      _orderService ??= OrderService(token);
 
       // Create order products list
       final orderProducts = [

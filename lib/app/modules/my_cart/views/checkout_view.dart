@@ -29,6 +29,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   double total = 0.0;
   bool _agreedToTnC = false;
   String? shopId;
+  List<dynamic> products = [];
 
   @override
   void initState() {
@@ -40,6 +41,9 @@ class _CheckoutViewState extends State<CheckoutView> {
       }
       if (args['shopId'] != null && (args['shopId'] as String).isNotEmpty) {
         shopId = args['shopId'] as String;
+      }
+      if (args['products'] != null) {
+        products = args['products'] as List<dynamic>;
       }
     }
     _calculateTotal();

@@ -1,7 +1,28 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/get_order_service.dart';
 import 'package:canuck_mall/app/model/get_my_order_model.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
+
+class OrdersTabState {
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMoreData;
+  final String errorMessage;
+  final List<OrderResult> ordersList;
+  final Future<void> Function() refreshOrders;
+  final void Function() loadMoreOrders;
+
+  OrdersTabState({
+    required this.isLoading,
+    required this.isLoadingMore,
+    required this.hasMoreData,
+    required this.errorMessage,
+    required this.ordersList,
+    required this.refreshOrders,
+    required this.loadMoreOrders,
+  });
+}
 
 class MyOrdersController extends GetxController {
   final GetOrderService _orderService = GetOrderService();
@@ -56,6 +77,30 @@ class MyOrdersController extends GetxController {
 
   void setAuthToken(String token) {
     _authToken.value = token;
+  }
+
+  // --- Tab logic for view ---
+  OrdersTabState getTabState(bool isOngoing) {
+    return OrdersTabState(
+      isLoading: isOngoing ? ongoingIsLoading : completedIsLoading,
+      isLoadingMore: isOngoing ? ongoingIsLoadingMore : completedIsLoading,
+      hasMoreData: isOngoing ? ongoingHasMoreData : completedHasMoreData,
+      errorMessage: isOngoing ? ongoingErrorMessage : completedErrorMessage,
+      ordersList: isOngoing ? ongoingOrdersList : completedOrdersList,
+      refreshOrders: isOngoing ? refreshOngoingOrders : refreshCompletedOrders,
+      loadMoreOrders:
+          isOngoing ? loadMoreOngoingOrders : loadMoreCompletedOrders,
+    );
+  }
+
+  bool handleScrollNotification(bool isOngoing, ScrollNotification scrollInfo) {
+    final state = getTabState(isOngoing);
+    if (!state.isLoadingMore &&
+        state.hasMoreData &&
+        scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100) {
+      state.loadMoreOrders();
+    }
+    return false;
   }
 
   @override

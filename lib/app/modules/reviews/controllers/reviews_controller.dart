@@ -3,6 +3,25 @@ import 'package:get/get.dart';
 import '../../../data/netwok/product_details/reviews_service.dart';
 
 class ReviewsController extends GetxController {
+  // ... existing fields and methods ...
+
+  /// Returns a map of star rating (1-5) to the number of reviews for that rating.
+  Map<int, int> get ratingCount {
+    final count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    for (final r in reviewsList) {
+      final rounded = r.rating.round().clamp(1, 5);
+      count[rounded] = count[rounded]! + 1;
+    }
+    return count;
+  }
+
+  /// Returns the percentage (0.0-1.0) of reviews with the given star rating.
+  double getPercent(int star) {
+    final total = reviewsList.length;
+    if (total == 0) return 0;
+    return ratingCount[star]! / total;
+  }
+
   final ReviewsService _service = ReviewsService();
 
   final isLoading = false.obs;
