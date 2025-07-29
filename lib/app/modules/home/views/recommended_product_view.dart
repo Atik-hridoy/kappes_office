@@ -72,7 +72,7 @@ class RecommendedProductView extends GetView<RecommendedProductController> {
                     Divider(color: AppColors.lightGray),
                     GridView.builder(
                       shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                      physics: NeverScrollableScrollPhysics(),
                       itemCount: controller.products.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -93,7 +93,7 @@ class RecommendedProductView extends GetView<RecommendedProductController> {
                           imageUrl: imageUrl,
                           title: product['name'] ?? '',
                           price: product['basePrice']?.toString() ?? '0.00',
-                          productId: product['_id'], // ✅ Pass product ID
+                          productId: product['_id'],
                         );
                       },
                     ),

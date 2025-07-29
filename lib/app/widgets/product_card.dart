@@ -28,7 +28,7 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   final SavedController savedController = Get.put(SavedController());
-  bool isFavourite = false;
+  late bool isFavourite;
 
   @override
   void initState() {
@@ -40,123 +40,89 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        print('🟢 Navigating to product with ID: ${widget.productId}');
         Get.toNamed(Routes.productDetails, arguments: widget.productId);
       },
       borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 0,
-          maxHeight: double.infinity,
+      child: Container(
+        width: AppSize.width(width: 42.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
+          border: Border.all(color: AppColors.lightGray),
         ),
-        child: Container(
-          width: AppSize.width(width: 42.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-            border: Border.all(color: AppColors.lightGray),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(AppSize.height(height: 2.0)),
-                      topRight: Radius.circular(AppSize.height(height: 2.0)),
-                    ),
-                    child: SizedBox(
-                      height: AppSize.height(height: 15.0),
-                      width: double.infinity,
-                      child: AppImage(
-                        imagePath: widget.imageUrl,
-                        fit: BoxFit.cover,
-                      ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image + Heart Icon
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppSize.height(height: 2.0)),
+                    topRight: Radius.circular(AppSize.height(height: 2.0)),
+                  ),
+                  child: SizedBox(
+                    height: AppSize.height(height: 15.0),
+                    width: double.infinity,
+                    child: AppImage(
+                      imagePath: widget.imageUrl,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  Positioned(
-                    top: AppSize.height(height: 1.0),
-                    right: AppSize.width(width: 1.0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          isFavourite = !isFavourite;
+                ),
+                Positioned(
+                  top: AppSize.height(height: 1.0),
+                  right: AppSize.width(width: 1.0),
+                  child: InkWell(
+                    onTap: () async {
+                      setState(() {
+                        isFavourite = !isFavourite;
+                      });
+                      if (isFavourite) {
+                        await savedController.saveProduct({
+                          'id': widget.productId,
+                          'name': widget.title,
+                          'imageUrl': widget.imageUrl,
+                          'price': widget.price,
                         });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(AppSize.height(height: 0.5)),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          isFavourite ? Icons.favorite : Icons.favorite_border,
-                          size: AppSize.height(height: 2.0),
-                          color:
-                              isFavourite ? AppColors.lightRed : AppColors.gray,
-                        ),
+                        Get.snackbar('Saved', 'Product added to wishlist');
+                      } else {
+                        await savedController.deleteProduct(widget.productId);
+                        Get.snackbar(
+                          'Removed',
+                          'Product removed from wishlist',
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(AppSize.height(height: 0.5)),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        isFavourite ? Icons.favorite : Icons.favorite_border,
+                        size: AppSize.height(height: 2.0),
+                        color:
+                            isFavourite ? AppColors.lightRed : AppColors.gray,
                       ),
                     ),
                   ),
-                  // Only one love icon, which toggles and saves to wishlist
-                  Positioned(
-                    top: AppSize.height(height: 1.0),
-                    right: AppSize.width(width: 1.0),
-                    child: InkWell(
-                      onTap: () async {
-                        setState(() {
-                          isFavourite = !isFavourite;
-                        });
-                        if (isFavourite) {
-                          await savedController.saveProduct({
-                            'id': widget.productId,
-                            'name': widget.title,
-                            'imageUrl': widget.imageUrl,
-                            'price': widget.price,
-                          });
-                          Get.snackbar('Saved', 'Product added to wishlist');
-                        } else {
-                          await savedController.deleteProduct(widget.productId);
-                          Get.snackbar(
-                            'Removed',
-                            'Product removed from wishlist',
-                          );
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(AppSize.height(height: 0.5)),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          isFavourite ? Icons.favorite : Icons.favorite_border,
-                          size: AppSize.height(height: 2.0),
-                          color:
-                              isFavourite ? AppColors.lightRed : AppColors.gray,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(AppSize.height(height: 1.0)),
+                ),
+              ],
+            ),
+
+            // Title and Price
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.all(AppSize.height(height: 1.0)),
+                child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -171,9 +137,7 @@ class _ProductCardState extends State<ProductCard> {
                       SizedBox(height: AppSize.height(height: 0.5)),
                       Text(
                         '\$${widget.price}',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
@@ -182,8 +146,8 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

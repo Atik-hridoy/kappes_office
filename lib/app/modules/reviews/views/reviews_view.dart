@@ -59,19 +59,10 @@ class ReviewsView extends GetView<ReviewsController> {
         }
 
         // 👇 Dynamic data calculations
-        final total = reviews.length;
+        final total = controller.reviewsList.length;
         final avg = controller.averageRating;
-
-        final ratingCount = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-        for (final r in reviews) {
-          final rounded = r.rating.round().clamp(1, 5);
-          ratingCount[rounded] = ratingCount[rounded]! + 1;
-        }
-
-        double getPercent(int star) {
-          if (total == 0) return 0;
-          return ratingCount[star]! / total;
-        }
+        final ratingCount = controller.ratingCount;
+        double getPercent(int star) => controller.getPercent(star);
 
         // 👇 View layout
         return SingleChildScrollView(
