@@ -35,6 +35,7 @@ class ProductDetailsController extends GetxController {
       arguments: {
         'products': [orderProduct],
         'shopId': shopId,
+        'itemCost': totalPrice,
       },
     );
   }

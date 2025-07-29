@@ -38,6 +38,11 @@ class _CheckoutViewState extends State<CheckoutView> {
     if (args != null) {
       if (args['itemCost'] != null) {
         itemCost = (args['itemCost'] as num).toDouble();
+      } else if (args['products'] != null) {
+        // Calculate itemCost from products list if not provided
+        itemCost = (args['products'] as List)
+            .map((p) => p['totalPrice'] ?? 0)
+            .fold(0.0, (a, b) => a + (b as num).toDouble());
       }
       if (args['shopId'] != null && (args['shopId'] as String).isNotEmpty) {
         shopId = args['shopId'] as String;
@@ -60,7 +65,21 @@ class _CheckoutViewState extends State<CheckoutView> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCheckoutContent(context);
+    return Obx(() {
+      final controller = Get.find<CheckoutViewController>();
+      return Stack(
+        children: [
+          _buildCheckoutContent(context),
+          if (controller.isLoading.value)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      );
+    });
   }
 
   Widget _buildCheckoutContent(BuildContext context) {

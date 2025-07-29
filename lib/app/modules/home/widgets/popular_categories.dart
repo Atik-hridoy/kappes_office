@@ -25,10 +25,7 @@ class PopularCategories extends StatelessWidget {
                   borderRadius: BorderRadius.circular(
                     AppSize.height(height: 100.0),
                   ),
-                  border: Border.all(
-                    color: AppColors.lightGray,
-                    width: 2.0,
-                  ),
+                  border: Border.all(color: AppColors.lightGray, width: 2.0),
                 ),
                 child: AppImage(
                   imagePath: categories[index].image,

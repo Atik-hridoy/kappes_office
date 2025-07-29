@@ -146,11 +146,15 @@ class CheckoutViewController extends GetxController {
     }
 
     try {
+      isLoading.value = true;
       await createOrder(products, shopId ?? '');
+      isLoading.value = false;
       if (kDebugMode) {
         print('✅ ====================>> Order creation success!');
       }
+      Get.toNamed(Routes.checkoutSuccessfulView);
     } catch (e) {
+      isLoading.value = false;
       if (kDebugMode) {
         print('❌ Order creation failed: $e');
       }
