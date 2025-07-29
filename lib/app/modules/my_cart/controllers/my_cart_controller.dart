@@ -14,7 +14,38 @@ class MyCartController extends GetxController {
   }
 
   void goToCheckout() {
-    Get.toNamed(Routes.checkoutView);
+    final items = cartData.value?.data?.items ?? [];
+    if (items.isEmpty) {
+      Get.snackbar('Error', 'Cart is empty');
+      return;
+    }
+
+    final products =
+        items
+            .map(
+              (item) => {
+                'productId': item.productId?.id,
+                'variantId': item.variantId?.id,
+                'name': item.productId?.name,
+                'variantName': item.variantId?.storage,
+                'quantity': item.variantQuantity,
+                'price': item.variantPrice,
+                'totalPrice': item.totalPrice,
+                // add any other fields needed by checkout/order placement
+              },
+            )
+            .toList();
+
+    final shopId = items.first.productId?.shopId ?? '';
+
+    Get.toNamed(
+      Routes.checkoutView,
+      arguments: {
+        'products': products,
+        'itemCost': cartTotalPrice,
+        'shopId': shopId,
+      },
+    );
   }
 
   var isLoading = true.obs;
