@@ -56,6 +56,7 @@ class NotificationView extends GetView<NotificationController> {
               title: item['title'] ?? 'No title',
               body: item['message'] ?? 'No body',
               isRead: item['read'] ?? false,
+              createdAt: item['createdAt'] ?? '', // Fix: use correct API field
             );
           },
         );

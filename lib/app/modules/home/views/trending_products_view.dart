@@ -93,7 +93,7 @@ class TrendingProductsView extends GetView<TrendingProductsController> {
                           imageUrl: imageUrl,
                           title: product['name'] ?? '',
                           price: product['basePrice']?.toString() ?? '0.00',
-                          productId: product['_id'], // ✅ Pass product ID
+                          productId: product['_id'],
                         );
                       },
                     ),

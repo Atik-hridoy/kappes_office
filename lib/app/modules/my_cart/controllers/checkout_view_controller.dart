@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_servic
 import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
@@ -114,6 +115,7 @@ class CheckoutViewController extends GetxController {
     bool agreedToTnC,
     String? shopId,
   ) async {
+    AppLogger.debug('Checkout initiated. agreedToTnC: ' + agreedToTnC.toString() + ', shopId: ' + (shopId ?? 'null'));
     if (!agreedToTnC) {
       Get.snackbar(
         'Terms and Conditions',
@@ -136,6 +138,7 @@ class CheckoutViewController extends GetxController {
       );
       return;
     }
+    AppLogger.debug('Shop ID from args: ' + shopIdFromArgs);
     if (shopIdFromArgs.isEmpty) {
       Get.snackbar(
         'Order',

@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/utils/time_utils.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
@@ -7,12 +8,23 @@ class NotificationCard extends StatelessWidget {
   final String title;
   final String body;
   final bool isRead;
+  final String createdAt;
   const NotificationCard({
     super.key,
     required this.title,
     required this.body,
     required this.isRead,
+    required this.createdAt,
   });
+
+  String _safeTimeAgo(String dateStr) {
+    try {
+      if (dateStr.isEmpty) return '-';
+      return timeAgo(DateTime.parse(dateStr));
+    } catch (e) {
+      return '-';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +85,7 @@ class NotificationCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     AppText(
-                      title: "9min ago",
+                      title: _safeTimeAgo(createdAt),
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall!.copyWith(color: AppColors.gray),
