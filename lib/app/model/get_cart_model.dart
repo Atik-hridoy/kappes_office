@@ -40,8 +40,8 @@ class CartItem {
   final Product? productId;
   final Variant? variantId;
   final double variantPrice;
-  final int variantQuantity;
-  final double totalPrice;
+  int variantQuantity;
+  late double totalPrice;
 
   CartItem({
     this.productId,

@@ -238,9 +238,7 @@ class ProductDetailsController extends GetxController {
       orderErrorMessage('');
 
       // Initialize order service if not already done
-      if (_orderService == null) {
-        _orderService = OrderService(token);
-      }
+      _orderService ??= OrderService(token);
 
       // Create order products list
       final orderProducts = [
