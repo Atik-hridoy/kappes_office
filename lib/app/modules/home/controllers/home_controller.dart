@@ -2,7 +2,7 @@ import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:get/get.dart';
 
 import '../../../data/netwok/home/home_view_service.dart';
-import '../../../model/item_model.dart';
+import '../../../model/recomended_item_model.dart';
 // Import Item model
 
 class HomeController extends GetxController {

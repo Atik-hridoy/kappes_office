@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
-import '../../../model/item_model.dart';
- // Import your Item model here
+import '../../../model/recomended_item_model.dart';
+// Import your Item model here
 
 class HomeViewService {
   final Dio _dio = Dio();
@@ -14,7 +14,9 @@ class HomeViewService {
 
     try {
       final response = await _dio.get(url);
-      print('✅ [GET] Response: ${response.data}'); // Debugging print for the API response
+      print(
+        '✅ [GET] Response: ${response.data}',
+      ); // Debugging print for the API response
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         List<Item> items = [];
