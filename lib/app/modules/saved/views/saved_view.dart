@@ -24,7 +24,7 @@ class SavedView extends GetView<SavedController> {
         centerTitle: true,
       ),
       body: Obx(() {
-        final products = controller.savedProducts;
+        final products = controller.wishlist;
         if (controller.isLoading.value) {
           return Skeletonizer(
             enabled: true,
@@ -77,10 +77,12 @@ class SavedView extends GetView<SavedController> {
                 child: ProductCard(
                   isSaved: true,
                   imageUrl:
-                      product['imageUrl'] ?? 'https://via.placeholder.com/150',
-                  title: product['name'] ?? '',
-                  price: product['price']?.toString() ?? '0.00',
-                  productId: product['id'] ?? product['_id'] ?? '',
+                      product.product.images.isNotEmpty
+                          ? product.product.images.first
+                          : 'https://via.placeholder.com/150',
+                  title: product.product.name,
+                  price: product.product.basePrice.toString(),
+                  productId: product.product.id,
                 ),
               );
             },

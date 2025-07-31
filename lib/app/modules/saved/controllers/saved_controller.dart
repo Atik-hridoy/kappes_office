@@ -1,107 +1,134 @@
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/saved_service.dart';
-import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:canuck_mall/app/model/wishlist_model.dart';
 
 class SavedController extends GetxController {
+  final RxList<SavedModel> wishlist = <SavedModel>[].obs;
+  final SavedService _service = SavedService();
+  final RxBool isLoading = false.obs;
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 5,
+      colors: true,
+      printEmojis: true,
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+    ),
+  );
+
   @override
   void onInit() {
     super.onInit();
-    fetchSavedProducts();
+    _logger.i('Initializing SavedController');
+    fetchWishlist();
   }
 
-  Future<void> deleteProduct(String productId) async {
-    print(
-      '🟠 [SavedController] DELETE: Attempting to delete product: $productId',
-    );
+  Future<void> fetchWishlist() async {
+    _logger.d('Fetching wishlist...');
     try {
-      final response = await _savedService.deleteProduct(productId);
-      print('🟡 [SavedController] DELETE: Backend response: $response');
-      await fetchSavedProducts();
-      print(
-        '🟠 [SavedController] DELETE: Wishlist after delete: ${savedProducts.length} items -> $savedProducts',
-      );
-      Get.snackbar('Removed', 'Product removed from wishlist');
-    } catch (e) {
-      print('❌ [SavedController] Error deleting product: $e');
-      Get.snackbar('Error', 'Failed to remove product');
-    }
-  }
+      isLoading.value = true;
+      final response = await _service.fetchWishlistProducts();
 
-  RxList<Map<String, dynamic>> savedProducts = <Map<String, dynamic>>[].obs;
-  RxBool isLoading = false.obs;
+      if (response == null) {
+        _logger.w('Received null response when fetching wishlist');
+        return;
+      }
 
-  final count = 0.obs;
-  final SavedService _savedService = SavedService();
+      if (response is! Map<String, dynamic>) {
+        _logger.w('Unexpected response format: ${response.runtimeType}');
+        return;
+      }
 
-  Future<void> saveProduct(Map<String, dynamic> product) async {
-    final productId = product['id'] ?? product['_id'] ?? '';
-    final productName = product['name'] ?? 'Unknown';
-    print(
-      '🟢 [SavedController] ADD: Attempting to save product: $productName (ID: $productId)',
-    );
-    if (productId == '') {
-      print('❌ [SavedController] No product ID provided.');
-      Get.snackbar('Error', 'No product ID provided');
-      return;
-    }
-    try {
-      final response = await _savedService.saveProduct(productId);
-      print('🟡 [SavedController] ADD: Backend response: $response');
-      await fetchSavedProducts();
-      print(
-        '🟢 [SavedController] ADD: Wishlist after add: ${savedProducts.length} items -> $savedProducts',
-      );
-      Get.snackbar('Saved', 'Product added to wishlist');
-    } catch (e) {
-      print('❌ [SavedController] Error saving product: $e');
-      Get.snackbar('Error', 'Failed to save product');
-    }
-  }
+      final data = response['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        _logger.w('No data field in response');
+        return;
+      }
 
-  Future<void> fetchSavedProducts() async {
-    print('🟢 [SavedController] FETCH: Fetching wishlist products...');
-    isLoading.value = true;
-    try {
-      final response = await _savedService.fetchWishlistProducts();
-      print('🟡 [SavedController] FETCH: Backend response: $response');
-      List? items;
-      if (response != null && response['data'] != null) {
-        if (response['data']['items'] is List) {
-          items = response['data']['items'] as List;
-        } else if (response['data']['result'] is List &&
-            (response['data']['result'] as List).isNotEmpty &&
-            response['data']['result'][0]['items'] is List) {
-          items = response['data']['result'][0]['items'] as List;
+      final result = data['result'] as Map<String, dynamic>?;
+      if (result == null) {
+        _logger.w('No result field in data');
+        return;
+      }
+
+      final items = result['items'] as List<dynamic>?;
+      if (items == null) {
+        _logger.w('No items in result');
+        return;
+      }
+
+      wishlist.clear();
+      for (var item in items) {
+        try {
+          final model = SavedModel.fromJson(item);
+          wishlist.add(model);
+
+          print("==========>> wishlis length ${wishlist.length}");
+        } catch (e, stackTrace) {
+          _logger.e(
+            'Error parsing wishlist item $e',
+            error: e,
+            stackTrace: stackTrace,
+          );
         }
       }
-      if (items != null) {
-        print('🔵 [SavedController] FETCH: Wishlist items: $items');
-        savedProducts.value =
-            items
-                .where((item) => item['product'] != null)
-                .map<Map<String, dynamic>>((item) {
-                  final product = item['product'] as Map<String, dynamic>;
-                  String imageUrl = '';
-                  if (product['images'] is List &&
-                      product['images'].isNotEmpty) {
-                    final firstImagePath = product['images'][0];
-                    imageUrl = AppUrls.imageUrl + firstImagePath;
-                  }
-                  return {...product, 'imageUrl': imageUrl};
-                })
-                .toList();
-        print(
-          '🟣 [SavedController] FETCH: Updated local savedProducts: ${savedProducts.length} items -> $savedProducts',
-        );
-      } else {
-        print(
-          '🔴 [SavedController] FETCH: Unexpected response format, could not update local list.',
-        );
-      }
+
+      _logger.i('Successfully loaded ${wishlist.length} items to wishlist');
     } catch (e) {
-      print('❌ [SavedController] Error fetching wishlist products: $e');
+      _logger.e('Error fetching wishlist', error: e);
+      rethrow;
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> saveProduct(String productId) async {
+    _logger.d('Saving product to wishlist - Product ID: $productId');
+    try {
+      final data = await _service.saveProduct(productId);
+      if (data != null) {
+        await fetchWishlist();
+      }
+    } catch (e, stackTrace) {
+      _logger.e(
+        'Error saving product to wishlist - Product ID: $productId',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    _logger.d('Deleting product from wishlist - Product ID: $productId');
+    try {
+      final data = await _service.deleteProduct(productId);
+      if (data != null) {
+        _logger.i(
+          'Successfully deleted product from wishlist - Product ID: $productId',
+        );
+        await fetchWishlist();
+      } else {
+        _logger.w(
+          'Received null response when deleting product - Product ID: $productId',
+        );
+      }
+    } catch (e, stackTrace) {
+      _logger.e(
+        'Error deleting product from wishlist - Product ID: $productId',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  bool isProductSaved(String productId) {
+    final isSaved = wishlist.any((item) => item.product.id == productId);
+    _logger.v(
+      'Checking if product is saved - Product ID: $productId, Is Saved: $isSaved',
+    );
+    return isSaved;
   }
 }

@@ -115,7 +115,9 @@ class CheckoutViewController extends GetxController {
     bool agreedToTnC,
     String? shopId,
   ) async {
-    AppLogger.debug('Checkout initiated. agreedToTnC: ' + agreedToTnC.toString() + ', shopId: ' + (shopId ?? 'null'));
+    AppLogger.debug(
+      'Checkout initiated. agreedToTnC: $agreedToTnC, shopId: ${shopId ?? 'null'}',
+    );
     if (!agreedToTnC) {
       Get.snackbar(
         'Terms and Conditions',
@@ -153,13 +155,13 @@ class CheckoutViewController extends GetxController {
       await createOrder(products, shopId ?? '');
       isLoading.value = false;
       if (kDebugMode) {
-        print('✅ ====================>> Order creation success!');
+        AppLogger.success('Order creation success!');
       }
       Get.toNamed(Routes.checkoutSuccessfulView);
     } catch (e) {
       isLoading.value = false;
       if (kDebugMode) {
-        print('❌ Order creation failed: $e');
+        AppLogger.error('Order creation failed: $e');
       }
       Get.snackbar(
         'Order',
@@ -219,31 +221,35 @@ class CheckoutViewController extends GetxController {
       0,
       (sum, p) => sum + (p.totalPrice),
     );
-    print(
+    AppLogger.info(
       '[Checkout] Total order price: \$${totalOrderPrice.toStringAsFixed(2)}',
     );
 
     isLoading(true);
     try {
-      print('[Checkout] Creating order with payload: ${orderRequest.toJson()}');
+      AppLogger.debug(
+        '[Checkout] Creating order with payload: ${orderRequest.toJson()}',
+      );
 
       final response = await OrderService(token).createOrder(orderRequest);
 
-      print("===============status by chironjit $response.body");
+      AppLogger.debug("===============status by chironjit $response.body");
 
-      print('[Checkout] OrderService response: ${response.toString()}');
+      AppLogger.debug(
+        '[Checkout] OrderService response: ${response.toString()}',
+      );
       if (response.success && response.data != null) {
-        print(
+        AppLogger.success(
           '[Checkout] Order successfully stored on backend. User ID: $userId',
         );
-        print('[Checkout] Order Data: ${response.data}');
+        AppLogger.data('[Checkout] Order Data: ${response.data}');
         // Ensure products is a List<Map<String, dynamic>> for safe navigation
         final productsList =
             (response.data?.products ?? [])
                 // ignore: unnecessary_type_check
                 .map((item) => item is OrderItem ? item.toJson() : item)
                 .toList();
-        print(
+        AppLogger.debug(
           '[Checkout] Passing products to success view: type=${productsList.runtimeType}, value=$productsList',
         );
         Get.offNamed(
@@ -251,14 +257,16 @@ class CheckoutViewController extends GetxController {
           arguments: {'orderData': response.data, 'products': productsList},
         );
       } else if (!response.success) {
-        print('[Checkout] Backend responded with error: ${response.message}');
+        AppLogger.error(
+          '[Checkout] Backend responded with error: ${response.message}',
+        );
         Get.snackbar('Order Error', response.message);
       } else {
-        print('[Checkout] Order response missing data!');
+        AppLogger.error('[Checkout] Order response missing data!');
         Get.snackbar('Order Error', 'Order was not created. Try again.');
       }
     } catch (e, stack) {
-      print('[Checkout] Exception while creating order: $e\n$stack');
+      AppLogger.error('[Checkout] Exception while creating order: $e\n$stack');
       Get.snackbar('Order Error', 'Failed to create order: ${e.toString()}');
     } finally {
       isLoading(false);

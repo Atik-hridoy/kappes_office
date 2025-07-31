@@ -34,7 +34,7 @@ class SavedService {
     try {
       final response = await dio.post(
         url,
-        data: {'product_id': productId},
+        data: {'productId': productId},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -42,7 +42,10 @@ class SavedService {
           },
         ),
       );
+
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print("==========>> saved item in home screen ${response.data}");
+
         return response.data is Map<String, dynamic> ? response.data : null;
       } else {
         throw Exception('Failed to save product');
@@ -66,8 +69,9 @@ class SavedService {
           },
         ),
       );
+
       if (response.statusCode == 200) {
-        return response.data is Map<String, dynamic> ? response.data : null;
+        return response.data;
       } else {
         throw Exception('Failed to fetch wishlist products');
       }

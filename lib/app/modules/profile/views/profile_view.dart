@@ -7,7 +7,7 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/data/local/storage_service.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -97,19 +97,25 @@ class ProfileView extends GetView<ProfileController> {
                               ),
                               child: Builder(
                                 builder: (context) {
-                                  final imageUrl = controller.profileImageUrl.value;
+                                  final imageUrl =
+                                      controller.profileImageUrl.value;
                                   if (imageUrl.isNotEmpty) {
                                     return Image.network(
                                       imageUrl,
                                       fit: BoxFit.cover,
                                       width: AppSize.width(width: 30.0),
                                       height: AppSize.width(width: 30.0),
-                                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                                        AppImages.profileImage,
-                                        fit: BoxFit.cover,
-                                        width: AppSize.width(width: 30.0),
-                                        height: AppSize.width(width: 30.0),
-                                      ),
+                                      errorBuilder:
+                                          (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) => Image.asset(
+                                            AppImages.profileImage,
+                                            fit: BoxFit.cover,
+                                            width: AppSize.width(width: 30.0),
+                                            height: AppSize.width(width: 30.0),
+                                          ),
                                     );
                                   } else {
                                     return Image.asset(
