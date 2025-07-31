@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 
 import 'package:canuck_mall/app/model/create_order_model.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import '../../../model/recomended_product_model.dart';
@@ -35,6 +36,7 @@ class ProductDetailsController extends GetxController {
       arguments: {
         'products': [orderProduct],
         'shopId': shopId,
+        'itemCost': totalPrice,
       },
     );
   }
@@ -89,17 +91,17 @@ class ProductDetailsController extends GetxController {
       if (arg is Map<String, dynamic>) {
         product.value = ProductData.fromJson(arg);
         _initializeVariantData();
-        print(
-          '🟢 Showing product details from passed object: ${product.value?.name}',
+        AppLogger.info(
+          'Showing product details from passed object: ${product.value?.name}',
         );
       } else if (arg is String) {
-        print('📤 Fetching details for Product ID: $arg');
+        AppLogger.info('Fetching details for Product ID: $arg');
         await fetchProductDetails(arg);
       } else {
         throw ArgumentError('Invalid product details argument');
       }
     } catch (e) {
-      print("Error loading product details: $e");
+      AppLogger.error('Error loading product details: $e');
       Get.snackbar('Error', 'Failed to load product details');
       rethrow;
     }
@@ -108,15 +110,17 @@ class ProductDetailsController extends GetxController {
   Future<void> fetchProductDetails(String id) async {
     try {
       isLoading(true);
-      print('🔄 Fetching product details...');
+      AppLogger.info('Fetching product details...');
 
       final response = await _productDetailsService.getProductById(id);
       product.value = ProductData.fromJson(response);
       _initializeVariantData();
 
-      print('✅ Product details fetched successfully: ${product.value?.name}');
+      AppLogger.info(
+        'Product details fetched successfully: ${product.value?.name}',
+      );
     } catch (e) {
-      print('❌ Error fetching product details: $e');
+      AppLogger.error('Error fetching product details: $e');
       Get.snackbar('Error', 'Failed to fetch product details');
       rethrow;
     } finally {
@@ -193,13 +197,13 @@ class ProductDetailsController extends GetxController {
         variantId: variantId,
         quantity: selectedQuantity.value,
       );
-      print('Add to cart response:====================>> ${response.data}');
+      AppLogger.info('Add to cart response: ${response.data}');
       Get.snackbar('Success', response.message);
 
       // Optional: Update cart count in your app state
       // Get.find<CartController>().refreshCartCount();
     } catch (e) {
-      print('❌ Error adding to cart: $e');
+      AppLogger.error('Error adding to cart: $e');
       Get.snackbar('Error', 'Failed to add to cart: ${e.toString()}');
     } finally {
       isAddingToCart(false);
@@ -224,7 +228,7 @@ class ProductDetailsController extends GetxController {
       );
     } catch (e) {
       isFavourite.toggle(); // Revert on error
-      print('❌ Error toggling favorite: $e');
+      AppLogger.error('Error toggling favorite: $e');
     }
   }
 
@@ -291,14 +295,14 @@ class ProductDetailsController extends GetxController {
         deliveryOptions: deliveryOption,
       );
 
-      print('🔄 Creating order for product: ${product.value?.name}');
+      AppLogger.info('Creating order for product: ${product.value?.name}');
 
       final response = await _orderService!.createOrder(orderRequest);
 
       if (response.success) {
         createdOrder.value = response.data;
         Get.snackbar('Success', 'Order created successfully!');
-        print('✅ Order created successfully: ${response.data?.id}');
+        AppLogger.info('Order created successfully: ${response.data?.id}');
 
         // Optional: Navigate to order confirmation screen
         // Get.toNamed('/order-confirmation', arguments: response.data);
@@ -377,7 +381,7 @@ class ProductDetailsController extends GetxController {
       if (response.success) {
         createdOrder.value = response.data;
         Get.snackbar('Success', 'Order created successfully!');
-        print('✅ Order created successfully: ${response.data?.id}');
+        AppLogger.info('Order created successfully: ${response.data?.id}');
         return true;
       } else {
         orderErrorMessage(response.message);

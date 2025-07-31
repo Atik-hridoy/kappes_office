@@ -1,57 +1,46 @@
 import 'package:dio/dio.dart';
-import 'dart:convert'; // Import the jsonEncode function
-
 import '../../../constants/app_urls.dart';
+import '../../../model/password_change_model.dart';
 
 class ChangePasswordService {
   final Dio _dio = Dio();
 
-  Future<Response> changePassword({
+  Future<PasswordChangeResponse> changePassword({
     required String currentPassword,
     required String newPassword,
     required String confirmPassword,
-    required String token, // Token to authenticate the request
+    required String token,
   }) async {
     try {
-      print('Sending request to change password...');
-      print('Request Data:');
-      print('Current Password: $currentPassword');
-      print('New Password: $newPassword');
-      print('Confirm Password: $confirmPassword');
-
-      final formData = FormData();
-      formData.fields.add(MapEntry(
-        "data",
-        jsonEncode({
-          "currentPassword": currentPassword,
-          "newPassword": newPassword,
-          "confirmPassword": confirmPassword,
-        }),
-      ));
-
-      final options = Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-        },
-        validateStatus: (status) => status! < 500,
-      );
-
-      final response = await _dio.patch(
+      print('=====>>> Sending PATCH request to change password...');
+      final data = {
+        "currentPassword": currentPassword,
+        "newPassword": newPassword,
+        "confirmPassword": confirmPassword,
+      };
+      final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.changePassword}',
-        data: formData,
-        options: options,
+        data: data,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status != null && status < 500,
+        ),
       );
-
-      print('Response received:');
-      print('Status Code: [32m${response.statusCode}[0m');
-      print('Response Data: ${response.data}');
-
-      return response;
+      print('=====>>> Status: \x1B[32m[0m${response.statusCode}\x1B[0m');
+      print('=====>>> Response Data: ${response.data}');
+      if (response.statusCode == 200 && response.data != null) {
+        return PasswordChangeResponse.fromJson(response.data);
+      } else {
+        throw Exception(
+          response.data?['message'] ?? 'Failed to change password',
+        );
+      }
     } catch (e) {
-      print('Error occurred while changing password:');
-      print(e.toString());
+      print('=====>>> ERROR during password change: $e');
       rethrow;
     }
   }

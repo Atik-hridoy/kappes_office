@@ -137,7 +137,9 @@ class _ProductCardState extends State<ProductCard> {
                       SizedBox(height: AppSize.height(height: 0.5)),
                       Text(
                         '\$${widget.price}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),

@@ -1,8 +1,11 @@
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../utils/log/app_log.dart';
+
 import 'storage_keys.dart';
 
 class LocalStorage {
+  static String get myProfileImage =>
+      preferences?.getString(LocalStorageKeys.myProfileImage) ?? '';
   static String token = "";
   static String cookie = "";
   static String refreshToken = "";
@@ -35,9 +38,9 @@ class LocalStorage {
     myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
     myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
     myAddress = localStorage.getString(LocalStorageKeys.myAddress) ?? "";
-    phone = localStorage.getString(LocalStorageKeys.phone) ?? ""; // ✅ added
+    phone = localStorage.getString(LocalStorageKeys.phone) ?? "";
 
-    appLog("UserID: $userId", source: "Local Storage", isError: false);
+    AppLogger.info("UserID: $userId");
   }
 
   /// Save String
@@ -74,6 +77,6 @@ class LocalStorage {
     myAddress = "";
     phone = "";
 
-    appLog("🔐 Local storage cleared", source: "LocalStorage", isError: false);
+    AppLogger.info("🔐 Local storage cleared");
   }
 }
