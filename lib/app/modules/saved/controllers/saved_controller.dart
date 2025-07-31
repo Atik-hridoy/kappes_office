@@ -63,8 +63,6 @@ class SavedController extends GetxController {
         try {
           final model = SavedModel.fromJson(item);
           wishlist.add(model);
-
-          print("==========>> wishlis length ${wishlist.length}");
         } catch (e, stackTrace) {
           _logger.e(
             'Error parsing wishlist item $e',

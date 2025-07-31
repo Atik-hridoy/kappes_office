@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -69,20 +70,25 @@ class SavedView extends GetView<SavedController> {
             ),
             itemCount: products.length,
             itemBuilder: (context, index) {
-              final product = products[index];
+              final savedItem = products[index];
+              final product = savedItem.product;
+              final imagePath =
+                  product.images.isNotEmpty ? product.images.first : '';
+              final imageUrl =
+                  imagePath.isNotEmpty
+                      ? '${AppUrls.imageUrl}$imagePath'
+                      : 'https://via.placeholder.com/150';
+
               return InkWell(
                 onTap: () {
-                  Get.toNamed('/product-details', arguments: product);
+                  Get.toNamed('/product-details', arguments: product.id);
                 },
                 child: ProductCard(
                   isSaved: true,
-                  imageUrl:
-                      product.product.images.isNotEmpty
-                          ? product.product.images.first
-                          : 'https://via.placeholder.com/150',
-                  title: product.product.name,
-                  price: product.product.basePrice.toString(),
-                  productId: product.product.id,
+                  imageUrl: imageUrl,
+                  title: product.name,
+                  price: '\$${product.basePrice.toStringAsFixed(2)}',
+                  productId: product.id,
                 ),
               );
             },
