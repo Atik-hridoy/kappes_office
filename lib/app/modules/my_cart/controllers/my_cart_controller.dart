@@ -4,6 +4,7 @@ import 'package:canuck_mall/app/data/netwok/my_cart_my_order/my_cart_service.dar
 import 'package:canuck_mall/app/model/get_cart_model.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:get/get.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class MyCartController extends GetxController {
   String getFullImageUrl(String? path) {
@@ -79,7 +80,7 @@ class MyCartController extends GetxController {
 
       cartData.value = result;
     } catch (e) {
-      print("Error fetching cart data: $e");
+      AppLogger.error("Error fetching cart data: $e");
     } finally {
       isLoading(false);
     }

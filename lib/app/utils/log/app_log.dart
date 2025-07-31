@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'dart:developer' as developer;
+import 'package:stack_trace/stack_trace.dart';
 
 /// Enhanced console logging system with better styling and features
 class EnhancedPrinter extends LogPrinter {
@@ -113,15 +114,16 @@ class EnhancedPrinter extends LogPrinter {
   }
 
   List<String> _formatMessage(String message, String header) {
+    const prefix = '└─ =====================>>>   ';
     final lines = message.split('\n');
     final result = <String>[header];
 
     for (int i = 0; i < lines.length; i++) {
       final line = lines[i];
       if (i == 0) {
-        result.add('     $_bold└─$_reset $line');
+        result.add('     $prefix$line');
       } else {
-        result.add('        $line');
+        result.add('        $prefix$line');
       }
     }
 
@@ -154,17 +156,16 @@ class EnhancedPrinter extends LogPrinter {
 
   String _getFileInfo() {
     try {
-      final trace = StackTrace.current.toString().split('\n');
-      for (final line in trace) {
-        if (line.contains('/lib/') &&
-            !line.contains('logger.dart') &&
-            !line.contains('app_log.dart')) {
-          final match = RegExp(r'(\w+\.dart):(\d+)').firstMatch(line);
-          if (match != null) {
-            final fileName = match.group(1)!;
-            final lineNumber = match.group(2)!;
-            return 'at $fileName:$lineNumber';
-          }
+      // Use stack_trace package for robust frame extraction
+      final frames = Trace.current(2).frames;
+      for (final frame in frames) {
+        final path = frame.uri.path;
+        if (path.contains('/lib/') &&
+            !path.contains('logger.dart') &&
+            !path.contains('app_log.dart')) {
+          final fileName = path.split('/').last;
+          final lineNumber = frame.line ?? 0;
+          return 'at $fileName:$lineNumber';
         }
       }
     } catch (e) {
