@@ -4,6 +4,7 @@ import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileController extends GetxController {
   final ProfileService _profileService = ProfileService();
@@ -21,6 +22,9 @@ class ProfileController extends GetxController {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
     // Remove leading slash if present
     final path = url.startsWith('/') ? url.substring(1) : url;
+    if (path.startsWith('image/')) {
+      return '${AppUrls.imageUrl}/$path';
+    }
     return '${AppUrls.baseUrl}/$path';
   }
 
@@ -46,8 +50,21 @@ class ProfileController extends GetxController {
         throw Exception("User not logged in or email not found");
       }
 
+      // Test API server accessibility first
+      final isServerAccessible = await _profileService.testApiServer();
+      if (!isServerAccessible) {
+        AppLogger.warning(
+          "=====================>>>   API server not accessible",
+        );
+        AppLogger.info(
+          "=====================>>>   Using cached profile data from local storage",
+        );
+        // Continue with local storage data only
+        return;
+      }
+
       // Fetch fresh data from the server
-      final response = await _profileService.getProfileData(email: storedEmail);
+      final response = await _profileService.getProfileData();
       AppLogger.info("Profile API response: $response");
 
       if (response['success'] == true) {
@@ -106,10 +123,44 @@ class ProfileController extends GetxController {
       final errorMsg = 'Error fetching profile: $e';
       AppLogger.error(errorMsg);
       AppLogger.error("Stack trace: $stackTrace");
-      errorMessage.value = errorMsg;
+
+      // Check if it's a network connectivity issue
+      if (e.toString().contains('Network error') ||
+          e.toString().contains('connection') ||
+          e.toString().contains('timeout')) {
+        AppLogger.warning(
+          "=====================>>>   Network issue detected, using cached data",
+        );
+        errorMessage.value =
+            'Unable to connect to server. Using cached profile data.';
+      } else {
+        errorMessage.value = errorMsg;
+      }
     } finally {
       isLoading.value = false;
       AppLogger.info("Fetching profile data ended");
+    }
+  }
+
+  /// Pick and upload a new profile image
+  Future<void> pickAndUploadProfileImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      isLoading.value = true;
+      final newImageUrl = await _profileService.updateProfileImage(
+        pickedFile.path,
+      );
+      if (newImageUrl != null && newImageUrl.isNotEmpty) {
+        profileImageUrl.value = newImageUrl;
+        await LocalStorage.setString(
+          LocalStorageKeys.myProfileImage,
+          newImageUrl,
+        );
+        // Optionally, fetch the full profile again for consistency
+        fetchProfile();
+      }
+      isLoading.value = false;
     }
   }
 

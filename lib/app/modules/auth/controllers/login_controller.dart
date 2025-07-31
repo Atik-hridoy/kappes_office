@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -25,6 +26,11 @@ class LoginController extends GetxController {
 
     if (email.isEmpty || password.isEmpty) {
       errorMessage.value = 'Email and password are required';
+      AppLogger.warning(
+        'Login attempt with empty credentials',
+        tag: 'AUTH',
+        context: {'email': email.isEmpty ? 'empty' : 'provided'},
+      );
       Get.snackbar('Error', errorMessage.value);
       return false;
     }
@@ -33,21 +39,25 @@ class LoginController extends GetxController {
     isLoading.value = true;
 
     try {
-      print('🚀 Sending login request for $email...');
+      AppLogger.auth(
+        'Login attempt initiated',
+        context: {'email': email, 'rememberMe': isRemember.value},
+      );
 
       final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.login}',
-        data: {
-          'email': email,
-          'password': password,
-        },
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+        data: {'email': email, 'password': password},
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
       final data = response.data;
-      print('✅ Login API response: $data');
+      AppLogger.auth(
+        'Login API response received',
+        context: {
+          'success': data['success'] ?? false,
+          'hasData': data['data'] != null,
+        },
+      );
 
       if (data['success'] == true && data['data'] != null) {
         final nested = data['data'];
@@ -56,7 +66,11 @@ class LoginController extends GetxController {
         final refreshToken = nested['refreshToken'] ?? '';
 
         if (token.isEmpty) {
-          print('❌ Token missing in login response.');
+          AppLogger.error(
+            'Token missing in login response',
+            tag: 'AUTH',
+            context: {'responseData': data},
+          );
           errorMessage.value = 'Token missing in login response';
           return false;
         }
@@ -66,12 +80,19 @@ class LoginController extends GetxController {
         await prefs.clear();
 
         await LocalStorage.setString(LocalStorageKeys.token, token);
-        await LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken);
+        await LocalStorage.setString(
+          LocalStorageKeys.refreshToken,
+          refreshToken,
+        );
         await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
 
-        print('💾 Token saved to storage');
-        print('   - accessToken: ✅');
-        print('   - refreshToken: ${refreshToken.isNotEmpty ? '✅' : '❌'}');
+        AppLogger.storage(
+          'Login tokens saved to storage',
+          context: {
+            'hasAccessToken': token.isNotEmpty,
+            'hasRefreshToken': refreshToken.isNotEmpty,
+          },
+        );
 
         // 👉 fetch and save user profile
         await fetchAndSaveProfile();
@@ -79,12 +100,21 @@ class LoginController extends GetxController {
         // Reload all stored preferences
         await LocalStorage.getAllPrefData();
 
-        print('🎉 Login process complete. Name: ${LocalStorage.myName}, Email: ${LocalStorage.myEmail}');
+        AppLogger.success(
+          'Login process completed successfully',
+          context: {
+            'userName': LocalStorage.myName,
+            'userEmail': LocalStorage.myEmail,
+          },
+        );
         errorMessage.value = '';
         return true;
       } else {
         errorMessage.value = data['message'] ?? 'Login failed';
-        print('❌ Login failed: ${errorMessage.value}');
+        AppLogger.failure(
+          'Login failed',
+          context: {'errorMessage': errorMessage.value, 'responseData': data},
+        );
         return false;
       }
     } catch (e) {
@@ -93,12 +123,26 @@ class LoginController extends GetxController {
         final statusCode = dioError?.statusCode;
         final statusMessage = dioError?.statusMessage;
 
-        // Log the error response for debugging
-        print('❌ Dio Error: StatusCode: $statusCode, StatusMessage: $statusMessage');
+        AppLogger.error(
+          'Login network error',
+          tag: 'AUTH',
+          context: {
+            'statusCode': statusCode,
+            'statusMessage': statusMessage,
+            'error': e.toString(),
+          },
+        );
         errorMessage.value = 'Login failed: $statusMessage';
       } else {
+        AppLogger.error(
+          'Login exception',
+          tag: 'AUTH',
+          context: {
+            'error': e.toString(),
+            'errorType': e.runtimeType.toString(),
+          },
+        );
         errorMessage.value = 'Login error: $e';
-        print('❌ Exception during login: $e');
       }
       return false;
     } finally {
@@ -111,16 +155,24 @@ class LoginController extends GetxController {
     try {
       final token = LocalStorage.token;
 
-      print('🔎 Fetching user profile from ${AppUrls.profile}...');
+      AppLogger.auth(
+        'Fetching user profile',
+        context: {'endpoint': AppUrls.profile, 'hasToken': token.isNotEmpty},
+      );
+
       final response = await _dio.get(
         '${AppUrls.baseUrl}${AppUrls.profile}',
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       final profileData = response.data;
-      print('📦 Profile response: $profileData');
+      AppLogger.auth(
+        'Profile response received',
+        context: {
+          'success': profileData['success'] ?? false,
+          'hasData': profileData['data'] != null,
+        },
+      );
 
       if (profileData['success'] == true && profileData['data'] != null) {
         final profile = profileData['data'];
@@ -132,15 +184,26 @@ class LoginController extends GetxController {
         await LocalStorage.setString(LocalStorageKeys.myEmail, email);
         await LocalStorage.setString(LocalStorageKeys.userId, userId);
 
-        print('✅ Profile saved to LocalStorage');
-        print('   - Name: $name');
-        print('   - Email: $email');
-        print('   - UserId: $userId');
+        AppLogger.storage(
+          'User profile saved to LocalStorage',
+          context: {'name': name, 'email': email, 'userId': userId},
+        );
       } else {
-        print('⚠️ Failed to retrieve profile: ${profileData['message']}');
+        AppLogger.warning(
+          'Failed to retrieve profile',
+          tag: 'AUTH',
+          context: {
+            'message': profileData['message'],
+            'responseData': profileData,
+          },
+        );
       }
     } catch (e) {
-      print('❌ Error fetching profile: $e');
+      AppLogger.error(
+        'Error fetching profile',
+        tag: 'AUTH',
+        context: {'error': e.toString(), 'errorType': e.runtimeType.toString()},
+      );
     }
   }
 
@@ -178,7 +241,13 @@ class LoginController extends GetxController {
         passwordController.text = savedPassword;
         isRemember.value = true;
 
-        print('🔁 Auto-login with remembered credentials...');
+        AppLogger.auth(
+          'Auto-login with remembered credentials',
+          context: {
+            'hasEmail': savedEmail.isNotEmpty,
+            'hasPassword': savedPassword.isNotEmpty,
+          },
+        );
         await login();
       }
     }
