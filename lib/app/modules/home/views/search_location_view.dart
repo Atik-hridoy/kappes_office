@@ -115,26 +115,6 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
                   );
                 }),
               ),
-              AppText(
-                title: AppStaticKey.recentLocations,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontSize: AppSize.height(height: 2.0),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.0,
-                ),
-              ),
-              _buildLocationItem(
-                title: "Vancouver, Canada",
-                coordinates: "49.282730, -123.120735",
-              ),
-              _buildLocationItem(
-                title: "Montreal, Canada",
-                coordinates: "45.501690, -73.567253",
-              ),
-              _buildLocationItem(
-                title: "Calgary, Canada",
-                coordinates: "51.044270, -114.062019",
-              ),
               AppCommonButton(
                 onPressed: () {
                   final marker = controller.selectedMarker.value;

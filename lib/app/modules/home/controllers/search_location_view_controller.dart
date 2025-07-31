@@ -8,21 +8,18 @@ class SearchLocationViewController extends GetxController {
   GoogleMapController? mapController;
   TextEditingController searchController = TextEditingController();
   Rx<Marker?> selectedMarker = Rx<Marker?>(null);
-
   final Rx<MapType> mapType = MapType.normal.obs;
-
   final CameraPosition initialCameraPosition = const CameraPosition(
     target: LatLng(49.282730, -123.120735), // Default: Vancouver
     zoom: 12,
   );
-
   final Rx<CameraPosition?> dynamicCameraPosition = Rx<CameraPosition?>(null);
 
   @override
   void onInit() {
     super.onInit();
     searchController.addListener(onSearchChanged);
-    _initCurrentLocation(); // ✅ Fetch current location on screen load
+    _initCurrentLocation(); // Fetch current location on screen load
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -30,9 +27,8 @@ class SearchLocationViewController extends GetxController {
   }
 
   void toggleMapType() {
-    mapType.value = mapType.value == MapType.normal
-        ? MapType.satellite
-        : MapType.normal;
+    mapType.value =
+        mapType.value == MapType.normal ? MapType.satellite : MapType.normal;
   }
 
   void onSearchChanged() async {
@@ -63,7 +59,6 @@ class SearchLocationViewController extends GetxController {
       }
     } catch (e) {
       Get.snackbar("Search Error", "Could not find: $input");
-      print("Geocoding error: $e");
     }
   }
 
@@ -119,6 +114,7 @@ class SearchLocationViewController extends GetxController {
 
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
       );
 
       return LatLng(pos.latitude, pos.longitude);

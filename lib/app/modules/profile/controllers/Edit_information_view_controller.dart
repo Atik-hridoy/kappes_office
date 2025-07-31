@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:canuck_mall/app/data/netwok/profile/edit_information_service.dart';
@@ -24,7 +25,7 @@ class EditInformationViewController extends GetxController {
     email.value = LocalStorage.myEmail;
     phone.value = ''; // preload if available
     address.value = ''; // preload if available
-    print('✅ Loaded user from LocalStorage: $fullName | $email');
+    AppLogger.info('✅ Loaded user from LocalStorage: $fullName | $email');
   }
 
   void pickImage() async {
@@ -32,7 +33,7 @@ class EditInformationViewController extends GetxController {
     final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
       imageFile.value = File(picked.path);
-      print('🖼️ Image selected: ${picked.path}');
+      AppLogger.info('🖼️ Image selected: ${picked.path}');
     }
   }
 
@@ -49,8 +50,8 @@ class EditInformationViewController extends GetxController {
     }
 
     isLoading.value = true;
-    print('🔄 Attempting to update profile...');
-    print('📦 Sending: $name | $mail | $mobile | $addr');
+    AppLogger.info('🔄 Attempting to update profile...');
+    AppLogger.info('📦 Sending: $name | $mail | $mobile | $addr');
 
     try {
       final success = await _service.updateProfile(
@@ -66,15 +67,15 @@ class EditInformationViewController extends GetxController {
         await LocalStorage.setString(LocalStorageKeys.myEmail, mail);
         await LocalStorage.getAllPrefData();
 
-        print('✅ Profile updated & LocalStorage synced');
+        AppLogger.info('✅ Profile updated & LocalStorage synced');
         Get.back(result: true);
         Get.snackbar('Success', 'Profile updated successfully!');
       } else {
-        print('❌ Update failed on server side');
+        AppLogger.error('❌ Update failed on server side');
         Get.snackbar('Error', 'Failed to update profile. Try again later.');
       }
     } catch (e) {
-      print('❗ Exception: $e');
+      AppLogger.error('❗ Exception: $e');
       Get.snackbar('Error', 'Something went wrong: $e');
     } finally {
       isLoading.value = false;

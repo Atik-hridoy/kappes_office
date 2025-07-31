@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class ProfileService {
   final Dio _dio = Dio();
@@ -9,7 +10,7 @@ class ProfileService {
   Future<Map<String, dynamic>> getProfileData({required String email}) async {
     try {
       final token = LocalStorage.token;
-      print("=====================>>>   Using token: ${token.isNotEmpty ? 'Token found' : 'No token found'}");
+      AppLogger.info("=====================>>>   Using token: ${token.isNotEmpty ? 'Token found' : 'No token found'}");
 
       if (token.isEmpty) {
         throw Exception("Authentication token not found. Please log in again.");
@@ -28,8 +29,8 @@ class ProfileService {
         queryParameters: {'email': email},
       );
 
-      print("=====================>>>   Profile API Response Status: ${response.statusCode}");
-      print("=====================>>>   Profile API Response Data: ${response.data}");
+      AppLogger.info("=====================>>>   Profile API Response Status: ${response.statusCode}");
+      AppLogger.info("=====================>>>   Profile API Response Data: ${response.data}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Dio already parses JSON responses by default
@@ -53,9 +54,9 @@ class ProfileService {
         throw Exception(errorData['message'] ?? 'Failed to load profile data. Status: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      print("=====================>>>   Dio Error: ${e.message}");
-      print("=====================>>>   Dio Error Type: ${e.type}");
-      print("=====================>>>   Dio Error Response: ${e.response?.data}");
+      AppLogger.error("=====================>>>   Dio Error: ${e.message}");
+      AppLogger.error("=====================>>>   Dio Error Type: ${e.type}");
+      AppLogger.error("=====================>>>   Dio Error Response: ${e.response?.data}");
 
       if (e.response?.statusCode == 401) {
         throw Exception('Your session has expired. Please log in again.');
@@ -63,7 +64,7 @@ class ProfileService {
 
       throw Exception(e.response?.data?['message'] ?? 'Network error occurred. Please try again.');
     } catch (e) {
-      print("=====================>>>   Unexpected Error: $e");
+      AppLogger.error("=====================>>>   Unexpected Error: $e");
       throw Exception('An unexpected error occurred: $e');
     }
   }

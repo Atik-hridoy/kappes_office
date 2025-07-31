@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'storage_keys.dart';
 
 class LocalStorage {
+  static String get myProfileImage =>
+      preferences?.getString(LocalStorageKeys.myProfileImage) ?? '';
   static String token = "";
   static String cookie = "";
   static String refreshToken = "";

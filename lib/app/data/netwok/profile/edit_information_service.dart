@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart'; // AppLogger import
 
 class EditInformationViewService {
   final Dio _dio = Dio();
@@ -21,14 +22,7 @@ class EditInformationViewService {
       // Create FormData instance directly
       final formData = FormData();
 
-      // Add fields only if they are not empty after trimming
-
-      // // Add fields with proper null/empty checks
-      // addIfNotEmpty('full_name', fullName);
-      // addIfNotEmpty('email', email);
-      // addIfNotEmpty('phone', phone);
-      // addIfNotEmpty('address', address);
-
+      // Add fields to form data
       var body = {
         "full_name": fullName,
         "email": email,
@@ -52,14 +46,14 @@ class EditInformationViewService {
       }
 
       // Log the request details
-      print('📦 Sending PATCH request to: $url');
-      print('🔐 Token: Bearer $token');
-      formData.fields.forEach((e) => print('🔹 ${e.key}: ${e.value}'));
+      AppLogger.info('📦 Sending PATCH request to: $url');
+      AppLogger.info('🔐 Token: Bearer $token');
+      formData.fields.forEach((e) => AppLogger.info('🔹 ${e.key}: ${e.value}'));
       if (imageFile != null) {
-        print('🖼️ Image attached: ${imageFile.path}');
+        AppLogger.info('🖼️ Image attached: ${imageFile.path}');
       }
 
-      // Make the request with proper headers
+      // Make the PATCH request with proper headers
       final response = await _dio.patch(
         url,
         data: formData,
@@ -74,28 +68,33 @@ class EditInformationViewService {
         ),
       );
 
-      print('📥 Response Status: ${response.statusCode}');
-      print('📥 Response Headers: ${response.headers}');
-      print('📥 Response Data: ${response.data}');
+      // Log response details
+      AppLogger.info('📥 Response Status: ${response.statusCode}');
+      AppLogger.info('📥 Response Headers: ${response.headers}');
+      AppLogger.info('📥 Response Data: ${response.data}');
 
       // Handle response based on status code
       if (response.statusCode == 200) {
         if (response.data is Map && response.data['success'] == true) {
-          print('✅ Profile updated successfully');
+          AppLogger.info('✅ Profile updated successfully');
           return true;
         }
-        print('⚠️ Unexpected response format: ${response.data}');
+        AppLogger.warning('⚠️ Unexpected response format: ${response.data}');
         return false;
       } else {
-        print('❌ Server responded with status: ${response.statusCode}');
-        print('❌ Response: ${response.data}');
+        AppLogger.error(
+          '❌ Server responded with status: ${response.statusCode}',
+        );
+        AppLogger.error('❌ Response: ${response.data}');
         return false;
       }
     } catch (e) {
       if (e is DioException) {
-        print('❌ DioException occurred: ${e.response?.data ?? e.message}');
+        AppLogger.error(
+          '❌ DioException occurred: ${e.response?.data ?? e.message}',
+        );
       } else {
-        print('❌ Unexpected error: $e');
+        AppLogger.error('❌ Unexpected error: $e');
       }
       return false;
     }
