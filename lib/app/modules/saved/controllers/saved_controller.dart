@@ -35,11 +35,6 @@ class SavedController extends GetxController {
         return;
       }
 
-      if (response is! Map<String, dynamic>) {
-        _logger.w('Unexpected response format: ${response.runtimeType}');
-        return;
-      }
-
       final data = response['data'] as Map<String, dynamic>?;
       if (data == null) {
         _logger.w('No data field in response');

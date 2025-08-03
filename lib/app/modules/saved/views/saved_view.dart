@@ -87,7 +87,7 @@ class SavedView extends GetView<SavedController> {
                   isSaved: true,
                   imageUrl: imageUrl,
                   title: product.name,
-                  price: '\$${product.basePrice.toStringAsFixed(2)}',
+                  price: product.basePrice.toString(),
                   productId: product.id,
                 ),
               );

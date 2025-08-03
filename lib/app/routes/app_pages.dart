@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/modules/bottom_nav/views/bottom_nav_view.new.dart';
 import 'package:canuck_mall/app/modules/company_details/views/company_about_us_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/about_us_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/change_password_view.dart';
@@ -14,7 +15,6 @@ import '../modules/auth/views/reset_password_view.dart';
 import '../modules/auth/views/signup_view.dart';
 import '../modules/auth/views/verify_otp_view.dart';
 import '../modules/bottom_nav/bindings/bottom_nav_binding.dart';
-import '../modules/bottom_nav/views/bottom_nav_view.dart';
 import '../modules/category/bindings/category_binding.dart';
 import '../modules/category/views/category_view.dart';
 import '../modules/company_details/bindings/company_details_binding.dart';
@@ -107,6 +107,11 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: _Paths.messages,
+      page: () => const MessagesView(),
+      binding: MessagesBinding(),
+    ),
+    GetPage(
       name: _Paths.resetPassword,
       page: () => const ResetPasswordView(),
       binding: AuthBinding(),
@@ -121,11 +126,6 @@ class AppPages {
       name: _Paths.home,
       page: () => const HomeView(),
       binding: HomeBinding(),
-    ),
-    GetPage(
-      name: _Paths.messages,
-      page: () => const MessagesView(),
-      binding: MessagesBinding(),
     ),
     GetPage(
       name: _Paths.saved,
