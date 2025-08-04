@@ -1,4 +1,4 @@
-import 'package:canuck_mall/app/modules/bottom_nav/views/bottom_nav_view.new.dart';
+import 'package:canuck_mall/app/modules/bottom_nav/views/bottom_nav_view.dart';
 import 'package:canuck_mall/app/modules/company_details/views/company_about_us_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/about_us_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/change_password_view.dart';

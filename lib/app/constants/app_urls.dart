@@ -71,4 +71,7 @@ abstract class AppUrls {
   // message
 
   static const String getMessage = '/message/chat';
+  // static const String createMessage = '/chat/user';
+  static const String createChat = '/chat';
+  static const String getChat = '/chat/user';
 }

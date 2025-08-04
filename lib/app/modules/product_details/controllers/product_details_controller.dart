@@ -314,12 +314,12 @@ class ProductDetailsController extends GetxController {
         return false;
       }
     } on ApiException catch (e) {
-      print('❌ API Error creating order: ${e.message}');
+      AppLogger.error('API Error creating order: ${e.message}');
       orderErrorMessage(e.message);
       Get.snackbar('Error', e.message);
       return false;
     } catch (e) {
-      print('❌ Unexpected error creating order: $e');
+      AppLogger.error('Unexpected error creating order: $e');
       orderErrorMessage('An unexpected error occurred');
       Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
       return false;
@@ -374,7 +374,7 @@ class ProductDetailsController extends GetxController {
         deliveryOptions: deliveryOption,
       );
 
-      print('🔄 Creating order with ${products.length} products');
+      AppLogger.info('Creating order with ${products.length} products');
 
       final response = await _orderService!.createOrder(orderRequest);
 
@@ -389,12 +389,12 @@ class ProductDetailsController extends GetxController {
         return false;
       }
     } on ApiException catch (e) {
-      print('❌ API Error creating order: ${e.message}');
+      AppLogger.error('API Error creating order: ${e.message}');
       orderErrorMessage(e.message);
       Get.snackbar('Error', e.message);
       return false;
     } catch (e) {
-      print('❌ Unexpected error creating order: $e');
+      AppLogger.error('Unexpected error creating order: $e');
       orderErrorMessage('An unexpected error occurred');
       Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
       return false;
