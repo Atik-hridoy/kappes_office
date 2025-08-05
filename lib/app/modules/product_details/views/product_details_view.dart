@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
@@ -17,6 +16,7 @@ import 'package:canuck_mall/app/widgets/app_button/quantity_button.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/tipple.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import '../controllers/product_details_controller.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
@@ -192,7 +192,76 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               SizedBox(height: AppSize.height(height: 1.0)),
               Divider(color: AppColors.lightGray),
 
-              // Shop info skipped for brevity (you already had it fine)
+              // Shop info section
+              SizedBox(height: AppSize.height(height: 1.0)),
+              Padding(
+                padding: EdgeInsets.only(bottom: AppSize.height(height: 1.0)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 100.0),
+                      ),
+                      child: AppImage(
+                        imagePath: AppUrls.imageUrl + product.shop.logo,
+                        height: AppSize.height(height: 5.5),
+                        width: AppSize.height(height: 5.5),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(width: AppSize.width(width: 2.0)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText(
+                            title: product.shop.name,
+                            style: Theme.of(context).textTheme.titleSmall!
+                                .copyWith(fontWeight: FontWeight.w900),
+                          ),
+                          AppText(
+                            title: product.shop.address.country,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        AppLogger.info(
+                          'Navigating to storeId: ${product.shop.id}',
+                        );
+                        Get.toNamed(Routes.store, arguments: product.shop.id);
+                      },
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 0.5),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSize.height(height: 1.2),
+                          vertical: AppSize.height(height: 0.8),
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(
+                            AppSize.height(height: 0.5),
+                          ),
+                        ),
+                        child: AppText(
+                          title: AppStaticKey.visitStore,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleSmall!.copyWith(
+                            color: AppColors.white,
+                            fontSize: AppSize.height(height: 1.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Divider(color: AppColors.lightGray),
 
               AppText(

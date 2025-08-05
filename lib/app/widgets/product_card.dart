@@ -77,7 +77,7 @@ class _ProductCardState extends State<ProductCard> {
                           );
                         } else {
                           await savedController.saveProduct(widget.productId);
-                          // Get.snackbar('Saved', 'Product added to wishlist');
+                          Get.snackbar('Saved', 'Product added to wishlist');
                         }
                       },
                       child: Container(

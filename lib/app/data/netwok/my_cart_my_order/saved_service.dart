@@ -44,8 +44,6 @@ class SavedService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("==========>> saved item in home screen ${response.data}");
-
         return response.data is Map<String, dynamic> ? response.data : null;
       } else {
         throw Exception('Failed to save product');

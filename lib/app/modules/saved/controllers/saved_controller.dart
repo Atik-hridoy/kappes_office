@@ -35,11 +35,6 @@ class SavedController extends GetxController {
         return;
       }
 
-      if (response is! Map<String, dynamic>) {
-        _logger.w('Unexpected response format: ${response.runtimeType}');
-        return;
-      }
-
       final data = response['data'] as Map<String, dynamic>?;
       if (data == null) {
         _logger.w('No data field in response');
@@ -63,8 +58,6 @@ class SavedController extends GetxController {
         try {
           final model = SavedModel.fromJson(item);
           wishlist.add(model);
-
-          print("==========>> wishlis length ${wishlist.length}");
         } catch (e, stackTrace) {
           _logger.e(
             'Error parsing wishlist item $e',

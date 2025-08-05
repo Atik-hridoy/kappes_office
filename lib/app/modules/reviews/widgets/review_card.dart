@@ -1,7 +1,7 @@
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/model/get_review_model.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
@@ -73,10 +73,16 @@ class ReviewCard extends StatelessWidget {
                               AppSize.height(height: 1.0),
                             ),
                             child: Image.network(
-                              image,
+                              image.startsWith('http') ? image : '${AppUrls.baseUrl}$image',
                               height: AppSize.height(height: 8.0),
                               width: AppSize.height(height: 8.0),
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                height: AppSize.height(height: 8.0),
+                                width: AppSize.height(height: 8.0),
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.broken_image, color: Colors.grey),
+                              ),
                             ),
                           ),
                         )

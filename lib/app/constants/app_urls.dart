@@ -3,6 +3,7 @@ abstract class AppUrls {
   static const String imageUrl = 'http://10.10.7.112:7000';
 
   // Auth endpoints
+
   static const String verifyEmail = '/auth/verify-email';
   static const String login = '/auth/login';
   static const String signUp = '/users';
@@ -10,13 +11,17 @@ abstract class AppUrls {
   static const String resetPassword = '/auth/reset-password';
 
   // Product endpoints
+
   static const String products = '/products';
   static const String categories = '/category';
+
   //static const String stores = '/stores';
+
   static const String recommendedProducts = '/product/recommended';
   static const String trendingProduct = '/product';
 
   // User endpoints
+
   static const String profile = '/users/profile';
   static const String orders = '/user/orders';
   static const String changePassword = '/auth/change-password';
@@ -24,18 +29,22 @@ abstract class AppUrls {
   static const String getTerms = '/settings/termsOfService';
 
   // home page endpoints
+
   static const String home = '/home';
   static const String category = '/category';
 
   // notifications endpoints
+
   static const String notifications = '/notifications';
   static const String readNotification = '/notifications/';
 
   // orders
+
   static const String createOrder = '/order/create';
   static const String getOrders = '/order/my-orders';
 
   // product details
+
   static const String getProduct = '/product';
   static const String getProductByShopId = '/shop/products';
   static const String getReviews = '/review/product';
@@ -54,7 +63,15 @@ abstract class AppUrls {
   static const String shopLocation = '/shop/location';
 
   // Coupon endpoint
+
   static const String getCoupon = '/coupon';
   static const String addToCart = '/cart/create';
   static const String wishlist = '/wishlist';
+
+  // message
+
+  static const String getMessage = '/message/chat';
+  // static const String createMessage = '/chat/user';
+  static const String createChat = '/chat';
+  static const String getChat = '/chat/user';
 }

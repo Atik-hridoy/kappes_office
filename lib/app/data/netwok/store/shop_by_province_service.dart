@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 
 import '../../../constants/app_urls.dart';
- // Import the AppUrls class
+import '../../../utils/log/app_log.dart';
+// Import the AppUrls class
 
 class ShopByProvinceService {
   final Dio _dio = Dio();
@@ -13,7 +14,8 @@ class ShopByProvinceService {
         '${AppUrls.baseUrl}${AppUrls.getShopsByProvince}', // Backend endpoint for shops by province
         options: Options(
           headers: {
-            'Authorization': 'Bearer $token', // Add Bearer token for authentication
+            'Authorization':
+                'Bearer $token', // Add Bearer token for authentication
           },
         ),
       );
@@ -21,7 +23,10 @@ class ShopByProvinceService {
       // Return the full response map
       return response.data;
     } catch (e) {
-      print('Error fetching shops by province: $e');
+      AppLogger.error(
+        '❌ Error fetching shops by province: $e',
+        tag: 'SHOP_PROVINCE',
+      );
       return {};
     }
   }
