@@ -16,7 +16,7 @@ class ProfileService {
 
       // Use a simple GET request to test connectivity
       final response = await _dio.get(
-        '${AppUrls.baseUrl}',
+        AppUrls.baseUrl,
         options: Options(
           sendTimeout: const Duration(seconds: 5),
           receiveTimeout: const Duration(seconds: 5),
@@ -46,7 +46,7 @@ class ProfileService {
 
       // Test the base URL first
       final baseResponse = await _dio.get(
-        '${AppUrls.baseUrl}',
+        AppUrls.baseUrl,
         options: Options(
           sendTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
@@ -132,7 +132,7 @@ class ProfileService {
     }
   }
 
-  Future<Map<String, dynamic>> getProfileData() async {
+  Future<Map<String, dynamic>> getProfileData({required String email}) async {
     try {
       final token = LocalStorage.token;
       AppLogger.info(

@@ -1,6 +1,6 @@
 abstract class AppUrls {
-  static const String baseUrl = 'http://10.10.7.112:7000/api/v1';
-  static const String imageUrl = 'http://10.10.7.112:7000';
+  static const String baseUrl = 'http://10.10.7.79:7000/api/v1';
+  static const String imageUrl = 'http://10.10.7.79:7000';
 
   // Auth endpoints
 
@@ -70,8 +70,8 @@ abstract class AppUrls {
 
   // message
 
-  static const String getMessage = '/message/chat';
-  // static const String createMessage = '/chat/user';
+  static const String getChatForUser = '/chat/user';
   static const String createChat = '/chat';
-  static const String getChat = '/chat/user';
+  static const String getMessages = 'message/chat/686b4723ff0ea5b6a9ee6972';
+  static const String createMessage = '/message';
 }

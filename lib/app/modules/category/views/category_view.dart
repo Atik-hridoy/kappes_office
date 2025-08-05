@@ -30,7 +30,7 @@ class CategoryView extends StatelessWidget {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         } else if (controller.error.value.isNotEmpty) {
-          return Center(child: Text('Error: ' + controller.error.value));
+          return Center(child: Text('Error: ${controller.error.value}'));
         } else if (controller.categories.isEmpty) {
           return const Center(child: Text('No categories available.'));
         }

@@ -1,7 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
@@ -11,7 +10,6 @@ import 'package:canuck_mall/app/widgets/tipple.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../constants/app_urls.dart';
 import '../controllers/my_cart_controller.dart';
 
 class MyCartView extends StatelessWidget {

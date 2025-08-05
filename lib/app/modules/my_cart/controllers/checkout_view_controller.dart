@@ -140,7 +140,7 @@ class CheckoutViewController extends GetxController {
       );
       return;
     }
-    AppLogger.debug('Shop ID from args: ' + shopIdFromArgs);
+    AppLogger.debug('Shop ID from args: $shopIdFromArgs');
     if (shopIdFromArgs.isEmpty) {
       Get.snackbar(
         'Order',

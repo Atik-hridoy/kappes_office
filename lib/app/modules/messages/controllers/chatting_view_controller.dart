@@ -29,7 +29,7 @@ class ChattingViewController extends GetxController {
   // Function to get chat data from the backend
   Future<void> fetchChats(String authToken) async {
     final String url =
-        'http://10.10.7.112:7000/api/v1/chat/user'; // Replace with the actual endpoint
+        'http://10.10.7.79:7000/api/v1/chat/user'; // Replace with the actual endpoint
 
     try {
       final response = await dio.get(

@@ -107,8 +107,9 @@ class StoreController extends GetxController {
   // Helper function to construct image URL dynamically
   String getImageUrl(String? path) {
     if (path == null || path.isEmpty) return '';
-    if (path.startsWith('http'))
+    if (path.startsWith('http')) {
       return path; // If it's already a full URL, return it
+    }
     return '${AppUrls.baseUrl}$path'; // Otherwise, construct the full URL
   }
 

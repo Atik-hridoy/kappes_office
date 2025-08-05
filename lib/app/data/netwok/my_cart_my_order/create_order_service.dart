@@ -32,7 +32,7 @@ class OrderService {
   Future<OrderResponse> createOrder(OrderRequest request) async {
     try {
       print(
-        'OrderService: Sending order request: ' + request.toJson().toString(),
+        'OrderService: Sending order request: ${request.toJson()}',
       );
       print(
         'OrderService: Posting to URL: \x1B[32m${_dio.options.baseUrl}${AppUrls.createOrder}\x1B[0m',

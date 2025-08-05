@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart'; // Import the ChatResponse model
 import 'package:canuck_mall/app/utils/app_utils.dart'; // For showing error messages
 
 class ChatService {
-  static const String baseUrl =
-      'http://10.10.7.112:7000/api/v1'; // API base URL
-  static const String getChat = '/chat/user'; // Endpoint for getting chats
+  static const String baseUrl = AppUrls.baseUrl; // API base URL
+  static const String getChat = AppUrls.getChatForUser; // Endpoint for getting chats
 
   final Dio dio;
 
@@ -16,7 +16,7 @@ class ChatService {
   Future<ChatResponse> getChats(String authToken) async {
     try {
       final response = await dio.get(
-        getChat,
+        AppUrls.getChatForUser,
         options: Options(
           headers: {
             'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
@@ -176,17 +177,46 @@ class LoginController extends GetxController {
 
       if (profileData['success'] == true && profileData['data'] != null) {
         final profile = profileData['data'];
-        final name = profile['full_name'] ?? '';
-        final email = profile['email'] ?? '';
-        final userId = profile['_id'] ?? '';
+        
+        // Extract all possible user data from the profile
+        final name = profile['full_name']?.toString() ?? profile['name']?.toString() ?? '';
+        final email = profile['email']?.toString() ?? '';
+        final userId = profile['_id']?.toString() ?? '';
+        final phone = profile['phone']?.toString() ?? '';
+        final address = profile['address']?.toString() ?? '';
+        final image = profile['image']?.toString() ?? '';
+        final role = profile['role']?.toString() ?? '';
+        final isActive = profile['isActive']?.toString() ?? 'false';
+        final createdAt = profile['createdAt']?.toString() ?? '';
+        final updatedAt = profile['updatedAt']?.toString() ?? '';
 
-        await LocalStorage.setString(LocalStorageKeys.myName, name);
-        await LocalStorage.setString(LocalStorageKeys.myEmail, email);
-        await LocalStorage.setString(LocalStorageKeys.userId, userId);
+        // Save all user data to local storage
+        await Future.wait([
+          LocalStorage.setString(LocalStorageKeys.myName, name),
+          LocalStorage.setString(LocalStorageKeys.myEmail, email),
+          LocalStorage.setString(LocalStorageKeys.userId, userId),
+          LocalStorage.setString(LocalStorageKeys.phone, phone),
+          LocalStorage.setString(LocalStorageKeys.myAddress, address),
+          LocalStorage.setString(LocalStorageKeys.myProfileImage, image),
+          LocalStorage.setString('user_role', role),
+          LocalStorage.setString('is_active', isActive),
+          LocalStorage.setString('created_at', createdAt),
+          LocalStorage.setString('updated_at', updatedAt),
+          // Save the entire profile as JSON for future use
+          LocalStorage.setString('user_profile', jsonEncode(profile)),
+        ]);
 
         AppLogger.storage(
           'User profile saved to LocalStorage',
-          context: {'name': name, 'email': email, 'userId': userId},
+          context: {
+            'name': name,
+            'email': email,
+            'userId': userId,
+            'phone': phone,
+            'address': address.isNotEmpty,
+            'hasImage': image.isNotEmpty,
+            'role': role,
+          },
         );
       } else {
         AppLogger.warning(

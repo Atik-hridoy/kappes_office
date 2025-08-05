@@ -23,8 +23,8 @@ class HomeController extends GetxController {
     try {
       isLoading(true); // Set loading state to true
       final items =
-          await _homeViewService
-              .fetchRecommendedProducts(); // Fetch products from the service
+      await _homeViewService
+          .fetchRecommendedProducts(); // Fetch products from the service
       recommendedItems.assignAll(
         items,
       ); // Assign the fetched products to the observable list

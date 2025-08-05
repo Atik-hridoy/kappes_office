@@ -79,7 +79,7 @@ class CategoryViewController extends GetxController {
       final response = await dio.get(
         // Adjust endpoint as needed
         '${AppUrls.baseUrl}${AppUrls.categories}',
-        options: Options(headers: {'Authorization': 'Bearer ${authToken}'}),
+        options: Options(headers: {'Authorization': 'Bearer $authToken'}),
       );
       // Parse posted category if needed
       if (response.data != null && response.data['data'] != null) {

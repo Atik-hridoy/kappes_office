@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/message_and_chat/get_message.dart'; // Import the model for the response
 import 'package:canuck_mall/app/utils/log/app_log.dart';
@@ -8,7 +9,7 @@ class MessageService {
   final Dio dio;
 
   // Base URL for the API
-  static const String baseUrl = 'http://10.10.7.112:7000/api/v1';
+  static const String baseUrl = AppUrls.baseUrl;
 
   MessageService({Dio? dio}) : dio = dio ?? Dio() {
     // Add interceptor to include auth token in requests
@@ -48,12 +49,12 @@ class MessageService {
           'chatId': chatId,
           'page': page,
           'limit': limit,
-          'endpoint': '$baseUrl/message/chat/$chatId',
+          'endpoint': AppUrls.getChatForUser,
         },
       );
 
-      final response = await dio.get(
-        '$baseUrl/message/chat/$chatId',
+      final response = await dio.get(           
+        AppUrls.getChatForUser,
         queryParameters: {
           'page': page.toString(),
           'limit': limit.toString(),
@@ -86,7 +87,7 @@ class MessageService {
             'statusCode': response.statusCode,
             'response': response.data,
             'request': {
-              'url': '$baseUrl/message/chat/$chatId',
+              'url': AppUrls.getChatForUser,
               'queryParams': {'page': page, 'limit': limit},
             },
           },

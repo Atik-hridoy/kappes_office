@@ -48,7 +48,9 @@ class EditInformationViewService {
       // Log the request details
       AppLogger.info('📦 Sending PATCH request to: $url');
       AppLogger.info('🔐 Token: Bearer $token');
-      formData.fields.forEach((e) => AppLogger.info('🔹 ${e.key}: ${e.value}'));
+      for (var e in formData.fields) {
+        AppLogger.info('🔹 ${e.key}: ${e.value}');
+      }
       if (imageFile != null) {
         AppLogger.info('🖼️ Image attached: ${imageFile.path}');
       }

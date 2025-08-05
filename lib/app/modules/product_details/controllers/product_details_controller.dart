@@ -361,9 +361,7 @@ class ProductDetailsController extends GetxController {
       isCreatingOrder(true);
       orderErrorMessage('');
 
-      if (_orderService == null) {
-        _orderService = OrderService(token);
-      }
+      _orderService ??= OrderService(token);
 
       final orderRequest = OrderRequest(
         shop: shopId,

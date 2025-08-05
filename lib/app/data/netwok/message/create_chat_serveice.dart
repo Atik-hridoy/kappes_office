@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 
 class ChatService {
   static const String baseUrl =
-      'http://10.10.7.112:7000/api/v1'; // Replace with your API base URL
+      'http://10.10.7.79:7000/api/v1'; // Replace with your API base URL
   static const String createChatUrl = '/chat'; // Endpoint for creating a chat
 
   final Dio dio;
