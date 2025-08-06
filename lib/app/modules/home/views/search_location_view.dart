@@ -167,30 +167,4 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
     });
   }
 
-  Widget _buildLocationItem({
-    required String title,
-    required String coordinates,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(AppSize.height(height: 1.5)),
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
-        border: Border.all(color: AppColors.lightGray),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(
-            title: title,
-            style: Theme.of(Get.context!).textTheme.titleSmall,
-          ),
-          AppText(
-            title: coordinates,
-            style: Theme.of(Get.context!).textTheme.bodySmall,
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -110,6 +110,8 @@ class Message {
     );
   }
 
+  bool get isSentByMe => false;
+
   Map<String, dynamic> toJson() => {
     '_id': id,
     'chatId': chatId,

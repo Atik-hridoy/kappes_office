@@ -19,13 +19,16 @@ class AppImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imagePath == null) {
+    if (imagePath == null || imagePath.toString().isEmpty) {
       return _buildFallbackIcon();
     }
 
+    final String path = imagePath.toString();
+
+    // Handle File type
     if (imagePath is File) {
       return Image.file(
-        imagePath,
+        imagePath as File,
         width: width,
         height: height,
         fit: fit,
@@ -33,19 +36,34 @@ class AppImage extends StatelessWidget {
       );
     }
 
-    if (imagePath is String && imagePath.startsWith('http')) {
+    // Handle network images
+    if (path.startsWith('http')) {
       return Image.network(
-        imagePath,
+        path,
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackIcon(),
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading image: $error\nURL: $path');
+          return _buildFallbackIcon();
+        },
       );
     }
 
-    if (imagePath is String) {
+    // Handle asset images
+    if (path.isNotEmpty) {
       return Image.asset(
-        imagePath,
+        path,
         width: width,
         height: height,
         fit: fit,

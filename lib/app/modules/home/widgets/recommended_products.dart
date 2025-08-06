@@ -27,10 +27,19 @@ class RecommendedProducts extends StatelessWidget {
           itemBuilder: (context, index) {
             final product = controller.products[index];
             final List images = product['images'] ?? [];
-            final imageUrl =
-                images.isNotEmpty
-                    ? '${AppUrls.imageUrl}/${images[0]}'
-                    : 'https://via.placeholder.com/150';
+            String imageUrl = 'https://via.placeholder.com/150';
+            if (images.isNotEmpty && images[0] != null) {
+              // Check if the image path is already a full URL
+              if (images[0].toString().startsWith('http')) {
+                imageUrl = images[0].toString();
+              } else {
+                // Remove any leading slashes to prevent double slashes in URL
+                String path = images[0].toString().startsWith('/')
+                    ? images[0].toString().substring(1)
+                    : images[0].toString();
+                imageUrl = '${AppUrls.imageUrl}/$path';
+              }
+            }
             return ProductCard(
               imageUrl: imageUrl,
               title: product['name'] ?? '',

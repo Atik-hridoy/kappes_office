@@ -1,34 +1,37 @@
 import 'dart:convert';
-import 'package:canuck_mall/app/utils/log/app_log.dart';
 
-class CreateChat {
-  bool success;
-  String message;
-  ChatData data;
+class ChatResponse {
+  final bool success;
+  final String message;
+  final ChatData data;
 
-  CreateChat({
+  ChatResponse({
     required this.success,
     required this.message,
     required this.data,
   });
 
-  factory CreateChat.fromJson(Map<String, dynamic> json) {
-    return CreateChat(
-      success: json['success'],
-      message: json['message'],
+  factory ChatResponse.fromJson(Map<String, dynamic> json) {
+    return ChatResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
       data: ChatData.fromJson(json['data']),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'success': success, 'message': message, 'data': data.toJson()};
+    return {
+      'success': success,
+      'message': message,
+      'data': data.toJson(),
+    };
   }
 }
 
 class ChatData {
-  String id;
-  List<Participant> participants;
-  bool status;
+  final String id;
+  final List<Participant> participants;
+  final bool status;
 
   ChatData({
     required this.id,
@@ -37,14 +40,12 @@ class ChatData {
   });
 
   factory ChatData.fromJson(Map<String, dynamic> json) {
-    var participantsList = json['participants'] as List;
-    List<Participant> participants =
-        participantsList.map((i) => Participant.fromJson(i)).toList();
-
     return ChatData(
-      id: json['_id'],
-      participants: participants,
-      status: json['status'],
+      id: json['_id'] ?? '',
+      participants: (json['participants'] as List)
+          .map((e) => Participant.fromJson(e))
+          .toList(),
+      status: json['status'] ?? false,
     );
   }
 
@@ -58,49 +59,173 @@ class ChatData {
 }
 
 class Participant {
-  String participantId;
-  String participantType;
-  String id;
+  final String id;
+  final ParticipantId participantId;
+  final String participantType;
 
   Participant({
+    required this.id,
     required this.participantId,
     required this.participantType,
-    required this.id,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
-      participantId: json['participantId'],
-      participantType: json['participantType'],
-      id: json['_id'],
+      id: json['_id'] ?? '',
+      participantId: ParticipantId.fromJson(json['participantId']),
+      participantType: json['participantType'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'participantId': participantId,
-      'participantType': participantType,
       '_id': id,
+      'participantId': participantId.toJson(),
+      'participantType': participantType,
     };
   }
 }
 
-void main() {
-  String jsonString =
-      '{"success": true, "message": "Create Chat Successfully", "data": {"_id": "686b4723ff0ea5b6a9ee6972", "participants": [{"participantId": "685a209195fac3398ed00fca", "participantType": "User", "_id": "686b4723ff0ea5b6a9ee6973"}, {"participantId": "6857d5988a47be1e4bf6adc4", "participantType": "Shop", "_id": "686b4723ff0ea5b6a9ee6974"}], "status": true, "__v": 0}}';
+class ParticipantId {
+  final String id;
+  final String fullName;
+  final String role;
+  final String email;
+  final String phone;
+  final String? image;
+  final bool verified;
+  final bool isDeleted;
 
-  // Parse JSON to Dart object
-  var jsonData = jsonDecode(jsonString);
-  var createChat = CreateChat.fromJson(jsonData);
+  ParticipantId({
+    required this.id,
+    required this.fullName,
+    required this.role,
+    required this.email,
+    required this.phone,
+    this.image,
+    required this.verified,
+    required this.isDeleted,
+  });
 
-  // Log the chat creation details
-  AppLogger.info(
-    'Chat created successfully',
-    tag: 'CHAT',
-    context: {
-      'chatId': createChat.data.id,
-      'message': createChat.message,
-      'participantCount': createChat.data.participants.length,
-    },
-  );
+  factory ParticipantId.fromJson(Map<String, dynamic> json) {
+    return ParticipantId(
+      id: json['_id'] ?? '',
+      fullName: json['full_name'] ?? '',
+      role: json['role'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      image: json['image'],
+      verified: json['verified'] ?? false,
+      isDeleted: json['isDeleted'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'full_name': fullName,
+      'role': role,
+      'email': email,
+      'phone': phone,
+      'image': image,
+      'verified': verified,
+      'isDeleted': isDeleted,
+    };
+  }
+}
+
+class Shop {
+  final String id;
+  final String name;
+  final String email;
+  final String phone;
+  final String description;
+  final String website;
+  final String logo;
+  final String coverPhoto;
+  final String banner;
+  final double revenue;
+
+  Shop({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.description,
+    required this.website,
+    required this.logo,
+    required this.coverPhoto,
+    required this.banner,
+    required this.revenue,
+  });
+
+  factory Shop.fromJson(Map<String, dynamic> json) {
+    return Shop(
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      description: json['description'] ?? '',
+      website: json['website'] ?? '',
+      logo: json['logo'] ?? '',
+      coverPhoto: json['coverPhoto'] ?? '',
+      banner: json['banner'] ?? '',
+      revenue: json['revenue']?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'description': description,
+      'website': website,
+      'logo': logo,
+      'coverPhoto': coverPhoto,
+      'banner': banner,
+      'revenue': revenue,
+    };
+  }
+}
+
+class LastMessage {
+  final String id;
+  final String chatId;
+  final String sender;
+  final String text;
+  final String image;
+  final DateTime createdAt;
+
+  LastMessage({
+    required this.id,
+    required this.chatId,
+    required this.sender,
+    required this.text,
+    required this.image,
+    required this.createdAt,
+  });
+
+  factory LastMessage.fromJson(Map<String, dynamic> json) {
+    return LastMessage(
+      id: json['_id'] ?? '',
+      chatId: json['chatId'] ?? '',
+      sender: json['sender'] ?? '',
+      text: json['text'] ?? '',
+      image: json['image'] ?? '',
+      createdAt: DateTime.parse(json['createdAt'] ?? ''),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'chatId': chatId,
+      'sender': sender,
+      'text': text,
+      'image': image,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
 }

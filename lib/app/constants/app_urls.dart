@@ -15,8 +15,6 @@ abstract class AppUrls {
   static const String products = '/products';
   static const String categories = '/category';
 
-  //static const String stores = '/stores';
-
   static const String recommendedProducts = '/product/recommended';
   static const String trendingProduct = '/product';
 
