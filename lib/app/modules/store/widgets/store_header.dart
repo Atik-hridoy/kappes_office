@@ -8,7 +8,23 @@ import 'package:flutter/material.dart';
 
 class StoreHeader extends StatelessWidget {
   final VoidCallback? onPressed;
-  const StoreHeader({super.key, this.onPressed});
+  final String shopName;
+  final String logoUrl;
+  final String coverPhotoUrl;
+  final double rating;
+  final int reviewCount;
+  final bool isVerified;
+  
+  const StoreHeader({
+    super.key, 
+    this.onPressed,
+    required this.shopName,
+    required this.logoUrl,
+    required this.coverPhotoUrl,
+    this.rating = 0.0,
+    this.reviewCount = 0,
+    this.isVerified = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +48,7 @@ class StoreHeader extends StatelessWidget {
                   AppSize.height(height: 1.5),
                 ),
                 child: AppImage(
-                  imagePath: AppImages.shopLogo,
+                  imagePath: logoUrl.isNotEmpty ? logoUrl : AppImages.shopLogo,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -79,7 +95,7 @@ class StoreHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Peak",
+              shopName,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: AppSize.height(height: 1.0)),
@@ -89,11 +105,22 @@ class StoreHeader extends StatelessWidget {
                 Row(
                   children: List.generate(
                     5,
-                    (index) => Icon(Icons.star, color: Colors.amber, size: 16),
+                    (index) => Icon(
+                      index < rating.floor() ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
                   ),
                 ),
-                SizedBox(width: 4),
-                Text("(230 reviews)", style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 4),
+                Text(
+                  "($reviewCount ${reviewCount == 1 ? 'review' : 'reviews'})",
+                  style: const TextStyle(fontSize: 12),
+                ),
+                if (isVerified) ...[
+                  const SizedBox(width: 8),
+                  const Icon(Icons.verified, color: Colors.blue, size: 16),
+                ],
               ],
             ),
             SizedBox(height: AppSize.height(height: 0.5)),

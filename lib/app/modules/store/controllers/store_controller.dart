@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../../data/netwok/store/store_service.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class StoreController extends GetxController {
   final StoreService _storeService = StoreService();
@@ -15,31 +16,46 @@ class StoreController extends GetxController {
   ); // Updated to hold a list of products
 
   // URL fields for dynamic image paths, initialized with empty strings
-  RxString shopLogoUrl = RxString('');
-  RxString shopCoverUrl = RxString('');
-  RxList<String> galleryUrls = RxList<String>([]); // For gallery/banner images
+  final RxString shopLogoUrl = RxString('');
+  final RxString shopCoverUrl = RxString('');
+  final RxList<String> galleryUrls = RxList<String>([]); // For gallery/banner images
+  
+  // Getter for store name
+  String get storeName => store['name'] ?? '';
+  
+  // Getter for store rating
+  double get storeRating => (store['rating'] ?? 0).toDouble();
+  
+  // Getter for review count
+  int get reviewCount => store['totalReviews'] ?? 0;
+  
+  // Getter for store verification status
+  bool get isVerified => store['isVerified'] ?? false;
 
   // Fetch shop details using Shop ID
   Future<void> fetchStoreDetails(String shopId) async {
     try {
       isLoading.value = true; // Set loading state to true before fetching
       update(); // Trigger UI update to show loading indicator
-      print('[StoreController] Fetching shop details for shop ID: $shopId');
+      AppLogger.debug('Fetching shop details for shop ID: $shopId', tag: 'STORE_CONTROLLER');
 
       // Fetching store details from the service
       final result = await _storeService.fetchShopDetails(shopId);
 
-      // Debugging the fetched shop details
-      print('================= SHOP DETAILS =================');
-      print('🆔 ID: ${result['data']['_id'] ?? 'N/A'}');
-      print('🏪 Name: ${result['data']['name'] ?? 'N/A'}');
-      print('📧 Email: ${result['data']['email'] ?? 'N/A'}');
-      print('📞 Phone: ${result['data']['phone'] ?? 'N/A'}');
-      print('📍 Address: ${result['data']['address'] ?? 'N/A'}');
-      print('🖼️ Logo: ${result['data']['logo'] ?? 'N/A'}');
-      print('🖼️ Cover Photo: ${result['data']['coverPhoto'] ?? 'N/A'}');
-      print('📝 Description: ${result['data']['description'] ?? 'N/A'}');
-      print('=================================================');
+      // Logging the fetched shop details
+      AppLogger.debug(
+        'Shop details fetched',
+        tag: 'STORE_CONTROLLER',
+        context: {
+          'id': result['data']['_id'] ?? 'N/A',
+          'name': result['data']['name'] ?? 'N/A',
+          'email': result['data']['email'] ?? 'N/A',
+          'phone': result['data']['phone'] ?? 'N/A',
+          'address': result['data']['address'] ?? 'N/A',
+          'hasLogo': (result['data']['logo'] != null && result['data']['logo'].toString().isNotEmpty) ? 'Yes' : 'No',
+          'hasCoverPhoto': (result['data']['coverPhoto'] != null && result['data']['coverPhoto'].toString().isNotEmpty) ? 'Yes' : 'No',
+        },
+      );
 
       // Setting fetched data to the store
       store.value = result['data']; // Set the store data
@@ -70,11 +86,11 @@ class StoreController extends GetxController {
 
       isLoading.value = false; // Set loading to false after data is fetched
       update(); // Trigger UI update after data fetch
-      print('[StoreController] Shop details fetched successfully');
+      AppLogger.info('Shop details fetched successfully', tag: 'STORE_CONTROLLER');
     } catch (e) {
       // Handle errors if any occur during data fetching
       error.value = 'Failed to fetch store details';
-      print('[StoreController] Error fetching store details: $e');
+      AppLogger.error('Error fetching store details: $e', tag: 'STORE_CONTROLLER');
       isLoading.value = false; // Stop the loading indicator
       update(); // Trigger UI update after an error occurs
     }
@@ -83,7 +99,7 @@ class StoreController extends GetxController {
   // Fetch products for the store by Shop ID
   Future<void> fetchProducts(String shopId) async {
     try {
-      print('[StoreController] Fetching products for Shop ID: $shopId');
+      AppLogger.debug('Fetching products for Shop ID: $shopId', tag: 'STORE_CONTROLLER');
       final productData = await _storeService.fetchProductsByShopId(shopId);
 
       products.clear(); // Clear existing products
@@ -98,19 +114,22 @@ class StoreController extends GetxController {
         products.add(product);
       }
       update(); // Trigger UI update after products are fetched
-      print('[StoreController] Products fetched successfully: $productData');
+      AppLogger.info('Products fetched successfully', tag: 'STORE_CONTROLLER');
     } catch (e) {
-      print('[StoreController] Error fetching products: $e');
+      AppLogger.error('Error fetching products: $e', tag: 'STORE_CONTROLLER');
     }
   }
 
-  // Helper function to construct image URL dynamically
+  /// Constructs a complete image URL from a relative path
+  /// Returns an empty string if the path is null or empty
   String getImageUrl(String? path) {
     if (path == null || path.isEmpty) return '';
     if (path.startsWith('http')) {
       return path; // If it's already a full URL, return it
     }
-    return '${AppUrls.baseUrl}$path'; // Otherwise, construct the full URL
+    // Remove any leading slashes to prevent double slashes in URL
+    final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return '${AppUrls.imageUrl}/$cleanPath';
   }
 
   // Call fetchStoreDetails() with Shop ID when controller is initialized

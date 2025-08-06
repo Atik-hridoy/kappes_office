@@ -3,12 +3,13 @@ import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; 
 import '../controllers/messages_controller.dart';
 
 class MessagesView extends GetView<MessagesController> {
@@ -32,16 +33,62 @@ class MessagesView extends GetView<MessagesController> {
             SearchBox(
               title: AppStaticKey.searchMessage,
               onSearch: (query) {
-                controller.searchMessages(query);  // Filter messages based on search query
+                controller.searchMessages(query);
               },
             ),
             SizedBox(height: AppSize.height(height: 1.0)),
-
-            // Displaying messages dynamically using the controller's reactive list
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
-                  return Center(child: CircularProgressIndicator());
+                  return Skeletonizer(
+                    enabled: controller.isLoading.value,
+                    child: ListView.builder(
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: AppSize.height(height: 5.0),
+                                height: AppSize.height(height: 5.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              SizedBox(width: AppSize.width(width: 2.0)),
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: AppSize.height(height: 2.0),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    SizedBox(height: AppSize.height(height: 1.0)),
+                                    Container(
+                                      height: AppSize.height(height: 2.0),
+                                      width: AppSize.width(width: 30.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
                 }
 
                 if (controller.messages.isEmpty) {
@@ -69,7 +116,8 @@ class MessagesView extends GetView<MessagesController> {
                                   AppSize.height(height: 0.5),
                                 ),
                                 child: AppImage(
-                                  imagePath: message.participants[1].participantId.image ?? AppImages.shopLogo,
+                                  // Using a default shop logo since the Shop model doesn't have an image property
+                                  imagePath: AppImages.shopLogo,
                                   height: AppSize.height(height: 5.0),
                                   width: AppSize.height(height: 5.0),
                                 ),
@@ -80,11 +128,10 @@ class MessagesView extends GetView<MessagesController> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         AppText(
-                                          title: message.participants[1].participantId.fullName,
+                                          title: message.participants[1].participantId.name,
                                           style: Theme.of(context).textTheme.titleSmall,
                                         ),
                                         AppText(

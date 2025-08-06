@@ -1,5 +1,4 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
-import 'package:canuck_mall/app/dev_data/chatting_dev_data.dart';
 import 'package:canuck_mall/app/model/message_and_chat/get_message.dart';
 import 'package:canuck_mall/app/modules/messages/controllers/chatting_view_controller.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';

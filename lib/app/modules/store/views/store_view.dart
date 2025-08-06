@@ -110,6 +110,12 @@ class StoreView extends GetView<StoreController> {
                 onPressed: () {
                   Get.toNamed(Routes.messages);
                 },
+                shopName: controller.storeName,
+                logoUrl: controller.shopLogoUrl.value,
+                coverPhotoUrl: controller.shopCoverUrl.value,
+                rating: controller.storeRating,
+                reviewCount: controller.reviewCount,
+                isVerified: controller.isVerified,
               ),
               SizedBox(height: AppSize.height(height: 2.0)),
               // Store Description
