@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
+import 'package:canuck_mall/app/model/recomended_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
@@ -227,6 +226,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                         ],
                       ),
                     ),
+                    // Visit Store button
                     InkWell(
                       onTap: () {
                         AppLogger.info(
@@ -258,7 +258,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -388,7 +388,9 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppCommonButton(
-                onPressed: () {},
+                onPressed: () {
+                  controller.handleCreateChat(shopId: controller.product.value?.shop.id ?? '');
+                },
                 title: AppStaticKey.sendMessageToSeller,
                 backgroundColor: AppColors.white,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -434,4 +436,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
       ),
     );
   }
+}
+
+extension on Rx<ProductData?> {
+  get shop => null;
 }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ChatResponse {
   final bool success;
   final String message;
@@ -15,7 +13,7 @@ class ChatResponse {
     return ChatResponse(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
-      data: ChatData.fromJson(json['data']),
+      data: ChatData.fromJson(json['data'] ?? {}),
     );
   }
 
@@ -29,7 +27,7 @@ class ChatResponse {
 }
 
 class ChatData {
-  final String id;
+  String id;
   final List<Participant> participants;
   final bool status;
 
@@ -72,7 +70,7 @@ class Participant {
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
       id: json['_id'] ?? '',
-      participantId: ParticipantId.fromJson(json['participantId']),
+      participantId: ParticipantId.fromJson(json['participantId'] ?? {}),
       participantType: json['participantType'] ?? '',
     );
   }
@@ -80,7 +78,7 @@ class Participant {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'participantId': participantId.toJson(),
+      'participantId': participantId.id, // Send only the ID string
       'participantType': participantType,
     };
   }
@@ -95,6 +93,8 @@ class ParticipantId {
   final String? image;
   final bool verified;
   final bool isDeleted;
+  final String? googleId;
+  final String? facebookId;
 
   ParticipantId({
     required this.id,
@@ -105,6 +105,8 @@ class ParticipantId {
     this.image,
     required this.verified,
     required this.isDeleted,
+    this.googleId,
+    this.facebookId,
   });
 
   factory ParticipantId.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,8 @@ class ParticipantId {
       image: json['image'],
       verified: json['verified'] ?? false,
       isDeleted: json['isDeleted'] ?? false,
+      googleId: json['googleId'],
+      facebookId: json['facebookId'],
     );
   }
 
@@ -130,6 +134,8 @@ class ParticipantId {
       'image': image,
       'verified': verified,
       'isDeleted': isDeleted,
+      'googleId': googleId,
+      'facebookId': facebookId,
     };
   }
 }
