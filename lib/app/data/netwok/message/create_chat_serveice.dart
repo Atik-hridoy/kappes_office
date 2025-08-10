@@ -42,7 +42,7 @@ class CreateChatService {
         );
         throw Exception('Failed to create chat: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       // Handle Dio specific errors
       AppLogger.error(
         'DioError: ${e.message}',

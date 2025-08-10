@@ -1,5 +1,4 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
-import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -9,6 +8,7 @@ import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/tipple.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../controllers/my_cart_controller.dart';
 
@@ -29,13 +29,15 @@ class MyCartView extends StatelessWidget {
         centerTitle: true,
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+        final items = controller.cartData.value?.data?.items;
+
+        // Show shimmer only on initial load when there's no data
+        if (controller.isLoading.value && (items == null || items.isEmpty)) {
+          return _buildShimmerEffect();
         }
 
-        final items = controller.cartData.value?.data?.items ?? [];
-
-        if (items.isEmpty) {
+        // If we have no items (not just loading), show empty state
+        if (items == null || items.isEmpty) {
           return Center(
             child: AppText(
               title: "Your cart is empty",
@@ -74,19 +76,44 @@ class MyCartView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(
                         AppSize.height(height: 0.5),
                       ),
-                      child: Image.network(
-                        imageUrl,
-                        height: AppSize.height(height: 9.0),
-                        width: AppSize.height(height: 9.0),
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (_, __, ___) => Image.asset(
-                              AppImages.banner2,
+                      child: imageUrl.startsWith('http')
+                          ? Image.network(
+                              imageUrl,
+                              height: AppSize.height(height: 9.0),
+                              width: AppSize.height(height: 9.0),
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  height: AppSize.height(height: 9.0),
+                                  width: AppSize.height(height: 9.0),
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print('❌ Error loading image: $error');
+                                return Container(
+                                  height: AppSize.height(height: 9.0),
+                                  width: AppSize.height(height: 9.0),
+                                  color: Colors.grey[200],
+                                  child: Icon(Icons.image_not_supported_outlined),
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              'assets/images/placeholder.png',
                               height: AppSize.height(height: 9.0),
                               width: AppSize.height(height: 9.0),
                               fit: BoxFit.cover,
                             ),
-                      ),
                     ),
                     SizedBox(width: AppSize.width(width: 2.0)),
                     Expanded(
@@ -193,6 +220,78 @@ class MyCartView extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSize.height(height: 2.0),
+        vertical: AppSize.height(height: 1.0),
+      ),
+      cacheExtent: 1000,
+      itemCount: 3, // Show 3 skeleton items
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          margin: EdgeInsets.only(bottom: AppSize.height(height: 2.0)),
+          padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.lightGray),
+            borderRadius: BorderRadius.circular(
+              AppSize.height(height: 1.0),
+            ),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: AppSize.height(height: 9.0),
+                  height: AppSize.height(height: 9.0),
+                  color: Colors.white,
+                ),
+                SizedBox(width: AppSize.width(width: 2.0)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: AppSize.height(height: 2.0),
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: AppSize.height(height: 1.0)),
+                      Container(
+                        width: double.infinity,
+                        height: AppSize.height(height: 1.5),
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: AppSize.height(height: 1.0)),
+                      Row(
+                        children: [
+                          Container(
+                            width: AppSize.height(height: 6.0),
+                            height: AppSize.height(height: 2.0),
+                            color: Colors.white,
+                          ),
+                          Spacer(),
+                          Container(
+                            width: AppSize.height(height: 10.0),
+                            height: AppSize.height(height: 3.0),
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

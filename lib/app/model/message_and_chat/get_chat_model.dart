@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 class ChatResponse {
   final bool success;

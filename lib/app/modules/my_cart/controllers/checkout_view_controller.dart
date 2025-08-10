@@ -242,7 +242,7 @@ class CheckoutViewController extends GetxController {
         AppLogger.success(
           '[Checkout] Order successfully stored on backend. User ID: $userId',
         );
-        AppLogger.data('[Checkout] Order Data: ${response.data}');
+        AppLogger.data('[Checkout] Order Data: ${response.data}', description: 'Order Data', context: {'userId': userId});
         // Ensure products is a List<Map<String, dynamic>> for safe navigation
         final productsList =
             (response.data?.products ?? [])

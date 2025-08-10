@@ -75,8 +75,8 @@ class VerifyOtpViewController extends GetxController {
       } else {
         errorMessage.value = 'Invalid arguments passed to VerifyOtpView';
       }
-    } catch (e) {
-      errorLog(e);
+    } catch (e, s) {
+      ErrorLogger.logCaughtError(e, s, tag: 'VerifyOtpViewController');
     }
   }
 

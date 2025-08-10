@@ -1,3 +1,4 @@
+
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/my_orders/controllers/my_orders_controller.dart';
 import 'package:canuck_mall/app/modules/my_orders/widget/custom_product_order_card.dart';
@@ -62,31 +63,66 @@ class _OrdersTab extends StatelessWidget {
   const _OrdersTab({required this.isOngoing});
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     final MyOrdersController controller = Get.find<MyOrdersController>();
     return Obx(() {
-      final tabState = controller.getTabState(isOngoing);
+      final isLoading =
+          isOngoing
+              ? controller.ongoingIsLoading
+              : controller.completedIsLoading;
+      final isLoadingMore =
+          isOngoing
+              ? controller.ongoingIsLoadingMore
+              : controller.completedIsLoading;
+      final hasMoreData =
+          isOngoing
+              ? controller.ongoingHasMoreData
+              : controller.completedHasMoreData;
+      final errorMessage =
+          isOngoing
+              ? controller.ongoingErrorMessage
+              : controller.completedErrorMessage;
+      final ordersList =
+          isOngoing
+              ? controller.ongoingOrdersList
+              : controller.completedOrdersList;
+      final refreshOrders =
+          isOngoing
+              ? controller.refreshOngoingOrders
+              : controller.refreshCompletedOrders;
+      final loadMoreOrders =
+          isOngoing
+              ? controller.loadMoreOngoingOrders
+              : controller.loadMoreCompletedOrders;
 
-      if (tabState.isLoading && tabState.ordersList.isEmpty) {
+      if (isLoading && ordersList.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (tabState.errorMessage.isNotEmpty && tabState.ordersList.isEmpty) {
-        return Center(child: Text('Error: ${tabState.errorMessage}'));
+      if (errorMessage.isNotEmpty && ordersList.isEmpty) {
+        return Center(child: Text('Error: $errorMessage'));
       }
-      if (tabState.ordersList.isEmpty) {
+      if (ordersList.isEmpty) {
         return const Center(child: Text('No orders found.'));
       }
       return RefreshIndicator(
-        onRefresh: tabState.refreshOrders,
+        onRefresh: refreshOrders,
         child: NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) => controller.handleScrollNotification(isOngoing, scrollInfo),
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!isLoadingMore &&
+                hasMoreData &&
+                scrollInfo.metrics.pixels >=
+                    scrollInfo.metrics.maxScrollExtent - 100) {
+              loadMoreOrders();
+            }
+            return false;
+          },
           child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: tabState.ordersList.length + (tabState.isLoadingMore ? 1 : 0),
+            itemCount: ordersList.length + (isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index < tabState.ordersList.length) {
-                // If you want to show real order data, pass order: tabState.ordersList[index] to the card.
-                return CustomProductOrderCard(order: tabState.ordersList[index]);
+              if (index < ordersList.length) {
+                // If you want to show real order data, pass order: ordersList[index] to the card.
+                return CustomProductOrderCard(order: ordersList[index]);
               } else {
                 // Loading more indicator
                 return const Padding(

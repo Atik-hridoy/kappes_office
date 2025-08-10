@@ -73,3 +73,6 @@ abstract class AppUrls {
   static const String getMessages = 'message/chat/686b4723ff0ea5b6a9ee6972';
   static const String createMessage = '/message';
 }
+class GoogleSignInUrl {
+  static const String googleSignInUrl = 'https://localhost:7000/v1/auth/google';
+} 

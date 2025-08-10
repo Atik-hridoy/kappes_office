@@ -8,16 +8,17 @@ import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import '../controllers/login_controller.dart';
+
+
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -41,6 +42,8 @@ class LoginView extends GetView<LoginController> {
                       ),
                     ),
                   ),
+
+
                   SizedBox(height: AppSize.height(height: 2.0)),
                   Center(
                     child: SizedBox(
@@ -58,6 +61,7 @@ class LoginView extends GetView<LoginController> {
                     ),
                   ),
                   SizedBox(height: AppSize.height(height: 3.0)),
+
 
                   /// email
                   AppText(
@@ -178,7 +182,7 @@ class LoginView extends GetView<LoginController> {
                         Get.offAllNamed(Routes.bottomNav);
                       } else {
                         Get.snackbar('Login Failed', controller.errorMessage.value,
-                            backgroundColor: Colors.red.withOpacity(0.7), colorText: Colors.white);
+                            backgroundColor: Colors.red.withValues(alpha: 0.7), colorText: Colors.white);
                       }
                     },
                     title: AppStaticKey.singIn,

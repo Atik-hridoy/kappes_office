@@ -1,159 +1,50 @@
-import 'dart:developer' as developer;
-import 'package:flutter/foundation.dart';
 import 'app_log.dart';
 
-/// Enhanced error logging with better styling and context
-void errorLog(
-  dynamic error, {
-  String source = "",
-  Map<String, dynamic>? context,
-}) {
-  try {
-    if (kDebugMode) {
-      // Use the enhanced logger for better formatting
-      AppLogger.error(
-        '🚨 ERROR OCCURRED',
-        tag: 'ERROR',
-        context: {
-          'source': source,
-          'error': error.toString(),
-          'timestamp': DateTime.now().toIso8601String(),
-          ...?context,
-        },
-        category: 'Error Handling',
-      );
-
-      // Also log to developer console for debugging
-      developer.log(
-        '''
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                              🚨 ERROR DETECTED 🚨                            ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║ Source: $source                                                              ║
-║ Error: ${error.toString()}                                                   ║
-║ Time: ${DateTime.now().toIso8601String()}                                   ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-        ''',
-        name: 'ERROR_LOG',
-        error: error is Error ? error : null,
-      );
-    }
-  } catch (e) {
-    // Fallback logging if the enhanced logger fails
-    developer.log('Failed to log error: $e', name: 'ERROR_LOG_FALLBACK');
-  }
-}
-
-/// Network error logging
-void networkErrorLog(
-  dynamic error, {
-  String endpoint = "",
-  Map<String, dynamic>? context,
-}) {
-  try {
-    if (kDebugMode) {
-      AppLogger.error(
-        '🌐 NETWORK ERROR',
-        tag: 'NETWORK_ERROR',
-        context: {
-          'endpoint': endpoint,
-          'error': error.toString(),
-          'timestamp': DateTime.now().toIso8601String(),
-          ...?context,
-        },
-        category: 'Network',
-      );
-    }
-  } catch (e) {
-    developer.log(
-      'Failed to log network error: $e',
-      name: 'NETWORK_ERROR_LOG_FALLBACK',
+/// A utility class for logging errors with different levels of detail.
+class ErrorLogger {
+  /// Logs a detailed error with context, suitable for debugging.
+  static void recordError(dynamic error, StackTrace stackTrace, {String? reason, Map<String, dynamic>? context}) {
+    AppLogger.error(
+      reason ?? 'An error occurred',
+      tag: 'RECORD_ERROR',
+      context: {
+        'error': error.toString(),
+        'stackTrace': stackTrace.toString(),
+        if (context != null) ...context,
+      },
     );
   }
-}
 
-/// API error logging
-void apiErrorLog(
-  dynamic error, {
-  String endpoint = "",
-  int? statusCode,
-  Map<String, dynamic>? context,
-}) {
-  try {
-    if (kDebugMode) {
-      AppLogger.error(
-        '🔌 API ERROR',
-        tag: 'API_ERROR',
-        context: {
-          'endpoint': endpoint,
-          'statusCode': statusCode,
-          'error': error.toString(),
-          'timestamp': DateTime.now().toIso8601String(),
-          ...?context,
-        },
-        category: 'API',
-      );
-    }
-  } catch (e) {
-    developer.log(
-      'Failed to log API error: $e',
-      name: 'API_ERROR_LOG_FALLBACK',
+  /// Logs a fatal error that has been caught in a try-catch block.
+  static void logCaughtError(dynamic error, StackTrace stackTrace, {String? tag, Map<String, dynamic>? context}) {
+    AppLogger.error(
+      'Caught Error: ${error.toString()}',
+      tag: tag ?? 'CAUGHT_ERROR',
+      context: {
+        'error': error.toString(),
+        'stackTrace': stackTrace.toString(),
+        if (context != null) ...context,
+      },
     );
   }
-}
 
-/// Validation error logging
-void validationErrorLog(
-  String field,
-  String message, {
-  Map<String, dynamic>? context,
-}) {
-  try {
-    if (kDebugMode) {
-      AppLogger.warning(
-        '📝 VALIDATION ERROR',
-        tag: 'VALIDATION',
-        context: {
-          'field': field,
-          'message': message,
-          'timestamp': DateTime.now().toIso8601String(),
-          ...?context,
-        },
-        category: 'Validation',
-      );
-    }
-  } catch (e) {
-    developer.log(
-      'Failed to log validation error: $e',
-      name: 'VALIDATION_ERROR_LOG_FALLBACK',
+  /// Logs an error specifically from an API call.
+  static void apiErrorLog({required String message, String? tag, Map<String, dynamic>? context}) {
+    AppLogger.error(
+      message,
+      tag: tag ?? 'API_ERROR',
+      context: context,
+      category: 'API',
     );
   }
-}
 
-/// Performance error logging
-void performanceErrorLog(
-  String operation,
-  dynamic error, {
-  Map<String, dynamic>? context,
-}) {
-  try {
-    if (kDebugMode) {
-      AppLogger.error(
-        '⚡ PERFORMANCE ERROR',
-        tag: 'PERFORMANCE_ERROR',
-        context: {
-          'operation': operation,
-          'error': error.toString(),
-          'timestamp': DateTime.now().toIso8601String(),
-          ...?context,
-        },
-        category: 'Performance',
-      );
-    }
-  } catch (e) {
-    developer.log(
-      'Failed to log performance error: $e',
-      name: 'PERFORMANCE_ERROR_LOG_FALLBACK',
+  /// Logs a validation error.
+  static void validationLog({required String message, String? tag, Map<String, dynamic>? context}) {
+    AppLogger.warning(
+      message,
+      tag: tag ?? 'VALIDATION',
+      context: context,
+      category: 'Validation',
     );
   }
 }

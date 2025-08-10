@@ -2,6 +2,7 @@ import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/model/get_my_order_model.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class GetOrderService {
   final Dio _dio;
@@ -20,7 +21,7 @@ class GetOrderService {
         requestBody: true,
         responseBody: true,
         error: true,
-        logPrint: (obj) => print(obj),
+        logPrint: (obj) => AppLogger.debug(obj),
       ),
     );
   }
@@ -52,7 +53,7 @@ class GetOrderService {
         AppUrls.getOrders,
         queryParameters: params,
       );
-      print('[GetOrderService] Raw response: ${response.data}');
+      AppLogger.debug('[GetOrderService] Raw response: ${response.data}');
       if (response.statusCode == 200 && response.data != null) {
         return OrderResponseModel.fromJson(response.data);
       } else {
