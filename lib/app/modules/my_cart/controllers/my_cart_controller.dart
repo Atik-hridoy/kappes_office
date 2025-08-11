@@ -54,7 +54,7 @@ class MyCartController extends GetxController {
       cartData.value = result;
 
     } catch (e) {
-      AppLogger.error("Error fetching cart data: $e");
+      AppLogger.error("Error fetching cart data: $e", error: 'Error fetching cart data: $e');
 
       // Don't hide loading on error if we have no data
       if (cartData.value == null) {

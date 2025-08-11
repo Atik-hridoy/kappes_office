@@ -16,11 +16,11 @@ class StoreService {
         AppLogger.info('Successfully fetched shop details', tag: 'STORE_SERVICE');
         return response.data;  // Return raw JSON data
       } else {
-        AppLogger.error('Failed to fetch shop details', tag: 'STORE_SERVICE');
+        AppLogger.error('Failed to fetch shop details', tag: 'STORE_SERVICE', error: 'Failed to fetch shop details');
         throw Exception('Failed to fetch shop details');
       }
     } catch (e) {
-      AppLogger.error('Error fetching shop details: $e', tag: 'STORE_SERVICE');
+      AppLogger.error('Error fetching shop details: $e', tag: 'STORE_SERVICE', error: 'Error fetching shop details: $e');
       throw Exception('Error fetching shop details');
     }
   }
@@ -36,11 +36,11 @@ class StoreService {
         AppLogger.info('Successfully fetched products', tag: 'STORE_SERVICE');
         return response.data['data']['products'];  // Return product list
       } else {
-        AppLogger.error('Failed to fetch products', tag: 'STORE_SERVICE');
+        AppLogger.error('Failed to fetch products', tag: 'STORE_SERVICE', error: 'Failed to fetch products');
         throw Exception('Failed to fetch products');
       }
     } catch (e) {
-      AppLogger.error('Error fetching products: $e', tag: 'STORE_SERVICE');
+      AppLogger.error('Error fetching products: $e', tag: 'STORE_SERVICE', error: 'Error fetching products: $e');
       throw Exception('Error fetching products');
     }
   }

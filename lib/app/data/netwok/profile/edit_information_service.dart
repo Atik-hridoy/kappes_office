@@ -86,17 +86,21 @@ class EditInformationViewService {
       } else {
         AppLogger.error(
           '❌ Server responded with status: ${response.statusCode}',
+          tag: 'EditInformationViewService',
+          error: 'Server responded with status: ${response.statusCode}',
         );
-        AppLogger.error('❌ Response: ${response.data}');
+        AppLogger.error('❌ Response: ${response.data}', tag: 'EditInformationViewService', error: 'Response: ${response.data}');
         return false;
       }
     } catch (e) {
       if (e is DioException) {
         AppLogger.error(
           '❌ DioException occurred: ${e.response?.data ?? e.message}',
+          tag: 'EditInformationViewService',
+          error: 'DioException occurred: ${e.response?.data ?? e.message}',
         );
       } else {
-        AppLogger.error('❌ Unexpected error: $e');
+        AppLogger.error('❌ Unexpected error: $e', tag: 'EditInformationViewService', error: 'Unexpected error: $e');
       }
       return false;
     }

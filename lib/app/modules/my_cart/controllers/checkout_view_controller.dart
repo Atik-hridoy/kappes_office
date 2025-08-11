@@ -161,7 +161,7 @@ class CheckoutViewController extends GetxController {
     } catch (e) {
       isLoading.value = false;
       if (kDebugMode) {
-        AppLogger.error('Order creation failed: $e');
+        AppLogger.error('Order creation failed: $e', error: 'Order creation failed: $e');
       }
       Get.snackbar(
         'Order',
@@ -259,14 +259,15 @@ class CheckoutViewController extends GetxController {
       } else if (!response.success) {
         AppLogger.error(
           '[Checkout] Backend responded with error: ${response.message}',
+          error: 'Backend responded with error: ${response.message}',
         );
         Get.snackbar('Order Error', response.message);
       } else {
-        AppLogger.error('[Checkout] Order response missing data!');
+        AppLogger.error('[Checkout] Order response missing data!', error: 'Order response missing data!');
         Get.snackbar('Order Error', 'Order was not created. Try again.');
       }
     } catch (e, stack) {
-      AppLogger.error('[Checkout] Exception while creating order: $e\n$stack');
+      AppLogger.error('[Checkout] Exception while creating order: $e\n$stack', error: 'Exception while creating order: $e\n$stack');
       Get.snackbar('Order Error', 'Failed to create order: ${e.toString()}');
     } finally {
       isLoading(false);

@@ -5,6 +5,7 @@ import 'package:canuck_mall/app/data/netwok/message/create_chat_serveice.dart';
   import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
   import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:canuck_mall/app/utils/log/error_log.dart';
   import 'package:get/get.dart';
   import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
   import '../../../model/recomended_product_model.dart';
@@ -109,7 +110,7 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
           throw ArgumentError('Invalid product details argument');
         }
       } catch (e) {
-        AppLogger.error('Error loading product details: $e');
+        AppLogger.error('Error loading product details: $e', error: 'Error loading product details: $e');
         Get.snackbar('Error', 'Failed to load product details');
         rethrow;
       }
@@ -128,7 +129,7 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
           'Product details fetched successfully: ${product.value?.name}',
         );
       } catch (e) {
-        AppLogger.error('Error fetching product details: $e');
+        AppLogger.error('Error fetching product details: $e', error: 'Error fetching product details: $e');
         Get.snackbar('Error', 'Failed to fetch product details');
         rethrow;
       } finally {
@@ -211,7 +212,7 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
         // Optional: Update cart count in your app state
         // Get.find<CartController>().refreshCartCount();
       } catch (e) {
-        AppLogger.error('Error adding to cart: $e');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'ADD_TO_CART_ERROR');
         Get.snackbar('Error', 'Failed to add to cart: ${e.toString()}');
       } finally {
         isAddingToCart(false);
@@ -236,7 +237,7 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
         );
       } catch (e) {
         isFavourite.toggle(); // Revert on error
-        AppLogger.error('Error toggling favorite: $e');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'TOGGLE_FAVORITE_ERROR');
       }
     }
     // ============ CHAT CREATION METHODS ============
@@ -323,7 +324,7 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
     }
   } catch (e) {
     // Log the error with more details
-    AppLogger.error('Error creating chat: $e');
+    ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'CHAT_ERROR');
 
     // Show a more detailed error message to the user
     Get.snackbar('Error', 'An error occurred while starting the chat: $e');
@@ -416,12 +417,12 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
           return false;
         }
       } on ApiException catch (e) {
-        AppLogger.error('API Error creating order: ${e.message}');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'API_ERROR');
         orderErrorMessage(e.message);
         Get.snackbar('Error', e.message);
         return false;
       } catch (e) {
-        AppLogger.error('Unexpected error creating order: $e');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
         orderErrorMessage('An unexpected error occurred');
         Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
         return false;
@@ -489,12 +490,12 @@ import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
           return false;
         }
       } on ApiException catch (e) {
-        AppLogger.error('API Error creating order: ${e.message}');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'API_ERROR');
         orderErrorMessage(e.message);
         Get.snackbar('Error', e.message);
         return false;
       } catch (e) {
-        AppLogger.error('Unexpected error creating order: $e');
+        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
         orderErrorMessage('An unexpected error occurred');
         Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
         return false;

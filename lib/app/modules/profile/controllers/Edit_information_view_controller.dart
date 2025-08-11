@@ -71,11 +71,11 @@ class EditInformationViewController extends GetxController {
         Get.back(result: true);
         Get.snackbar('Success', 'Profile updated successfully!');
       } else {
-        AppLogger.error('❌ Update failed on server side');
+        AppLogger.error('❌ Update failed on server side', error: 'Update failed on server side');
         Get.snackbar('Error', 'Failed to update profile. Try again later.');
       }
     } catch (e) {
-      AppLogger.error('❗ Exception: $e');
+      AppLogger.error('❗ Exception: $e', error: 'Exception: $e');
       Get.snackbar('Error', 'Something went wrong: $e');
     } finally {
       isLoading.value = false;

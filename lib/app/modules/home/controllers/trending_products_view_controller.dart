@@ -44,7 +44,7 @@ class TrendingProductsController extends GetxController {
 
       products.assignAll(result);
     } catch (e) {
-      AppLogger.error('❌ Error while fetching products: $e');
+      AppLogger.error('❌ Error while fetching products: $e', error: 'Error while fetching products: $e');
       errorMessage.value = 'Failed to fetch products: $e';
     } finally {
       isLoading.value = false;

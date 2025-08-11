@@ -26,6 +26,7 @@ class ShopByProvinceService {
       AppLogger.error(
         '❌ Error fetching shops by province: $e',
         tag: 'SHOP_PROVINCE',
+        error: 'Error fetching shops by province: $e',
       );
       return {};
     }

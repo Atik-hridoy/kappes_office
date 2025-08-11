@@ -90,7 +90,7 @@ class StoreController extends GetxController {
     } catch (e) {
       // Handle errors if any occur during data fetching
       error.value = 'Failed to fetch store details';
-      AppLogger.error('Error fetching store details: $e', tag: 'STORE_CONTROLLER');
+      AppLogger.error('Error fetching store details: $e', error: 'Error fetching store details: $e', tag: 'STORE_CONTROLLER');
       isLoading.value = false; // Stop the loading indicator
       update(); // Trigger UI update after an error occurs
     }
@@ -116,7 +116,7 @@ class StoreController extends GetxController {
       update(); // Trigger UI update after products are fetched
       AppLogger.info('Products fetched successfully', tag: 'STORE_CONTROLLER');
     } catch (e) {
-      AppLogger.error('Error fetching products: $e', tag: 'STORE_CONTROLLER');
+      AppLogger.error('Error fetching products: $e', error: 'Error fetching products: $e', tag: 'STORE_CONTROLLER');
     }
   }
 

@@ -233,7 +233,7 @@ class MyOrdersController extends GetxController {
       _completedHasMoreData.value =
           _completedCurrentPage.value < result.data.meta.totalPage;
     } catch (e) {
-      AppLogger.error('Error loading more completed orders: $e');
+      AppLogger.error('Error loading more completed orders: $e', error: 'Error loading more completed orders: $e');
     } finally {
       _completedIsLoading.value = false;
     }

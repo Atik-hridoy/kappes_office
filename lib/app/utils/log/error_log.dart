@@ -7,6 +7,7 @@ class ErrorLogger {
     AppLogger.error(
       reason ?? 'An error occurred',
       tag: 'RECORD_ERROR',
+      error: error,
       context: {
         'error': error.toString(),
         'stackTrace': stackTrace.toString(),
@@ -20,6 +21,7 @@ class ErrorLogger {
     AppLogger.error(
       'Caught Error: ${error.toString()}',
       tag: tag ?? 'CAUGHT_ERROR',
+      error: error,
       context: {
         'error': error.toString(),
         'stackTrace': stackTrace.toString(),
@@ -33,6 +35,7 @@ class ErrorLogger {
     AppLogger.error(
       message,
       tag: tag ?? 'API_ERROR',
+      error: 'API_ERROR',
       context: context,
       category: 'API',
     );

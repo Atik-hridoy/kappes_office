@@ -25,7 +25,7 @@ class GetMessageService {
           if (error.response?.statusCode == 401) {
             // Handle 401 Unauthorized error (e.g., token expired)
             // You might want to refresh the token or log the user out
-            AppLogger.error('Authentication error: ${error.message}');
+            AppLogger.error('Authentication error: ${error.message}', tag: 'GET_MESSAGE_SERVICE', error: 'Authentication error: ${error.message}');
           }
           return handler.next(error);
         },
@@ -81,6 +81,8 @@ class GetMessageService {
         // Handle 400 Bad Request specifically
         AppLogger.error(
           'Bad Request',
+          tag: 'GET_MESSAGE_SERVICE',
+          error: 'Bad Request',
           context: {
             'statusCode': response.statusCode,
             'response': response.data,
@@ -96,6 +98,8 @@ class GetMessageService {
         // Log error if response status code is not 200
         AppLogger.error(
           'API Error',
+          tag: 'GET_MESSAGE_SERVICE',
+          error: 'API Error',
           context: {
             'statusCode': response.statusCode,
             'response': response.data,
@@ -107,6 +111,8 @@ class GetMessageService {
       // Handle Dio-specific errors
       AppLogger.error(
         'Dio Error',
+        tag: 'GET_MESSAGE_SERVICE',
+        error: 'Dio Error',
         context: {
           'type': e.type,
           'message': e.message,
@@ -119,6 +125,8 @@ class GetMessageService {
       // Handle other unexpected exceptions
       AppLogger.error(
         'Unexpected Error',
+        tag: 'GET_MESSAGE_SERVICE',
+        error: 'Unexpected Error',
         context: {
           'error': e.toString(),
           'stackTrace': stackTrace.toString(),

@@ -208,7 +208,7 @@ class AppLogger {
     _log(Level.warning, message, tag, context, category);
   }
 
-  static void error(dynamic message, {String? tag, Map<String, dynamic>? context, String? category}) {
+  static void error(dynamic message, {String? tag, Map<String, dynamic>? context, String? category, required Object error}) {
     _log(Level.error, message, tag, context, category);
   }
 

@@ -30,7 +30,7 @@ class HomeController extends GetxController {
       ); // Assign the fetched products to the observable list
       AppLogger.info('✅ Recommended Items fetched successfully!');
     } catch (e) {
-      AppLogger.error('❌ Error fetching recommended items: $e');
+      AppLogger.error('❌ Error fetching recommended items: $e', error: 'Error fetching recommended items: $e');
     } finally {
       isLoading(false); // Set loading state to false
     }

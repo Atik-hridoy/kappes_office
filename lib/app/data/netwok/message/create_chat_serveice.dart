@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart'; // Import the AppUrls class
 
@@ -38,6 +39,7 @@ class CreateChatService {
         AppLogger.error(
           'Failed to create chat: ${response.statusCode}',
           tag: 'CREATE_CHAT_SERVICE',
+          error: 'Failed to create chat: ${response.statusCode}',
           context: {'response': response.data},
         );
         throw Exception('Failed to create chat: ${response.statusCode}');
@@ -47,6 +49,7 @@ class CreateChatService {
       AppLogger.error(
         'DioError: ${e.message}',
         tag: 'CREATE_CHAT_SERVICE',
+        error: 'DioError: ${e.message}',
         context: {'error': e.response?.data ?? 'No response data'},
       );
       throw Exception('Error creating chat: ${e.message}');
@@ -55,6 +58,7 @@ class CreateChatService {
       AppLogger.error(
         'General error: $e',
         tag: 'CREATE_CHAT_SERVICE',
+        error: 'General error: $e',
         context: {'error': e.toString()},
       );
       throw Exception('Error creating chat: $e');
@@ -109,10 +113,6 @@ void main() async {
       context: {'message': createdChat.message},
     );
   } catch (e) {
-    AppLogger.error(
-      'Failed to create chat',
-      tag: 'CREATE_CHAT_SERVICE',
-      context: {'error': e.toString()},
-    );
+    ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'CREATE_CHAT_SERVICE');
   }
 }

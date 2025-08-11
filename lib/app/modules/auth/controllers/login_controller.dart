@@ -70,7 +70,7 @@ class LoginController extends GetxController {
           AppLogger.error(
             'Token missing in login response',
             tag: 'AUTH',
-            context: {'responseData': data},
+            context: {'responseData': data}, error: 'Token missing in login response',
           );
           errorMessage.value = 'Token missing in login response';
           return false;
@@ -131,7 +131,7 @@ class LoginController extends GetxController {
             'statusCode': statusCode,
             'statusMessage': statusMessage,
             'error': e.toString(),
-          },
+          }, error: 'Login network error',
         );
         errorMessage.value = 'Login failed: $statusMessage';
       } else {
@@ -141,7 +141,7 @@ class LoginController extends GetxController {
           context: {
             'error': e.toString(),
             'errorType': e.runtimeType.toString(),
-          },
+          }, error: 'Login exception',
         );
         errorMessage.value = 'Login error: $e';
       }
@@ -232,7 +232,7 @@ class LoginController extends GetxController {
       AppLogger.error(
         'Error fetching profile',
         tag: 'AUTH',
-        context: {'error': e.toString(), 'errorType': e.runtimeType.toString()},
+        context: {'error': e.toString(), 'errorType': e.runtimeType.toString()}, error: 'Error fetching profile',
       );
     }
   }

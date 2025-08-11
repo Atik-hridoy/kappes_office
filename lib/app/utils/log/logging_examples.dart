@@ -16,7 +16,7 @@ class LoggingExamples {
   static void basic() {
     AppLogger.info('User logged in successfully', tag: 'AUTH');
     AppLogger.warning('Network connection is slow', tag: 'NETWORK');
-    AppLogger.error('Failed to load product data', tag: 'API');
+    AppLogger.error('Failed to load product data', tag: 'API', error: Exception('Failed to load product data'));
     AppLogger.debug('User session token: xyz123', tag: 'AUTH');
   }
 
@@ -55,7 +55,7 @@ class LoggingExamples {
     try {
       throw Exception('Something went wrong');
     } catch (e, s) {
-      AppLogger.error('Operation failed', tag: 'DATA_PROCESSING', context: {
+      AppLogger.error('Operation failed', tag: 'DATA_PROCESSING', error: e, context: {
         'error': e.toString(),
         'stackTrace': s.toString(),
       });

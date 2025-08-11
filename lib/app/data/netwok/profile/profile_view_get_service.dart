@@ -32,6 +32,8 @@ class ProfileService {
     } catch (e) {
       AppLogger.error(
         "=====================>>>   Connectivity test failed: $e",
+        tag: 'ProfileService',
+        error: 'Connectivity test failed: $e',
       );
       return false;
     }
@@ -82,6 +84,8 @@ class ProfileService {
         } catch (e) {
           AppLogger.error(
             "=====================>>>   Profile endpoint test failed: $e",
+            tag: 'ProfileService',
+            error: 'Profile endpoint test failed: $e',
           );
           return false;
         }
@@ -92,7 +96,11 @@ class ProfileService {
         return false;
       }
     } catch (e) {
-      AppLogger.error("=====================>>>   API server test failed: $e");
+      AppLogger.error(
+        "=====================>>>   API server test failed: $e",
+        tag: 'ProfileService',
+        error: 'API server test failed: $e',
+      );
       return false;
     }
   }
@@ -123,11 +131,19 @@ class ProfileService {
         }
         return null;
       } else {
-        AppLogger.error('Profile image update failed: ${response.data}');
+        AppLogger.error(
+          'Profile image update failed: ${response.data}',
+          tag: 'ProfileService',
+          error: 'Profile image update failed: ${response.data}',
+        );
         return null;
       }
     } catch (e) {
-      AppLogger.error('Profile image update failed: $e');
+      AppLogger.error(
+        'Profile image update failed: $e',
+        tag: 'ProfileService',
+        error: 'Profile image update failed: $e',
+      );
       return null;
     }
   }
@@ -137,7 +153,7 @@ class ProfileService {
       final token = LocalStorage.token;
       AppLogger.info(
         "=====================>>>   Using token: ${token.isNotEmpty ? 'Token found (${token.substring(0, 10)}...)' : 'No token found'}",
-      );
+        );
 
       if (token.isEmpty) {
         throw Exception("Authentication token not found. Please log in again.");
@@ -210,10 +226,12 @@ class ProfileService {
         );
       }
     } on DioException catch (e) {
-      AppLogger.error("=====================>>>   Dio Error: ${e.message}");
-      AppLogger.error("=====================>>>   Dio Error Type: ${e.type}");
+      AppLogger.error("=====================>>>   Dio Error: ${e.message}", tag: 'ProfileService', error: 'Dio Error: ${e.message}');
+      AppLogger.error("=====================>>>   Dio Error Type: ${e.type}", tag: 'ProfileService', error: 'Dio Error Type: ${e.type}');
       AppLogger.error(
         "=====================>>>   Dio Error Response: ${e.response?.data}",
+        tag: 'ProfileService',
+        error: 'Dio Error Response: ${e.response?.data}',
       );
 
       // Handle different DioException types
@@ -238,6 +256,8 @@ class ProfileService {
           } else if (e.response?.statusCode == 404) {
             AppLogger.error(
               "=====================>>>   404 Error - Endpoint not found: ${e.requestOptions.uri}",
+              tag: 'ProfileService',
+              error: '404 Error - Endpoint not found: ${e.requestOptions.uri}',
             );
             throw Exception(
               'API endpoint not found. Please check server configuration.',
@@ -250,7 +270,7 @@ class ProfileService {
           }
       }
     } catch (e) {
-      AppLogger.error("=====================>>>   Unexpected Error: $e");
+      AppLogger.error("=====================>>>   Unexpected Error: $e", tag: 'ProfileService', error: 'Unexpected Error: $e');
       throw Exception('An unexpected error occurred: $e');
     }
   }

@@ -41,10 +41,10 @@ class ChatService {
       }
     } on DioException catch (e) {
       if (e.response != null) {
-        AppLogger.error('Dio Error: ${e.response?.data}', tag: 'ChatService');
+        AppLogger.error('Dio Error: ${e.response?.data}', tag: 'ChatService', error: 'Dio Error: ${e.response?.data}');
         throw Exception('Dio Error: ${e.response?.data}');
       } else {
-        AppLogger.error('Error: ${e.message}', tag: 'ChatService');
+        AppLogger.error('Error: ${e.message}', tag: 'ChatService', error: 'Error: ${e.message}');
         throw Exception('Failed to load chat data: ${e.message}');
       }
     }
