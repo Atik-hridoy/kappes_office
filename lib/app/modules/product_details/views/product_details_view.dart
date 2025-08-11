@@ -1,22 +1,17 @@
-import 'package:canuck_mall/app/model/recomended_product_model.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:canuck_mall/app/constants/app_icons.dart';
+import 'package:canuck_mall/app/localization/app_static_key.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
+import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/constants/app_icons.dart';
-import 'package:canuck_mall/app/constants/app_images.dart';
-import 'package:canuck_mall/app/constants/app_urls.dart';
-import 'package:canuck_mall/app/localization/app_static_key.dart';
-import 'package:canuck_mall/app/modules/product_details/widgets/color_palette.dart';
-import 'package:canuck_mall/app/modules/product_details/widgets/product_size_selector.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:canuck_mall/app/modules/product_details/controllers/product_details_controller.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
-import 'package:canuck_mall/app/widgets/app_button/quantity_button.dart';
-import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/tipple.dart';
-import 'package:canuck_mall/app/utils/log/app_log.dart';
-import '../controllers/product_details_controller.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
   const ProductDetailsView({super.key});
@@ -65,7 +60,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 ? (product.images.first.startsWith('http')
                     ? product.images.first
                     : AppUrls.imageUrl + product.images.first)
-                : AppImages.banner3;
+                : '';
 
         final variants = product.productVariantDetails;
         final colors = variants.map((v) => v.variantId.color).toSet().toList();
@@ -278,91 +273,25 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               ),
               SizedBox(height: AppSize.height(height: 1.0)),
 
-              if (colors.isNotEmpty) ...[
-                Divider(color: AppColors.lightGray),
-                AppText(
-                  title: "${AppStaticKey.color}:",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Obx(
-                  () => Row(
-                    children:
-                        colors.map((color) {
-                          String code = color.code;
-                          if (code.length == 7 && code.startsWith('#')) {
-                            code = code.replaceFirst('#', '0xFF');
-                          } else if (code.length == 9 && code.startsWith('#')) {
-                            code = code.replaceFirst('#', '0x');
-                          }
-                          final colorValue = Color(int.parse(code));
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              right: AppSize.width(width: 2.0),
-                            ),
-                            child: Column(
-                              children: [
-                                ColorPalette(
-                                  onChanged: (value) {
-                                    controller.updateSelectedColor(value);
-                                  },
-                                  value: color.name,
-                                  group: controller.selectColor.value,
-                                  color: colorValue,
-                                ),
-                                SizedBox(height: AppSize.height(height: 0.5)),
-                                AppText(
-                                  title:
-                                      color.name.isNotEmpty ? color.name : code,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                ),
-              ],
-
-              if (sizes.isNotEmpty) ...[
-                AppText(
-                  title: "${AppStaticKey.size}:",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontSize: AppSize.height(height: 2.0),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Obx(
-                  () => Wrap(
-                    spacing: AppSize.width(width: 2.0),
-                    children:
-                        sizes.map((size) {
-                          return ProductSizeSelector(
-                            value: size,
-                            group: controller.selectedProductSize.value,
-                            onChanged: (value) {
-                              controller.updateSelectedSize(value);
-                            },
-                          );
-                        }).toList(),
-                  ),
-                ),
-              ],
-
-              Divider(color: AppColors.lightGray),
-              AppText(
-                title: "${AppStaticKey.quantity}:",
+              // Chat with Seller Button
+              AppCommonButton(
+                onPressed: () {
+                  // Create or navigate to chat using shop ID
+                  final shopId = product.shop.id;
+                  if (shopId.isNotEmpty) {
+                    Get.toNamed(
+                      Routes.chattingView,
+                      arguments: {'chatId': shopId},
+                    );
+                  }
+                },
+                title: AppStaticKey.sendMessageToSeller,
+                backgroundColor: AppColors.white,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: AppSize.height(height: 2.0),
-                  fontWeight: FontWeight.w900,
+                  color: AppColors.primary,
                 ),
               ),
-              QuantityButton(
-                onChanged: (qty) => controller.selectedQuantity.value = qty,
-              ),
-              Divider(color: AppColors.lightGray),
             ],
           ),
         );
@@ -436,8 +365,4 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
       ),
     );
   }
-}
-
-extension on Rx<ProductData?> {
-  get shop => null;
 }

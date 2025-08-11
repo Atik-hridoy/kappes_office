@@ -173,6 +173,9 @@ class ChattingView extends GetView<ChattingViewController> {
                   InkWell(
                     onTap: () {
                       controller.sendMessage();
+
+                      controller.messageTextEditingController.clear();
+                      controller.update();
                     },
                     child: Container(
                       padding: EdgeInsets.all(AppSize.height(height: 1.1)),

@@ -47,8 +47,7 @@ abstract class AppUrls {
   static const String getProductByShopId = '/shop/products';
   static const String getReviews = '/review/product';
   //static const String getShop = '/shop';
-  static const String searchProduct =
-      'product?fields=name&name | description | tag=';
+  static const String searchProduct ='/products';
   static const String review = 'review/product/6858dafad21add59c265e18e';
 
   // shopssssssssssssssssssssssssssss
@@ -70,7 +69,7 @@ abstract class AppUrls {
 
   static const String getChatForUser = '/chat/user';
   static const String createChat = '/chat';
-  static const String getMessages = 'message/chat/686b4723ff0ea5b6a9ee6972';
+  static const String getMessages = 'message/chat';
   static const String createMessage = '/message';
 }
 class GoogleSignInUrl {
