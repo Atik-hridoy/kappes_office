@@ -16,13 +16,10 @@ class MessagesController extends GetxController {
   Future<void> fetchChats() async {
     try {
       isLoading.value = true;  // Start loading
-
-      // Call the service to fetch chats
       ChatResponse chatResponse = await _chatService.getChatsForUser();
 
       if (chatResponse.success) {
-        messages.clear();  // Clear previous messages
-        messages.addAll(chatResponse.data.chats);  // Add the fetched messages
+        messages.assignAll(chatResponse.data.chats);  // Add the fetched messages
       } else {
         errorMessage.value = "Failed to load chats.";  // Show error message if failed
       }
@@ -38,10 +35,9 @@ class MessagesController extends GetxController {
     if (query.isEmpty) {
       fetchChats(); // Fetch all messages if the search is cleared
     } else {
-      var filteredMessages = messages.where((message) {
-        // Filter messages that contain the query text
-        return message.lastMessage?.text.toLowerCase().contains(query.toLowerCase()) ?? false;
-      }).toList();
+      var filteredMessages = messages.where((message) =>
+        message.lastMessage?.text.toLowerCase().contains(query.toLowerCase()) ?? false,
+      ).toList();
       messages.assignAll(filteredMessages);  // Update the messages list
     }
   }

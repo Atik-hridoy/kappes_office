@@ -6,11 +6,11 @@ import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart'; // Import the AppUrls class
 
-class CreateChatService {
+class CreateChatToSellerService {
   final Dio dio;
 
   // Constructor initializing Dio instance
-  CreateChatService({Dio? dio}) : dio = dio ?? Dio(BaseOptions(baseUrl: AppUrls.baseUrl));
+  CreateChatToSellerService({Dio? dio}) : dio = dio ?? Dio(BaseOptions(baseUrl: AppUrls.baseUrl));
 
   // Method to create a chat
   Future<ChatResponse> createChat(ChatData chatData) async {
@@ -68,7 +68,7 @@ class CreateChatService {
 
 void main() async {
   // Example usage of the service
-  final chatService = CreateChatService();
+  final chatService = CreateChatToSellerService();
 
   // Example data to send when creating a chat (as per the model)
   final chatData = ChatData(

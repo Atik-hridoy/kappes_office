@@ -1,605 +1,362 @@
-  import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
+import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
 import 'package:canuck_mall/app/data/netwok/message/create_chat_serveice.dart';
-  import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service.dart';
-  import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
-  import 'package:canuck_mall/app/model/create_order_model.dart';
+import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
-  import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:canuck_mall/app/model/recomended_product_model.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
-  import 'package:get/get.dart';
-  import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
-  import '../../../model/recomended_product_model.dart';
+import 'package:get/get.dart';
 
-  import 'package:canuck_mall/app/routes/app_pages.dart';
+class ProductDetailsController extends GetxController {
+  // Services
+  final CreateChatToSellerService chatService = CreateChatToSellerService();
+  final ProductDetailsService _productDetailsService = ProductDetailsService();
+  OrderService? _orderService;
 
-  class ProductDetailsController extends GetxController {
+  // Observables
+  final Rx<ProductData?> product = Rx<ProductData?>(null);
+  final RxBool isLoading = false.obs;
+  final RxBool isFavourite = false.obs;
+  final RxString selectColor = ''.obs;
+  final RxString selectedProductSize = ''.obs;
+  final RxInt selectedQuantity = 1.obs;
+  final RxString selectedVariantId = ''.obs;
+  final RxBool isAddingToCart = false.obs;
+  final RxList<String> availableColors = <String>[].obs;
+  final RxList<String> availableSizes = <String>[].obs;
 
+  // Order-related observables
+  final RxBool isCreatingOrder = false.obs;
+  final Rx<OrderData?> createdOrder = Rx<OrderData?>(null);
+  final RxString orderErrorMessage = ''.obs;
 
-    final CreateChatService chatService = CreateChatService();
+  // Order form data
+  final RxString selectedShop = ''.obs;
+  final RxString shippingAddress = ''.obs;
+  final RxString selectedPaymentMethod = ''.obs;
+  final RxString selectedDeliveryOption = ''.obs;
+  final RxString couponCode = ''.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    onAppInitialDataLoadFunction();
+    _initializeOrderService();
+  }
 
-
-
-    void handleCheckoutFromDetails() {
-      final productId = product.value?.id ?? '';
-      final variantId = selectedVariantId.value;
-      final qty = selectedQuantity.value;
-      final shopId = product.value?.shop.id ?? '';
-
-      if (productId.isEmpty || variantId.isEmpty) {
-        Get.snackbar('Error', 'Please select product options');
-        return;
-      }
-
-      final price = product.value?.basePrice ?? 0;
-      final totalPrice = price * qty;
-      final orderProduct = OrderProduct(
-        product: productId,
-        variant: variantId,
-        quantity: qty,
-        totalPrice: totalPrice,
-      );
-
-      Get.toNamed(
-        Routes.checkoutView,
-        arguments: {
-          'products': [orderProduct],
-          'shopId': shopId,
-          'itemCost': totalPrice,
-        },
-      );
+  void _initializeOrderService() {
+    final token = LocalStorage.token;
+    if (token.isNotEmpty) {
+      _orderService = OrderService(token);
     }
+  }
 
-    final ProductDetailsService _productDetailsService = ProductDetailsService();
-
-    // Existing observables
-    final Rx<ProductData?> product = Rx<ProductData?>(null);
-    final RxBool isLoading = false.obs;
-    final RxBool isFavourite = false.obs;
-    final RxString selectColor = ''.obs;
-    final RxString selectedProductSize = ''.obs;
-    final RxInt selectedQuantity = 1.obs;
-    final RxString selectedVariantId = ''.obs;
-    final RxBool isAddingToCart = false.obs;
-    final RxList<String> availableColors = <String>[].obs;
-    final RxList<String> availableSizes = <String>[].obs;
-
-    // Order-related observables
-    final RxBool isCreatingOrder = false.obs;
-    final Rx<OrderData?> createdOrder = Rx<OrderData?>(null);
-    final RxString orderErrorMessage = ''.obs;
-
-    // Order form data
-    final RxString selectedShop = ''.obs;
-    final RxString shippingAddress = ''.obs;
-    final RxString selectedPaymentMethod = ''.obs;
-    final RxString selectedDeliveryOption = ''.obs;
-    final RxString couponCode = ''.obs;
-
-    // Order service instance
-    OrderService? _orderService;
-
-    @override
-    void onInit() {
-      super.onInit();
-      onAppInitialDataLoadFunction();
-      _initializeOrderService();
-    }
-
-    void _initializeOrderService() {
-      final token = LocalStorage.token;
-      if (token.isNotEmpty) {
-        _orderService = OrderService(token);
-      }
-    }
-
-    Future<void> onAppInitialDataLoadFunction() async {
-      try {
-        final arg = Get.arguments;
-
-        if (arg is Map<String, dynamic>) {
-          product.value = ProductData.fromJson(arg);
-          _initializeVariantData();
-          AppLogger.info(
-            'Showing product details from passed object: ${product.value?.name}',
-          );
-        } else if (arg is String) {
-          AppLogger.info('Fetching details for Product ID: $arg');
-          await fetchProductDetails(arg);
-        } else {
-          throw ArgumentError('Invalid product details argument');
-        }
-      } catch (e) {
-        AppLogger.error('Error loading product details: $e', error: 'Error loading product details: $e');
-        Get.snackbar('Error', 'Failed to load product details');
-        rethrow;
-      }
-    }
-
-    Future<void> fetchProductDetails(String id) async {
-      try {
-        isLoading(true);
-        AppLogger.info('Fetching product details...');
-
-        final response = await _productDetailsService.getProductById(id);
-        product.value = ProductData.fromJson(response);
+  Future<void> onAppInitialDataLoadFunction() async {
+    try {
+      final arg = Get.arguments;
+      if (arg is Map<String, dynamic>) {
+        product.value = ProductData.fromJson(arg);
         _initializeVariantData();
-
-        AppLogger.info(
-          'Product details fetched successfully: ${product.value?.name}',
-        );
-      } catch (e) {
-        AppLogger.error('Error fetching product details: $e', error: 'Error fetching product details: $e');
-        Get.snackbar('Error', 'Failed to fetch product details');
-        rethrow;
-      } finally {
-        isLoading(false);
+        AppLogger.info('Showing product details from passed object: ${product.value?.name}');
+      } else if (arg is String) {
+        AppLogger.info('Fetching details for Product ID: $arg');
+        await fetchProductDetails(arg);
+      } else {
+        throw ArgumentError('Invalid product details argument');
       }
+    } catch (e) {
+      AppLogger.error('Error loading product details: $e', error: 'Error loading product details: $e');
+      Get.snackbar('Error', 'Failed to load product details');
+      rethrow;
     }
+  }
 
-    void _initializeVariantData() {
-      if (product.value?.productVariantDetails == null ||
-          product.value!.productVariantDetails.isEmpty) {
-        return;
-      }
-
-      // Extract unique colors and sizes
-      final variants = product.value!.productVariantDetails;
-      availableColors.value =
-          variants.map((v) => v.variantId.color.name).toSet().toList();
-
-      availableSizes.value =
-          variants.map((v) => v.variantId.size).toSet().toList();
-
-      // Set default selections
-      selectColor.value = availableColors.firstOrNull ?? '';
-      selectedProductSize.value = availableSizes.firstOrNull ?? '';
-
-      // Find and set corresponding variant ID
-      _updateSelectedVariantId();
+  Future<void> fetchProductDetails(String id) async {
+    try {
+      isLoading(true);
+      AppLogger.info('Fetching product details...');
+      final response = await _productDetailsService.getProductById(id);
+      product.value = ProductData.fromJson(response);
+      _initializeVariantData();
+      AppLogger.info('Product details fetched successfully: ${product.value?.name}');
+    } catch (e) {
+      AppLogger.error('Error fetching product details: $e', error: 'Error fetching product details: $e');
+      Get.snackbar('Error', 'Failed to fetch product details');
+      rethrow;
+    } finally {
+      isLoading(false);
     }
+  }
 
-    void _updateSelectedVariantId() {
-      if (product.value?.productVariantDetails == null) return;
-
-      final selectedVariant = product.value!.productVariantDetails.firstWhere(
-        (v) =>
-            v.variantId.color.name == selectColor.value &&
-            v.variantId.size == selectedProductSize.value,
-        orElse: () => product.value!.productVariantDetails.first,
-      );
-
-      selectedVariantId.value = selectedVariant.variantId.id;
-    }
-
-    void updateSelectedColor(String color) {
-      selectColor.value = color;
-      _updateSelectedVariantId();
-    }
-
-    void updateSelectedSize(String size) {
-      selectedProductSize.value = size;
-      _updateSelectedVariantId();
-    }
-
-    Future<void> addProductToCart() async {
-      final token = LocalStorage.token;
-      final productId = product.value?.id ?? '';
-      final variantId = selectedVariantId.value;
-
-      if (token.isEmpty) {
-        Get.snackbar('Error', 'Please login to add items to cart');
-        return;
-      }
-
-      if (productId.isEmpty || variantId.isEmpty) {
-        Get.snackbar('Error', 'Please select product options');
-        return;
-      }
-
-      try {
-        isAddingToCart(true);
-
-        final response = await CartService().addToCart(
-          token: token,
-          productId: productId,
-          variantId: variantId,
-          quantity: selectedQuantity.value,
-        );
-        AppLogger.info('Add to cart response: ${response.data}');
-        Get.snackbar('Success', response.message);
-
-        // Optional: Update cart count in your app state
-        // Get.find<CartController>().refreshCartCount();
-      } catch (e) {
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'ADD_TO_CART_ERROR');
-        Get.snackbar('Error', 'Failed to add to cart: ${e.toString()}');
-      } finally {
-        isAddingToCart(false);
-      }
-    }
-
-    void toggleFavorite() async {
-      try {
-        // Implement your favorite logic here
-        isFavourite.toggle();
-
-        // Example: Call API to update favorite status
-        // await _productDetailsService.toggleFavorite(
-        //   productId: product.value!.id,
-        //   isFavorite: isFavourite.value,
-        // );
-
-        Get.snackbar(
-          isFavourite.value ? 'Added to favorites' : 'Removed from favorites',
-          '',
-          duration: Duration(seconds: 1),
-        );
-      } catch (e) {
-        isFavourite.toggle(); // Revert on error
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'TOGGLE_FAVORITE_ERROR');
-      }
-    }
-    // ============ CHAT CREATION METHODS ============
-
-     // Handle creating a chat with a shop
-  Future<void> handleCreateChat({required String shopId}) async {
-  try {
-    // Check if the user is logged in
-    if (!LocalStorage.isLogIn) {
-      Get.snackbar('Error', 'Please login to start a chat');
+  void _initializeVariantData() {
+    if (product.value?.productVariantDetails == null || product.value!.productVariantDetails.isEmpty) {
       return;
     }
 
-    // Get the current user info from local storage
-    final userId = LocalStorage.userId;
-    final userFullName = LocalStorage.myName.isNotEmpty ? LocalStorage.myName : 'User';
-    final userEmail = LocalStorage.myEmail;
-    final userPhone = LocalStorage.phone;
+    final variants = product.value!.productVariantDetails;
+    availableColors.value = variants.map((v) => v.variantId.color.name).toSet().toList();
+    availableSizes.value = variants.map((v) => v.variantId.size).toSet().toList();
 
-    // Log user information (for debugging)
-    AppLogger.info('Creating chat for user: $userId, Shop ID: $shopId');
+    selectColor.value = availableColors.firstOrNull ?? '';
+    selectedProductSize.value = availableSizes.firstOrNull ?? '';
+    _updateSelectedVariantId();
+  }
 
-    // Ensure the shopId is correct by removing any unwanted prefixes (if applicable)
-    String correctedShopId = shopId.startsWith('shop_') ? shopId.replaceFirst('shop_', '') : shopId;
+  void _updateSelectedVariantId() {
+    if (product.value?.productVariantDetails == null) return;
 
-    // Create chat data with current user and shop as participants
-    final chatData = ChatData(
-      id: '',
-      participants: [
-        // Current user
-        Participant(
-          id: userId,
-          participantId: ParticipantId(
-            id: userId,
-            fullName: userFullName,
-            role: 'USER',
-            email: userEmail,
-            phone: userPhone,
-            verified: true,
-            isDeleted: false,
-          ),
-          participantType: 'User',
-        ),
-        // Shop (seller)
-        Participant(
-          id: correctedShopId,  // Corrected shop ID
-          participantId: ParticipantId(
-            id: correctedShopId,
-            fullName: product.value?.shop.name ?? 'Shop',
-            role: 'Shop',
-            email: '',  // Shop email not available in the model
-            phone: '',  // Shop phone not available in the model
-            verified: true,
-            isDeleted: false,
-          ),
-          participantType: 'Shop',
-        ),
-      ],
-      status: true,
+    final selectedVariant = product.value!.productVariantDetails.firstWhere(
+      (v) => v.variantId.color.name == selectColor.value && v.variantId.size == selectedProductSize.value,
+      orElse: () => product.value!.productVariantDetails.first,
     );
 
-    // Call the chat service to create the chat
-    final response = await chatService.createChat(chatData);
+    selectedVariantId.value = selectedVariant.variantId.id;
+  }
 
-    // Check if the chat was created successfully
-    if (response.success) {
-      final chatId = response.data.id;  // Get the chat ID from the response
+  void updateSelectedColor(String color) {
+    selectColor.value = color;
+    _updateSelectedVariantId();
+  }
 
-      // Print or display the chat ID
-      AppLogger.info('Chat created successfully with ID: $chatId');
+  void updateSelectedSize(String size) {
+    selectedProductSize.value = size;
+    _updateSelectedVariantId();
+  }
 
-      // Navigate to the chat screen with the created chat ID
-      Get.toNamed(
-        Routes.chattingView,
-        arguments: {
-          'chatId': chatId,  // Pass the created chat ID
-          'shopId': correctedShopId,   // Pass the corrected shop ID
-          'shopName': product.value?.shop.name ?? 'Shop', // Pass the shop name
-        },
-      );
-    } else {
-      // If the chat creation fails, show an error message
-      Get.snackbar('Error', 'Failed to create chat: ${response.message}');
+  Future<void> addProductToCart() async {
+    final token = LocalStorage.token;
+    final productId = product.value?.id ?? '';
+    final variantId = selectedVariantId.value;
+
+    if (token.isEmpty) {
+      Get.snackbar('Error', 'Please login to add items to cart');
+      return;
     }
-  } catch (e) {
-    // Log the error with more details
-    ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'CHAT_ERROR');
 
-    // Show a more detailed error message to the user
-    Get.snackbar('Error', 'An error occurred while starting the chat: $e');
+    if (productId.isEmpty || variantId.isEmpty) {
+      Get.snackbar('Error', 'Please select product options');
+      return;
+    }
+
+    try {
+      isAddingToCart(true);
+      final response = await CartService().addToCart(
+        token: token,
+        productId: productId,
+        variantId: variantId,
+        quantity: selectedQuantity.value,
+      );
+      AppLogger.info('Add to cart response: ${response.data}');
+      Get.snackbar('Success', response.message);
+    } catch (e) {
+      ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'ADD_TO_CART_ERROR');
+      Get.snackbar('Error', 'Failed to add to cart: ${e.toString()}');
+    } finally {
+      isAddingToCart(false);
+    }
+  }
+
+  void toggleFavorite() async {
+    try {
+      isFavourite.toggle();
+      Get.snackbar(
+        isFavourite.value ? 'Added to favorites' : 'Removed from favorites',
+        '',
+        duration: Duration(seconds: 1),
+      );
+    } catch (e) {
+      isFavourite.toggle();
+      ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'TOGGLE_FAVORITE_ERROR');
+    }
+  }
+
+  // Chat creation
+  Future<void> handleCreateChat({required String shopId}) async {
+    try {
+      if (!LocalStorage.isLogIn) {
+        Get.snackbar('Error', 'Please login to start a chat');
+        return;
+      }
+
+      final userId = LocalStorage.userId;
+      final userFullName = LocalStorage.myName.isNotEmpty ? LocalStorage.myName : 'User';
+      final userEmail = LocalStorage.myEmail;
+      final userPhone = LocalStorage.phone;
+
+      AppLogger.info('Creating chat for user: $userId, Shop ID: $shopId');
+
+      String correctedShopId = shopId.startsWith('shop_') ? shopId.replaceFirst('shop_', '') : shopId;
+
+      final chatData = ChatData(
+        id: '',
+        participants: [
+          Participant(
+            id: userId,
+            participantId: ParticipantId(
+              id: userId,
+              fullName: userFullName,
+              role: 'USER',
+              email: userEmail,
+              phone: userPhone,
+              verified: true,
+              isDeleted: false,
+            ),
+            participantType: 'User',
+          ),
+          Participant(
+            id: correctedShopId,
+            participantId: ParticipantId(
+              id: correctedShopId,
+              fullName: product.value?.shop.name ?? 'Shop',
+              role: 'Shop',
+              email: '',
+              phone: '',
+              verified: true,
+              isDeleted: false,
+            ),
+            participantType: 'Shop',
+          ),
+        ],
+        status: true,
+      );
+
+      final response = await chatService.createChat(chatData);
+
+      if (response.success) {
+        final chatId = response.data.id;
+        AppLogger.info('Chat created successfully with ID: $chatId');
+        Get.toNamed(
+          Routes.chattingView,
+          arguments: {
+            'chatId': chatId,
+            'shopId': correctedShopId,
+            'shopName': product.value?.shop.name ?? 'Shop',
+          },
+        );
+      } else {
+        Get.snackbar('Error', 'Failed to create chat: ${response.message}');
+      }
+    } catch (e) {
+      ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'CHAT_ERROR');
+      Get.snackbar('Error', 'An error occurred while starting the chat: $e');
+    }
+  }
+
+  // Order creation methods
+  Future<bool> createDirectOrder({
+    required String shopId,
+    required String shippingAddressText,
+    required String paymentMethod,
+    required String deliveryOption,
+    String? coupon,
+  }) async {
+    final token = LocalStorage.token;
+    final productId = product.value?.id ?? '';
+    final variantId = selectedVariantId.value;
+    final qty = selectedQuantity.value;
+    final price = product.value?.basePrice ?? 0;
+    final totalPrice = price * qty;
+
+    if (token.isEmpty) {
+      Get.snackbar('Error', 'Please login to create order');
+      return false;
+    }
+
+    if (productId.isEmpty || variantId.isEmpty) {
+      Get.snackbar('Error', 'Please select product options');
+      return false;
+    }
+
+    if (!_validateOrderInput(shippingAddressText, paymentMethod, deliveryOption)) {
+      return false;
+    }
+
+    try {
+      isCreatingOrder(true);
+      orderErrorMessage('');
+
+      _orderService ??= OrderService(token);
+
+      final orderProducts = [
+        OrderProduct(
+          product: productId,
+          variant: variantId,
+          quantity: qty,
+          totalPrice: totalPrice,
+        ),
+      ];
+
+      final orderRequest = OrderRequest(
+        shop: shopId,
+        products: orderProducts,
+        coupon: coupon?.isNotEmpty == true ? coupon : null,
+        shippingAddress: shippingAddressText,
+        paymentMethod: paymentMethod,
+        deliveryOptions: deliveryOption,
+      );
+
+      final response = await _orderService!.createOrder(orderRequest);
+
+      if (response.success) {
+        createdOrder.value = response.data;
+        Get.snackbar('Success', 'Order created successfully!');
+        AppLogger.info('Order created successfully: ${response.data?.id}');
+        return true;
+      } else {
+        orderErrorMessage(response.message);
+        Get.snackbar('Error', response.message);
+        return false;
+      }
+    } catch (e) {
+      ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
+      orderErrorMessage('An unexpected error occurred');
+      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+      return false;
+    } finally {
+      isCreatingOrder(false);
+    }
+  }
+
+  bool _validateOrderInput(
+    String shippingAddress,
+    String paymentMethod,
+    String deliveryOption,
+  ) {
+    if (shippingAddress.trim().isEmpty) {
+      Get.snackbar('Error', 'Shipping address is required');
+      return false;
+    }
+
+    if (paymentMethod.trim().isEmpty) {
+      Get.snackbar('Error', 'Please select a payment method');
+      return false;
+    }
+
+    if (deliveryOption.trim().isEmpty) {
+      Get.snackbar('Error', 'Please select a delivery option');
+      return false;
+    }
+
+    return true;
+  }
+
+  @override
+  void onClose() {
+    clearOrderData();
+    super.onClose();
+  }
+
+  void clearOrderData() {
+    createdOrder.value = null;
+    orderErrorMessage('');
+    shippingAddress('');
+    selectedPaymentMethod('');
+    selectedDeliveryOption('');
+    couponCode('');
+    selectedShop('');
   }
 }
-
-
-
-
-    
-    // ============ ORDER CREATION METHODS ============
-
-    /// Creates an order with the currently selected product
-    Future<bool> createDirectOrder({
-      required String shopId,
-      required String shippingAddressText,
-      required String paymentMethod,
-      required String deliveryOption,
-      String? coupon,
-    }) async {
-      final token = LocalStorage.token;
-      final productId = product.value?.id ?? '';
-      final variantId = selectedVariantId.value;
-      final qty = selectedQuantity.value;
-      final price = product.value?.basePrice ?? 0;
-      final totalPrice = price * qty;
-
-      // Validation
-      if (token.isEmpty) {
-        Get.snackbar('Error', 'Please login to create order');
-        return false;
-      }
-
-      if (productId.isEmpty || variantId.isEmpty) {
-        Get.snackbar('Error', 'Please select product options');
-        return false;
-      }
-
-      if (!_validateOrderInput(
-        shippingAddressText,
-        paymentMethod,
-        deliveryOption,
-      )) {
-        return false;
-      }
-
-      try {
-        isCreatingOrder(true);
-        orderErrorMessage('');
-
-        // Initialize order service if not already done
-        _orderService ??= OrderService(token);
-
-        // Create order products list
-        final orderProducts = [
-          OrderProduct(
-            product: productId,
-            variant: variantId,
-            quantity: qty,
-            totalPrice: totalPrice,
-          ),
-        ];
-
-        // Create order request
-        final orderRequest = OrderRequest(
-          shop: shopId,
-          products: orderProducts,
-          coupon: coupon?.isNotEmpty == true ? coupon : null,
-          shippingAddress: shippingAddressText,
-          paymentMethod: paymentMethod,
-          deliveryOptions: deliveryOption,
-        );
-
-        AppLogger.info('Creating order for product: ${product.value?.name}');
-
-        final response = await _orderService!.createOrder(orderRequest);
-
-        if (response.success) {
-          createdOrder.value = response.data;
-          Get.snackbar('Success', 'Order created successfully!');
-          AppLogger.info('Order created successfully: ${response.data?.id}');
-
-          // Optional: Navigate to order confirmation screen
-          // Get.toNamed('/order-confirmation', arguments: response.data);
-
-          return true;
-        } else {
-          orderErrorMessage(response.message);
-          Get.snackbar('Error', response.message);
-          return false;
-        }
-      } on ApiException catch (e) {
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'API_ERROR');
-        orderErrorMessage(e.message);
-        Get.snackbar('Error', e.message);
-        return false;
-      } catch (e) {
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
-        orderErrorMessage('An unexpected error occurred');
-        Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
-        return false;
-      } finally {
-        isCreatingOrder(false);
-      }
-    }
-
-    /// Creates an order with multiple products (for cart checkout)
-    Future<bool> createOrderFromProducts({
-      required String shopId,
-      required List<OrderProduct> products,
-      required String shippingAddressText,
-      required String paymentMethod,
-      required String deliveryOption,
-      String? coupon,
-    }) async {
-      final token = LocalStorage.token;
-
-      if (token.isEmpty) {
-        Get.snackbar('Error', 'Please login to create order');
-        return false;
-      }
-
-      if (!_validateOrderInput(
-        shippingAddressText,
-        paymentMethod,
-        deliveryOption,
-      )) {
-        return false;
-      }
-
-      if (products.isEmpty) {
-        Get.snackbar('Error', 'No products selected for order');
-        return false;
-      }
-
-      try {
-        isCreatingOrder(true);
-        orderErrorMessage('');
-
-        _orderService ??= OrderService(token);
-
-        final orderRequest = OrderRequest(
-          shop: shopId,
-          products: products,
-          coupon: coupon?.isNotEmpty == true ? coupon : null,
-          shippingAddress: shippingAddressText,
-          paymentMethod: paymentMethod,
-          deliveryOptions: deliveryOption,
-        );
-
-        AppLogger.info('Creating order with ${products.length} products');
-
-        final response = await _orderService!.createOrder(orderRequest);
-
-        if (response.success) {
-          createdOrder.value = response.data;
-          Get.snackbar('Success', 'Order created successfully!');
-          AppLogger.info('Order created successfully: ${response.data?.id}');
-          return true;
-        } else {
-          orderErrorMessage(response.message);
-          Get.snackbar('Error', response.message);
-          return false;
-        }
-      } on ApiException catch (e) {
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'API_ERROR');
-        orderErrorMessage(e.message);
-        Get.snackbar('Error', e.message);
-        return false;
-      } catch (e) {
-        ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
-        orderErrorMessage('An unexpected error occurred');
-        Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
-        return false;
-      } finally {
-        isCreatingOrder(false);
-      }
-    }
-
-    /// Buy now functionality - creates order directly
-    Future<void> buyNow({
-      required String shopId,
-      required String shippingAddressText,
-      required String paymentMethod,
-      required String deliveryOption,
-      String? coupon,
-    }) async {
-      final success = await createDirectOrder(
-        shopId: shopId,
-        shippingAddressText: shippingAddressText,
-        paymentMethod: paymentMethod,
-        deliveryOption: deliveryOption,
-        coupon: coupon,
-      );
-
-      if (success && createdOrder.value != null) {
-        // Navigate to order confirmation or payment screen
-        Get.toNamed('/order-confirmation', arguments: createdOrder.value);
-      }
-    }
-
-    /// Validates order input data
-    bool _validateOrderInput(
-      String shippingAddress,
-      String paymentMethod,
-      String deliveryOption,
-    ) {
-      if (shippingAddress.trim().isEmpty) {
-        Get.snackbar('Error', 'Shipping address is required');
-        return false;
-      }
-
-      if (paymentMethod.trim().isEmpty) {
-        Get.snackbar('Error', 'Please select a payment method');
-        return false;
-      }
-
-      if (deliveryOption.trim().isEmpty) {
-        Get.snackbar('Error', 'Please select a delivery option');
-        return false;
-      }
-
-      return true;
-    }
-
-    /// Updates order form fields
-    void updateShippingAddress(String address) {
-      shippingAddress.value = address;
-    }
-
-    void updatePaymentMethod(String method) {
-      selectedPaymentMethod.value = method;
-    }
-
-    void updateDeliveryOption(String option) {
-      selectedDeliveryOption.value = option;
-    }
-
-    void updateCouponCode(String code) {
-      couponCode.value = code;
-    }
-
-    void updateSelectedShop(String shop) {
-      selectedShop.value = shop;
-    }
-
-    /// Clears order-related data
-    void clearOrderData() {
-      createdOrder.value = null;
-      orderErrorMessage('');
-      shippingAddress('');
-      selectedPaymentMethod('');
-      selectedDeliveryOption('');
-      couponCode('');
-      selectedShop('');
-    }
-
-    /// Gets the current product as OrderProduct
-    OrderProduct? getCurrentProductAsOrderProduct() {
-      if (product.value?.id == null || selectedVariantId.value.isEmpty) {
-        return null;
-      }
-
-      return OrderProduct(
-        product: product.value!.id,
-        variant: selectedVariantId.value,
-        quantity: selectedQuantity.value,
-        totalPrice: product.value?.basePrice ?? 0,
-      );
-    }
-
-    @override
-    void onClose() {
-      // Clean up resources
-      clearOrderData();
-      super.onClose();
-    }
-  }

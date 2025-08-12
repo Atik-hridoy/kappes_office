@@ -1,4 +1,3 @@
-import 'package:canuck_mall/app/model/recomended_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
@@ -419,7 +418,12 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () {
-                        controller.handleCheckoutFromDetails();
+                        controller.createDirectOrder(
+                          shopId: controller.product.value?.shop.id ?? '',
+                          shippingAddressText: controller.shippingAddress.value,
+                          paymentMethod: controller.selectedPaymentMethod.value,
+                          deliveryOption: controller.selectedDeliveryOption.value,
+                        );
                       },
                       title: AppStaticKey.buyNow,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(

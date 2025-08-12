@@ -1,3 +1,9 @@
+
+
+
+// from product details to seller
+
+
 class ChatResponse {
   final bool success;
   final String message;
