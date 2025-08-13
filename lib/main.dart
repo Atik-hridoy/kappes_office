@@ -51,7 +51,7 @@ class CanuckMall extends StatelessWidget {
         return child!;
       },
       debugShowCheckedModeBanner: false,
-      title: "Canuck Mall",
+      title: "Kappes Office",
       theme: lightTheme,
       translations: AppTranslation(),
       locale: const Locale('en', 'US'),
@@ -59,7 +59,7 @@ class CanuckMall extends StatelessWidget {
       initialRoute:
           LocalStorage.isLogIn && LocalStorage.token.isNotEmpty
               ? Routes.bottomNav
-              : Routes.login,
+              : Routes.onboarding,
       getPages: AppPages.routes,
     );
   }

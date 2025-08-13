@@ -67,7 +67,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const initial = Routes.splash;
+  static const initial = Routes.onboarding;
 
   static final routes = [
     GetPage(
@@ -79,7 +79,7 @@ class AppPages {
       name: _Paths.splash,
       page: () => const SplashView(),
       binding: SplashBinding(),
-    ),
+    ),  
     GetPage(
       name: _Paths.onboarding,
       page: () => const OnboardingView(),

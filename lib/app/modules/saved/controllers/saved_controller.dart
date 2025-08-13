@@ -70,7 +70,6 @@ class SavedController extends GetxController {
       _logger.i('Successfully loaded ${wishlist.length} items to wishlist');
     } catch (e) {
       _logger.e('Error fetching wishlist', error: e);
-      rethrow;
     } finally {
       isLoading.value = false;
     }
@@ -89,7 +88,6 @@ class SavedController extends GetxController {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
     }
   }
 
@@ -113,7 +111,6 @@ class SavedController extends GetxController {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
     }
   }
 
