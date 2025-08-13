@@ -1,3 +1,7 @@
+// ignore_for_file: library_prefixes
+
+import 'dart:math' as appLog;
+
 import 'package:get/get.dart';
 import '../../../data/netwok/store/shop_by_store_service.dart'; // For token retrieval
 import '../../../data/local/storage_service.dart';
@@ -11,16 +15,16 @@ class ShopByStoreController extends GetxController {
     final token = LocalStorage.token;  // Get the token securely
     if (token.isNotEmpty) {
       final fetched = await _shopByStoreService.getShopsByStoreName(token, searchTerm);
-      print('Fetched shops:');
-      print(fetched);
+      appLog.log('Fetched shops:' as num);
+      appLog.log(fetched as num);
       // Print logo and cover for each shop
       for (var i = 0; i < fetched.length; i++) {
-        print('Shop #$i logo: ${fetched[i]['logo']}');
-        print('Shop #$i coverPhoto: ${fetched[i]['coverPhoto']}');
+        appLog.log('Shop #$i logo: ${fetched[i]['logo']} as num' as num);
+        appLog.log('Shop #$i coverPhoto: ${fetched[i]['coverPhoto']} as num' as num);
       }
       shops.value = fetched;
     } else {
-      print('No token found. Shops not fetched.');
+      appLog.log('No token found. Shops not fetched.' as num);
       shops.value = [];  // Handle case where token is missing
     }
   }

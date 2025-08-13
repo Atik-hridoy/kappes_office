@@ -1,6 +1,12 @@
+
+// ignore_for_file: library_prefixes
+
+import 'dart:math' as appLog;
+
 import 'package:dio/dio.dart';
 import '../../../constants/app_urls.dart';
 import '../../../model/get_populer_category_model.dart';
+ 
 
 class CategoryService {
   final Dio _dio = Dio();
@@ -8,11 +14,11 @@ class CategoryService {
   Future<CategoryResponse> fetchCategories() async {
     try {
       final response = await _dio.get(AppUrls.baseUrl + AppUrls.categories);
-      print(' Response Status: ${response.statusCode}');
-      print(' Response Data: ${response.data}');
+      appLog.log(' Response Status: ${response.statusCode}' as num);
+      appLog.log(' Response Data: ${response.data}' as num);
       return CategoryResponse.fromJson(response.data);
     } catch (e) {
-      print(' Error fetching categories: $e');
+      appLog.log(' Error fetching categories: $e' as num);
       rethrow;
     }
   }
@@ -25,11 +31,11 @@ class CategoryService {
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
-      print(' Response Status: ${response.statusCode}');
-      print(' Response Data: ${response.data}');
+      appLog.log(' Response Status: ${response.statusCode}' as num);
+      appLog.log(' Response Data: ${response.data}' as num);
       return CategoryResponse.fromJson(response.data);
     } catch (e) {
-      print(' Error fetching categories (auth): $e');
+      appLog.log(' Error fetching categories (auth): $e' as num);
       rethrow;
     }
   }
