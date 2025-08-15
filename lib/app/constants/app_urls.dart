@@ -25,6 +25,7 @@ abstract class AppUrls {
   static const String changePassword = '/auth/change-password';
   static const String getPrivacy = '/settings/privacy-policy';
   static const String getTerms = '/settings/termsOfService';
+  static const String getContact = '/settings/contact';
 
   // home page endpoints
 

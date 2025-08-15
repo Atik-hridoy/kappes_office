@@ -1,41 +1,36 @@
 // ignore_for_file: library_prefixes
 
-import 'dart:math' as appLog;
-
 import 'package:get/get.dart';
-import '../../../data/netwok/store/shop_by_store_service.dart'; // For token retrieval
+import '../../../data/netwok/store/shop_by_store_service.dart'; 
 import '../../../data/local/storage_service.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class ShopByStoreController extends GetxController {
-  var shops = <dynamic>[].obs; // Observable list for shops by store name
+  var shops = <dynamic>[].obs; 
   final ShopByStoreService _shopByStoreService = ShopByStoreService();
 
-  // Method to fetch shops by store name using the token and searchTerm
   Future<void> fetchShopsByStoreName(String searchTerm) async {
-    final token = LocalStorage.token;  // Get the token securely
+    final token = LocalStorage.token;  
     if (token.isNotEmpty) {
       final fetched = await _shopByStoreService.getShopsByStoreName(token, searchTerm);
-      appLog.log('Fetched shops:' as num);
-      appLog.log(fetched as num);
-      // Print logo and cover for each shop
+      AppLogger.info('Fetched shops count: ${fetched.length}');
       for (var i = 0; i < fetched.length; i++) {
-        appLog.log('Shop #$i logo: ${fetched[i]['logo']} as num' as num);
-        appLog.log('Shop #$i coverPhoto: ${fetched[i]['coverPhoto']} as num' as num);
+        AppLogger.info('Shop #$i logo: ${fetched[i]['logo']}');
+        AppLogger.info('Shop #$i coverPhoto: ${fetched[i]['coverPhoto']}');
       }
       shops.value = fetched;
     } else {
-      appLog.log('No token found. Shops not fetched.' as num);
-      shops.value = [];  // Handle case where token is missing
+      AppLogger.warning('No token found. Shops not fetched.');
+      shops.value = []; 
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    fetchShopsByStoreName('');  // Fetch shops initially with an empty searchTerm or pass a valid searchTerm
+    fetchShopsByStoreName(''); 
   }
 
-  // Helpers for StoreCard
   String shopLogo(int index) {
     final url = shops[index]['logo'];
     return (url != null && url.toString().isNotEmpty)

@@ -14,12 +14,11 @@ class ProfileController extends GetxController {
   var errorMessage = ''.obs;
   var phone = ''.obs;
   var address = ''.obs;
-  var profileImageUrl = ''.obs; // network image or absolute path for avatar
+  var profileImageUrl = ''.obs; 
 
   @override
   void onInit() {
     super.onInit();
-    // Ensure we always refresh when the controller is created (i.e., when entering the view)
     fetchProfile();
   }
 
@@ -30,12 +29,10 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      // First try to get name and email from local storage
       final storedFullName = LocalStorage.myName;
       final storedEmail = LocalStorage.myEmail;
       final storedProfileImage = LocalStorage.myProfileImage;
 
-      // Set the values from local storage first for immediate UI update
       fullName.value = storedFullName;
       email.value = storedEmail;
       profileImageUrl.value = storedProfileImage;
@@ -45,23 +42,19 @@ class ProfileController extends GetxController {
         throw Exception("User not logged in or email not found");
       }
 
-      // Fetch fresh data from the server
       final response = await _profileService.getProfileData(email: storedEmail);
 
       if (response['success'] == true) {
         final profileData = response['data'] ?? {};
 
-        // Update with fresh data from server
         fullName.value =
             profileData['full_name']?.toString() ??
             profileData['name']?.toString() ??
             storedFullName;
 
         email.value = profileData['email']?.toString() ?? storedEmail;
-        // Try to map possible image keys (backend dependent)
         final apiImageRaw = (profileData['image'] ?? profileData['profileImage'] ?? profileData['avatar'] ?? '').toString();
         if (apiImageRaw.isNotEmpty) {
-          // Build absolute URL if backend returns relative path
           final normalized = apiImageRaw.startsWith('http')
               ? apiImageRaw
               : '${AppUrls.imageUrl}$apiImageRaw';
@@ -69,7 +62,6 @@ class ProfileController extends GetxController {
           await LocalStorage.setString(LocalStorageKeys.myProfileImage, profileImageUrl.value);
         }
 
-        // Update local storage with fresh data
         if (fullName.value.isNotEmpty) {
           await LocalStorage.setString(LocalStorageKeys.myName, fullName.value);
         }
