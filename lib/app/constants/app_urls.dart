@@ -53,12 +53,18 @@ abstract class AppUrls {
 
   // shopssssssssssssssssssssssssssss
 
-  static const String getShopsByProvince = '/shop';
-  static const String shopByStoreName = '/shop';
-  static const String shopByTerritory = '/shop';
+  static const String getShopsByProvince = '/shop/provinces';
+ 
+  static const String shopByTerritory = '/shop/territory';
   static const String tradeNService = '/business/all';
   static const String offered = '/offered';
   static const String shopLocation = '/shop/location';
+
+  // =================== shop by store =======================
+
+
+  static const String getAllShops = '/shop';
+  static const String getAllProductsByShopId = '/shop/products'; // +shopid 
 
   // Coupon endpoint
 

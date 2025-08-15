@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
-import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
-import 'package:canuck_mall/app/constants/app_icons.dart';
 import '../controllers/shop_by_territory_controller.dart';
 
 class ShopByTerritoryView extends GetView<ShopByTerritoryController> {
@@ -28,77 +27,88 @@ class ShopByTerritoryView extends GetView<ShopByTerritoryController> {
             Expanded(
               child: Obx(
                     () {
-                  // Check if the data is still loading
-                  if (controller.shops.isEmpty) {
-                    return Center(child: CircularProgressIndicator());  // Show loading indicator while data is fetched
+                  final loading = controller.isLoading.value;
+                  final items = controller.territories;
+
+                  if (!loading && items.isEmpty) {
+                    return Center(
+                      child: AppText(
+                        title: 'No territories found',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    );
                   }
 
-                  return ListView.separated(
-                    itemCount: controller.shops.length,
-                    itemBuilder: (context, index) {
-                      var shop = controller.shops[index];
-                      return InkWell(
-                        onTap: () {
-                          // Navigate to the search page or another view
-                          Get.toNamed('/searchProductView');
-                        },
-                        borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-                        child: Container(
-                          padding: EdgeInsets.all(AppSize.height(height: 1.0)),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.lightGray),
-                            borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-                          ),
-                          child: Row(
-                            children: [
-                              // Display shop logo with fallback
-                              AppImage(
-                                imagePath: controller.shopLogo(index),  // Use helper for full URL
-                                height: AppSize.height(height: 8.0),
-                                width: AppSize.height(height: 8.0),
-                              ),
-                              SizedBox(width: AppSize.height(height: 1.0)),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AppText(
-                                      title: shop['name'] ?? 'Unknown Shop',
-                                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                        fontSize: AppSize.height(height: 2.0),
-                                        letterSpacing: 0.0,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        ImageIcon(
-                                          AssetImage(AppIcons.package),
-                                          size: AppSize.height(height: 2.0),
-                                        ),
-                                        SizedBox(width: AppSize.width(width: 1.5)),
-                                        Expanded(
-                                          child: AppText(
-                                            title: "Products: "+(shop['description'] ?? 'No description'),
-                                            style: Theme.of(context).textTheme.bodyMedium,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                  return Skeletonizer(
+                    enabled: loading,
+                    child: ListView.separated(
+                      itemCount: loading ? 8 : items.length,
+                      itemBuilder: (context, index) {
+                        final t = loading ? null : items[index];
+                        return InkWell(
+                          onTap: () {
+                            if (!loading) {
+                              Get.toNamed('/searchProductView');
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
+                          child: Container(
+                            padding: EdgeInsets.all(AppSize.height(height: 1.0)),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.lightGray),
+                              borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: AppSize.height(height: 8.0),
+                                  width: AppSize.height(height: 8.0),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGray,
+                                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
+                                  ),
+                                  child: Icon(Icons.map, color: AppColors.black),
                                 ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: AppSize.height(height: 2.3),
-                              ),
-                            ],
+                                SizedBox(width: AppSize.height(height: 1.0)),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AppText(
+                                        title: t?.province ?? 'Province',
+                                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                          fontSize: AppSize.height(height: 2.0),
+                                          letterSpacing: 0.0,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.store, size: AppSize.height(height: 2.0)),
+                                          SizedBox(width: AppSize.width(width: 1.5)),
+                                          Expanded(
+                                            child: AppText(
+                                              title: 'Products: ${t?.productCount ?? 0}',
+                                              style: Theme.of(context).textTheme.bodyMedium,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  size: AppSize.height(height: 2.3),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: AppSize.height(height: 2.0));  // Spacer between items
-                    },
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return SizedBox(height: AppSize.height(height: 2.0));
+                      },
+                    ),
                   );
                 },
               ),

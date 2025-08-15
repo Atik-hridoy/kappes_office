@@ -1,57 +1,57 @@
 import 'package:get/get.dart';
-import '../../../constants/app_urls.dart';
 import '../../../data/local/storage_service.dart';
 import '../../../data/netwok/store/store_by_territory.dart';
+import '../../../utils/log/app_log.dart';
+import '../../../model/store/get_teretory_model.dart';
 
 class ShopByTerritoryController extends GetxController {
-  var shops = <dynamic>[].obs; // Observable list for storing shop data
-  final ShopByTerritoryService _shopByTerritoryService =
-      ShopByTerritoryService();
-  final String baseUrl = AppUrls.imageUrl;
+  final ShopByTerritoryService _service = ShopByTerritoryService();
 
-  // Fetch shops by territory based on the search term
-  Future<void> fetchShopsByTerritory(String searchTerm) async {
-    final token = LocalStorage.token; // Use token from LocalStorage
-    print('🔑 Using token: $token'); // Debugging: Print token
+  // State
+  final isLoading = true.obs;
+  final territories = <TerritoryData>[].obs;
 
-    if (token.isNotEmpty) {
-      List<dynamic> fetchedShops = await _shopByTerritoryService
-          .getShopsByTerritory(token, searchTerm);
+  // Fetch by territory (searchTerm can be city/keyword)
+  Future<void> fetchTerritories(String searchTerm) async {
+    final token = LocalStorage.token;
+    AppLogger.info('🔑 Using token: $token', tag: 'SHOP_TERRITORY');
 
-      // Debugging: Print fetched data
-      print('Fetched shops: $fetchedShops');
-
-      shops.value = fetchedShops;
-    } else {
-      shops.value = []; // Handle case where token is missing
-      print('🔑 Token is missing');
+    if (token.isEmpty) {
+      AppLogger.warning('⚠️ No token found. Returning empty territory list.', tag: 'SHOP_TERRITORY');
+      territories.clear();
+      isLoading(false);
+      return;
     }
-  }
 
-  // Helpers to get full image URLs for logo and coverPhoto
-  String shopLogo(int index) {
-    final logo = shops[index]['logo'];
-    if (logo != null && logo.toString().isNotEmpty) {
-      if (logo.startsWith('http')) return logo;
-      return baseUrl + logo;
+    try {
+      isLoading(true);
+      final result = await _service.getTerritories(token, searchTerm);
+      AppLogger.debug('🌐 Territory result: ${result.toJson()}', tag: 'SHOP_TERRITORY');
+      if (result.success) {
+        territories.value = result.data;
+        AppLogger.info('✅ Territories list loaded (${result.data.length} items)', tag: 'SHOP_TERRITORY');
+        for (var i = 0; i < result.data.length; i++) {
+          final t = result.data[i];
+          AppLogger.debug('• [$i] province=${t.province}, productCount=${t.productCount}', tag: 'SHOP_TERRITORY');
+        }
+        if (result.data.isEmpty) {
+          AppLogger.warning('⚠️ Success true but empty territories list', tag: 'SHOP_TERRITORY');
+        }
+      } else {
+        territories.clear();
+        AppLogger.warning('⚠️ Territory result returned success=false: ${result.message}', tag: 'SHOP_TERRITORY');
+      }
+    } catch (e) {
+      AppLogger.error('❌ Controller error: $e', tag: 'SHOP_TERRITORY', error: e.toString());
+      territories.clear();
+    } finally {
+      isLoading(false);
     }
-    return 'https://via.placeholder.com/80x80.png?text=No+Logo';
-  }
-
-  String shopCover(int index) {
-    final cover = shops[index]['coverPhoto'];
-    if (cover != null && cover.toString().isNotEmpty) {
-      if (cover.startsWith('http')) return cover;
-      return baseUrl + cover;
-    }
-    return 'https://via.placeholder.com/300x120.png?text=No+Cover';
   }
 
   @override
   void onInit() {
     super.onInit();
-    fetchShopsByTerritory(
-      'Toronto',
-    ); // Fetch data for Toronto by default or modify as needed
+    fetchTerritories(''); // empty term to fetch all if supported
   }
 }

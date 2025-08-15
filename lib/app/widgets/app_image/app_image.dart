@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class AppImage extends StatelessWidget {
   final dynamic imagePath;
@@ -23,7 +24,7 @@ class AppImage extends StatelessWidget {
       return _buildFallbackIcon();
     }
 
-    final String path = imagePath.toString();
+    String path = imagePath.toString();
 
     // Handle File type
     if (imagePath is File) {
@@ -36,6 +37,9 @@ class AppImage extends StatelessWidget {
       );
     }
 
+    // Normalize relative API paths to absolute URLs
+    path = _normalizeUrl(path);
+
     // Handle network images
     if (path.startsWith('http')) {
       return Image.network(
@@ -45,11 +49,15 @@ class AppImage extends StatelessWidget {
         fit: fit,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                  : null,
+          return SizedBox(
+            width: width,
+            height: height,
+            child: Center(
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
           );
         },
@@ -73,6 +81,20 @@ class AppImage extends StatelessWidget {
 
     // In case the type of imagePath is not supported
     return _buildFallbackIcon();
+  }
+
+  String _normalizeUrl(String p) {
+    if (p.isEmpty) return p;
+    // Already absolute
+    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+    // If path starts with '/', append to image base
+    if (p.startsWith('/')) return '${AppUrls.imageUrl}$p';
+    // Common API media prefixes without leading slash
+    final prefixes = ['image/', 'images/', 'logo/', 'coverPhoto/', 'banner/'];
+    if (prefixes.any((pre) => p.startsWith(pre))) {
+      return '${AppUrls.imageUrl}/$p';
+    }
+    return p; // treat as asset
   }
 
   Widget _buildFallbackIcon() {

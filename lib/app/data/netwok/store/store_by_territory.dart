@@ -1,35 +1,67 @@
 import 'package:dio/dio.dart';
-import '../../../constants/app_urls.dart'; // Ensure you have AppUrls constants for the endpoint
+import '../../../constants/app_urls.dart';
+import '../../../utils/log/app_log.dart';
+import '../../../model/store/get_teretory_model.dart';
 
 class ShopByTerritoryService {
   final Dio _dio = Dio();
 
-  // Fetch shops by territory using searchTerm and token
-  Future<List<dynamic>> getShopsByTerritory(String token, String searchTerm) async {
+  // Fetch territories using searchTerm and token
+  Future<Territory> getTerritories(String token, String searchTerm) async {
     try {
+      final term = (searchTerm).trim();
+      final url = term.isEmpty
+          ? '${AppUrls.baseUrl}${AppUrls.shopByTerritory}'
+          : '${AppUrls.baseUrl}${AppUrls.shopByTerritory}?searchTerm=$term';
       final response = await _dio.get(
-        '${AppUrls.baseUrl}${AppUrls.shopByTerritory}?searchTerm=$searchTerm',
+        url,
         options: Options(
           headers: {
-            'Authorization': 'Bearer $token', // Using Bearer token for authentication
+            'Authorization': 'Bearer $token',
           },
         ),
       );
 
-      // Debugging: Check response
-      print('Response status code: ${response.statusCode}');
-      print('Response data: ${response.data}');
+      final data = response.data;
+      AppLogger.debug('🌐 Territory response: $data', tag: 'SHOP_TERRITORY');
+      if (data is Map<String, dynamic>) {
+        // Handle multiple possible backend shapes
+        final raw = data['data'];
+        List<dynamic> list;
+        if (raw is List) {
+          list = raw;
+        } else if (raw is Map && raw['result'] is List) {
+          list = raw['result'] as List;
+        } else {
+          list = const [];
+        }
 
-      // Check if the response is successful and contains the expected data
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        return response.data['data']['result']; // Return list of shops
-      } else {
-        print('Error: ${response.statusCode} - ${response.data}');
-        return []; // Return empty list if something goes wrong
+        // Normalize items to TerritoryData using flexible key mapping
+        final normalized = list.map<Map<String, dynamic>>((item) {
+          if (item is Map) {
+            final province = (item['province'] ?? item['territory']) as String?;
+            final count = item['productCount'] ?? item['totalProducts'] ?? 0;
+            return {
+              'province': province,
+              'productCount': (count is int) ? count : int.tryParse('$count') ?? 0,
+            };
+          }
+          return {'province': null, 'productCount': 0};
+        }).toList();
+
+        final territory = Territory(
+          success: data['success'] == true,
+          message: data['message']?.toString() ?? '',
+          data: normalized.map((e) => TerritoryData.fromJson(e)).toList(),
+        );
+        AppLogger.info('📦 Parsed territories: ${territory.data.length}', tag: 'SHOP_TERRITORY');
+        return territory;
       }
+      AppLogger.warning('Unexpected response type for territory', tag: 'SHOP_TERRITORY');
+      return Territory(success: false, message: 'Invalid response', data: []);
     } catch (e) {
-      print('Error fetching shops by territory: $e');
-      return []; // Return empty list if there's an error
+      AppLogger.error('❌ Error fetching territories: $e', tag: 'SHOP_TERRITORY', error: e.toString());
+      return Territory(success: false, message: e.toString(), data: []);
     }
   }
 }

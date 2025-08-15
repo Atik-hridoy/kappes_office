@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
@@ -81,38 +82,114 @@ class ShopByStoreView extends GetView<ShopByStoreController> {
             ),
           ),
 
-          // Store items list
-          SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSize.height(height: 2.0),
-            ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Column(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          Routes.store,
-                        ); // Navigate to the store details page
-                      },
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      child: StoreCard(
-                        shopLogo: controller.shopLogo(index),
-                        shopCover: controller.shopCover(index),
-                        shopName: controller.shopName(index),
-                        address: controller.address(index),
-                      ),
+          // Store items list (reactive)
+          Obx(() {
+            final loading = controller.isLoading.value;
+            final count = loading ? 6 : controller.shops.length;
+
+            if (!loading && count == 0) {
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+                  child: Center(
+                    child: AppText(
+                      title: 'No shops found',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    index < controller.shops.length - 1
-                        ? SizedBox(height: AppSize.height(height: 2.0))
-                        : SizedBox.shrink(),
-                  ],
-                );
-              }, childCount: controller.shops.length),
-            ),
-          ),
+                  ),
+                ),
+              );
+            }
+
+            return SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSize.height(height: 2.0),
+              ),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return Skeletonizer(
+                    enabled: loading,
+                    child: Column(
+                      children: [
+                        if (loading)
+                          // Lightweight placeholder card (no network images)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.lightGray),
+                              borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: AppSize.height(height: 25.0),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGray,
+                                    borderRadius: BorderRadius.circular(AppSize.height(height: 1.9)),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: AppSize.height(height: 13.0),
+                                        width: AppSize.height(height: 12.0),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.lightGray,
+                                          borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
+                                        ),
+                                      ),
+                                      SizedBox(width: AppSize.width(width: 2.0)),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              height: AppSize.height(height: 2.2),
+                                              width: AppSize.width(width: 30.0),
+                                              color: AppColors.lightGray,
+                                            ),
+                                            SizedBox(height: AppSize.height(height: 1.0)),
+                                            Container(
+                                              height: AppSize.height(height: 1.8),
+                                              width: AppSize.width(width: 50.0),
+                                              color: AppColors.lightGray,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          InkWell(
+                            onTap: () {
+                              Get.toNamed(
+                                Routes.store,
+                              );
+                            },
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            child: StoreCard(
+                              shopLogo: controller.shopLogo(index),
+                              shopCover: controller.shopCover(index),
+                              shopName: controller.shopName(index),
+                              address: controller.address(index),
+                            ),
+                          ),
+                        index < count - 1
+                            ? SizedBox(height: AppSize.height(height: 2.0))
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  );
+                }, childCount: count),
+              ),
+            );
+          }),
 
           // Add some bottom padding
           SliverToBoxAdapter(

@@ -1,34 +1,61 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 import '../../../constants/app_urls.dart';
+import '../../../utils/log/app_log.dart';
+import '../../../model/store/get_all_shops_model.dart';
 
 class ShopByStoreService {
   final Dio _dio = Dio();
 
-  // Fetch shops by store name from the backend using searchTerm and token
-  Future<List<dynamic>> getShopsByStoreName(String token, String searchTerm) async {
+  // Fetch all shops with optional fields selection
+  Future<List<Shop>?> getAllShops(
+    String token, {
+    List<String> fields = const ['name', 'description', 'logo', 'coverPhoto', 'banner', 'address'],
+  }) async {
     try {
+      final url = '${AppUrls.baseUrl}${AppUrls.getAllShops}';
       final response = await _dio.get(
-        '${AppUrls.baseUrl}${AppUrls.getShopsByProvince}?searchTerm=$searchTerm',
+        url,
+        queryParameters: {
+          if (fields.isNotEmpty) 'fields': fields.join(','),
+        },
         options: Options(
           headers: {
-            'Authorization': 'Bearer $token', // Add Bearer token for authentication
+            'Authorization': 'Bearer $token',
           },
         ),
       );
 
-      // Check if the response is successful
-      if (response.statusCode == 200 &&
-          response.data['success'] == true &&
-          response.data['data'] is Map &&
-          response.data['data']['result'] is List) {
-        return response.data['data']['result']; // Return the list of shops
-      } else {
-        return []; // Return an empty list if something goes wrong
-      }
+
+      print("===========>> Shop By Store statuscode  $response.statusCode");
+        List<Shop> shopList = [];
+
+
+
+        if(response.statusCode==200){  
+
+          var data =response.data["data"]["result"];
+
+         
+          for(var shop in data){
+            shopList.add(Shop.fromJson(shop));
+          }
+        }
+
+
+        print("===========>> Shop By Store After condition  $shopList");
+
+
+
+
+      return shopList;
     } catch (e) {
-      print('Error fetching shops by store name: $e');
-      return []; // Return an empty list if there's an error
+      AppLogger.error('❌ Error fetching shops: $e', tag: 'SHOP_BY_STORE', error: e.toString());
+     
     }
   }
-}
 
+
+
+
+}
