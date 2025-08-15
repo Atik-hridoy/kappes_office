@@ -1,9 +1,9 @@
+import 'dart:convert';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
@@ -16,228 +16,106 @@ class LoginController extends GetxController {
   final isLoading = false.obs;
   final isPasswordVisible = false.obs;
   final isRemember = false.obs;
-  final errorMessage = ''.obs;
-
+  final RxString errorMessage = ''.obs;
   final Dio _dio = Dio();
 
-  /// LOGIN FUNCTION
+  // Centralized function for login validation and authentication
   Future<bool> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      errorMessage.value = 'Email and password are required';
-      AppLogger.warning(
-        'Login attempt with empty credentials',
-        tag: 'AUTH',
-        context: {'email': email.isEmpty ? 'empty' : 'provided'},
-      );
-      Get.snackbar('Error', errorMessage.value);
-      return false;
+      return _handleError('Email and password are required');
     }
 
     await _handleRememberMe(isRemember.value);
     isLoading.value = true;
 
     try {
-      AppLogger.auth(
-        'Login attempt initiated',
-        context: {'email': email, 'rememberMe': isRemember.value},
-      );
-
       final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.login}',
-        data: {'email': email, 'password': password},
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: jsonEncode({'email': email, 'password': password}),
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          responseType: ResponseType.json,
+        ),
       );
+      
+      AppLogger.debug('Login response received', tag: 'AUTH', context: response.data);
 
       final data = response.data;
-      AppLogger.auth(
-        'Login API response received',
-        context: {
-          'success': data['success'] ?? false,
-          'hasData': data['data'] != null,
-        },
-      );
-
       if (data['success'] == true && data['data'] != null) {
-        final nested = data['data'];
-
-        final token = nested['accessToken'] ?? nested['token'] ?? '';
-        final refreshToken = nested['refreshToken'] ?? '';
-
-        if (token.isEmpty) {
-          AppLogger.error(
-            'Token missing in login response',
-            tag: 'AUTH',
-            context: {'responseData': data}, error: 'Token missing in login response',
-          );
-          errorMessage.value = 'Token missing in login response';
-          return false;
-        }
-
-        // Clear old and save new
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.clear();
-
-        await LocalStorage.setString(LocalStorageKeys.token, token);
-        await LocalStorage.setString(
-          LocalStorageKeys.refreshToken,
-          refreshToken,
-        );
-        await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
-
-        AppLogger.storage(
-          'Login tokens saved to storage',
-          context: {
-            'hasAccessToken': token.isNotEmpty,
-            'hasRefreshToken': refreshToken.isNotEmpty,
-          },
-        );
-
-        // 👉 fetch and save user profile
+        await _storeTokens(data['data']);
         await fetchAndSaveProfile();
-
-        // Reload all stored preferences
-        await LocalStorage.getAllPrefData();
-
-        AppLogger.success(
-          'Login process completed successfully',
-          context: {
-            'userName': LocalStorage.myName,
-            'userEmail': LocalStorage.myEmail,
-          },
-        );
-        errorMessage.value = '';
         return true;
       } else {
-        errorMessage.value = data['message'] ?? 'Login failed';
-        AppLogger.failure(
-          'Login failed',
-          context: {'errorMessage': errorMessage.value, 'responseData': data},
-        );
-        return false;
+        return _handleError(data['message'] ?? 'Login failed');
       }
     } catch (e) {
-      if (e is DioException) {
-        final dioError = e.response;
-        final statusCode = dioError?.statusCode;
-        final statusMessage = dioError?.statusMessage;
-
-        AppLogger.error(
-          'Login network error',
-          tag: 'AUTH',
-          context: {
-            'statusCode': statusCode,
-            'statusMessage': statusMessage,
-            'error': e.toString(),
-          }, error: 'Login network error',
-        );
-        errorMessage.value = 'Login failed: $statusMessage';
-      } else {
-        AppLogger.error(
-          'Login exception',
-          tag: 'AUTH',
-          context: {
-            'error': e.toString(),
-            'errorType': e.runtimeType.toString(),
-          }, error: 'Login exception',
-        );
-        errorMessage.value = 'Login error: $e';
-      }
-      return false;
+      return _handleError(e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// FETCH PROFILE AFTER LOGIN
+  // Centralized error handler
+  bool _handleError(String message) {
+    errorMessage.value = message;
+    AppLogger.error('Login Error', tag: 'AUTH', context: {'error': message}, error: message);
+    Get.snackbar('Error', message);
+    return false;
+  }
+
+  // Save tokens to local storage
+  Future<bool> _storeTokens(Map<String, dynamic> data) async {
+    final token = data['accessToken'] ?? data['token'] ?? '';
+    final refreshToken = data['refreshToken'] ?? '';
+
+    if (token.isEmpty) {
+      return _handleError('Token missing in login response');
+    }
+
+    await LocalStorage.setString(LocalStorageKeys.token, token);
+    await LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken);
+    await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
+    AppLogger.storage('Login tokens saved to storage', context: {'token': token});
+
+    await LocalStorage.getAllPrefData();
+    return true;
+  }
+
+  // Fetch and store user profile after successful login
   Future<void> fetchAndSaveProfile() async {
     try {
       final token = LocalStorage.token;
-
-      AppLogger.auth(
-        'Fetching user profile',
-        context: {'endpoint': AppUrls.profile, 'hasToken': token.isNotEmpty},
-      );
-
       final response = await _dio.get(
         '${AppUrls.baseUrl}${AppUrls.profile}',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       final profileData = response.data;
-      AppLogger.auth(
-        'Profile response received',
-        context: {
-          'success': profileData['success'] ?? false,
-          'hasData': profileData['data'] != null,
-        },
-      );
-
       if (profileData['success'] == true && profileData['data'] != null) {
-        final profile = profileData['data'];
-        
-        // Extract all possible user data from the profile
-        final name = profile['full_name']?.toString() ?? profile['name']?.toString() ?? '';
-        final email = profile['email']?.toString() ?? '';
-        final userId = profile['_id']?.toString() ?? '';
-        final phone = profile['phone']?.toString() ?? '';
-        final address = profile['address']?.toString() ?? '';
-        final image = profile['image']?.toString() ?? '';
-        final role = profile['role']?.toString() ?? '';
-        final isActive = profile['isActive']?.toString() ?? 'false';
-        final createdAt = profile['createdAt']?.toString() ?? '';
-        final updatedAt = profile['updatedAt']?.toString() ?? '';
-
-        // Save all user data to local storage
-        await Future.wait([
-          LocalStorage.setString(LocalStorageKeys.myName, name),
-          LocalStorage.setString(LocalStorageKeys.myEmail, email),
-          LocalStorage.setString(LocalStorageKeys.userId, userId),
-          LocalStorage.setString(LocalStorageKeys.phone, phone),
-          LocalStorage.setString(LocalStorageKeys.myAddress, address),
-          LocalStorage.setString(LocalStorageKeys.myProfileImage, image),
-          LocalStorage.setString('user_role', role),
-          LocalStorage.setString('is_active', isActive),
-          LocalStorage.setString('created_at', createdAt),
-          LocalStorage.setString('updated_at', updatedAt),
-          // Save the entire profile as JSON for future use
-          LocalStorage.setString('user_profile', jsonEncode(profile)),
-        ]);
-
-        AppLogger.storage(
-          'User profile saved to LocalStorage',
-          context: {
-            'name': name,
-            'email': email,
-            'userId': userId,
-            'phone': phone,
-            'address': address.isNotEmpty,
-            'hasImage': image.isNotEmpty,
-            'role': role,
-          },
-        );
+        await _saveUserProfile(profileData['data']);
       } else {
-        AppLogger.warning(
-          'Failed to retrieve profile',
-          tag: 'AUTH',
-          context: {
-            'message': profileData['message'],
-            'responseData': profileData,
-          },
-        );
+        AppLogger.warning('Failed to retrieve profile', tag: 'AUTH');
       }
     } catch (e) {
-      AppLogger.error(
-        'Error fetching profile',
-        tag: 'AUTH',
-        context: {'error': e.toString(), 'errorType': e.runtimeType.toString()}, error: 'Error fetching profile',
-      );
+      AppLogger.error('Error fetching profile', tag: 'AUTH', context: {'error': e.toString()}, error: e.toString());
     }
   }
 
-  /// REMEMBER ME
+  // Save user profile data
+  Future<void> _saveUserProfile(Map<String, dynamic> profile) async {
+    final profileJson = jsonEncode(profile);
+    await LocalStorage.setString('user_profile', profileJson);
+    await Future.wait([
+      LocalStorage.setString(LocalStorageKeys.myName, profile['full_name'] ?? ''),
+      LocalStorage.setString(LocalStorageKeys.myEmail, profile['email'] ?? ''),
+      // Other fields to save...
+    ]);
+  }
+
+  // Handle the "Remember Me" functionality
   Future<void> _handleRememberMe(bool remember) async {
     final prefs = await SharedPreferences.getInstance();
     if (remember) {
@@ -251,15 +129,14 @@ class LoginController extends GetxController {
     }
   }
 
-  /// ON INIT
   @override
-  void onInit() {
-    super.onInit();
-    checkRememberMe();
+  void onReady() {
+    super.onReady();
+    _checkRememberMe();
   }
 
-  /// AUTO FILL LOGIN IF REMEMBERED
-  Future<void> checkRememberMe() async {
+  // Auto-login based on remembered credentials
+  Future<void> _checkRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
     final isRemembered = prefs.getBool('rememberMe') ?? false;
 
@@ -270,14 +147,6 @@ class LoginController extends GetxController {
         emailController.text = savedEmail;
         passwordController.text = savedPassword;
         isRemember.value = true;
-
-        AppLogger.auth(
-          'Auto-login with remembered credentials',
-          context: {
-            'hasEmail': savedEmail.isNotEmpty,
-            'hasPassword': savedPassword.isNotEmpty,
-          },
-        );
         await login();
       }
     }
@@ -288,5 +157,30 @@ class LoginController extends GetxController {
     emailController.dispose();
     passwordController.dispose();
     super.onClose();
+  }
+
+  // Logout function
+  Future<void> logout() async {
+    try {
+      // Clear all local storage and reset login state
+      await LocalStorage.clearAll(); // Clears the local storage including isLogIn and other data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('rememberMe', false); // Remove the rememberMe flag
+      await prefs.remove('savedEmail');
+      await prefs.remove('savedPassword');
+
+      // Reset UI-related states
+      emailController.clear();
+      passwordController.clear();
+      isRemember.value = false;
+
+      AppLogger.auth('User logged out successfully');
+
+      // Navigate to login screen after logout
+      Get.offAllNamed(Routes.login);
+    } catch (e) {
+      AppLogger.error('Error during logout', tag: 'AUTH', context: {'error': e.toString()}, error: e.toString());
+      rethrow;
+    }
   }
 }

@@ -3,10 +3,61 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
-import 'package:canuck_mall/app/utils/log/app_log.dart'; // AppLogger import
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class EditInformationViewService {
   final Dio _dio = Dio();
+
+  /// Fetch the latest user profile from server
+  Future<Map<String, dynamic>?> getProfile() async {
+    final String url = '${AppUrls.baseUrl}${AppUrls.profile}';
+    final token = LocalStorage.token;
+
+    try {
+      AppLogger.info('📦 GET profile: $url');
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      AppLogger.info('📥 Profile GET Status: ${response.statusCode}');
+      AppLogger.info('📥 Profile GET Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        // Normalize possible shapes: {success:true,data:{...}} or direct {...}
+        Map<String, dynamic>? payload;
+        if (data is Map<String, dynamic>) {
+          if (data['data'] is Map<String, dynamic>) {
+            payload = data['data'] as Map<String, dynamic>;
+          } else {
+            payload = data;
+          }
+        }
+        return payload;
+      }
+
+      AppLogger.error('❌ Failed to fetch profile: ${response.statusCode}', tag: 'EditInformationViewService', error: 'GET profile failed');
+      return null;
+    } catch (e) {
+      if (e is DioException) {
+        AppLogger.error(
+          '❌ DioException (GET profile): ${e.response?.data ?? e.message}',
+          tag: 'EditInformationViewService',
+          error: 'DioException (GET profile): ${e.response?.data ?? e.message}',
+        );
+      } else {
+        AppLogger.error('❌ Unexpected error (GET profile): $e', tag: 'EditInformationViewService', error: 'Unexpected error (GET profile): $e');
+      }
+      return null;
+    }
+  }
 
   Future<bool> updateProfile(
     String fullName,

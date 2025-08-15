@@ -25,23 +25,21 @@ class LocalStorage {
     return preferences!;
   }
 
-  /// Load all values from SharedPreferences
-  static Future<void> getAllPrefData() async {
-    final localStorage = await _getStorage();
+  // Get All Data From SharedPreferences
+static Future<void> getAllPrefData() async {
+  final localStorage = await _getStorage();
 
-    token = localStorage.getString(LocalStorageKeys.token) ?? "";
-    cookie = localStorage.getString(LocalStorageKeys.cookie) ?? "";
-    refreshToken = localStorage.getString(LocalStorageKeys.refreshToken) ?? "";
-    isLogIn = localStorage.getBool(LocalStorageKeys.isLogIn) ?? false;
-    userId = localStorage.getString(LocalStorageKeys.userId) ?? "";
-    myImage = localStorage.getString(LocalStorageKeys.myImage) ?? "";
-    myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
-    myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
-    myAddress = localStorage.getString(LocalStorageKeys.myAddress) ?? "";
-    phone = localStorage.getString(LocalStorageKeys.phone) ?? "";
+  token = localStorage.getString(LocalStorageKeys.token) ?? "";
+  cookie = localStorage.getString(LocalStorageKeys.cookie) ?? "";
+  refreshToken = localStorage.getString(LocalStorageKeys.refreshToken) ?? "";
+  isLogIn = localStorage.getBool(LocalStorageKeys.isLogIn) ?? false;
+  userId = localStorage.getString(LocalStorageKeys.userId) ?? "";
+  myImage = localStorage.getString(LocalStorageKeys.myImage) ?? "";
+  myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
+  myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
 
-    AppLogger.info("UserID: $userId");
-  }
+  AppLogger.info(userId, tag: "Local Storage");
+}
 
   /// Save String
   static Future<void> setString(String key, String value) async {
