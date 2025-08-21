@@ -2,7 +2,6 @@ import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/auth/controllers/verify_otp_view_controller.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
-import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
@@ -76,14 +75,28 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
                         : SizedBox.shrink(),
               ),
               SizedBox(height: AppSize.height(height: 3.0)),
-              AppCommonButton(
-                onPressed: () async {
-                  await controller.verifyOtp();
-                },
-                title: AppStaticKey.verify,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await controller.verifyOtp();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: EdgeInsets.symmetric(
+                      vertical: AppSize.height(height: 1.5),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Text(
+                    AppStaticKey.verify,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white,
+                        ),
+                  ),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 // ignore_for_file: library_prefixes
 
+
 import 'package:get/get.dart';
 import '../../../data/netwok/store/shop_by_store_service.dart';
 import '../../../data/local/storage_service.dart';
@@ -8,9 +9,11 @@ import '../../../model/store/get_all_shops_model.dart';
 import '../../../constants/app_urls.dart';
 
 class ShopByStoreController extends GetxController {
+
   final shops = <Shop>[].obs;
   final isLoading = false.obs;
   final ShopByStoreService _shopByStoreService = ShopByStoreService();
+
 
   Future<void> fetchShopsByStoreName(String searchTerm) async {
     isLoading.value = true;
@@ -18,14 +21,16 @@ class ShopByStoreController extends GetxController {
     try {
       isLoading(true);
       if (token.isEmpty) {
-        AppLogger.warning('No token found. Shops not fetched.');
+        {
+          AppLogger.warning('No token found. Shops not fetched.');
+        }
         shops.clear();
         return;
       }
 
       List<Shop> shpList = await _shopByStoreService.getAllShops(token) ?? [];
 
-      print("============>> get shop by chironjit before ${shpList.length}");
+      AppLogger.debug("============>> get shop by chironjit before ${shpList.length}");
 
       if (shpList.isNotEmpty) {
         shops.value = shpList;
@@ -37,6 +42,7 @@ class ShopByStoreController extends GetxController {
         'Shop fetch error: $e',
         tag: 'SHOP_BY_STORE',
         error: e.toString(),
+        context: {'error': e.toString()},
       );
       shops.clear();
     } finally {

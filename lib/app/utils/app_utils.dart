@@ -6,11 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 abstract class AppUtils {
+
   // >>>>>>>>>>>>>>>>>>>>>> when show message bottom  <<<<<<<<<<<<<<<<<<<<<<
 
   // >>>>>>>>>>>>>>>>>>>>>> error message snack bar  <<<<<<<<<<<<<<<<<<<<<<
+
   static showError(String parameterValue) {
+
     // Use addPostFrameCallback to avoid calling showSnackbar during build
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.showSnackbar(
         GetSnackBar(
@@ -48,6 +52,7 @@ abstract class AppUtils {
   // >>>>>>>>>>>>>>>>>>>>>> success message <<<<<<<<<<<<<<<<<<<<<<
 
   // Show success message in Snackbar
+
   static showSuccess(String parameterValue) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.showSnackbar(
@@ -81,7 +86,8 @@ abstract class AppUtils {
           ),
         ),
       );
-    });
+    }
+    );
   }
 
 

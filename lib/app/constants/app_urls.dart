@@ -7,7 +7,7 @@ abstract class AppUrls {
   static const String verifyEmail = '/auth/verify-email';
   static const String login = '/auth/login';
   static const String signUp = '/users';
-  static const String forgotPassword = '/auth/forget-password';
+  static const String forgetPassword = '/auth/forget-password';
   static const String resetPassword = '/auth/reset-password';
 
   // Product endpoints

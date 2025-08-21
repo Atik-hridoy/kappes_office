@@ -1,101 +1,126 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class ForgetPasswordService {
+  final Dio _dio;
+
+  ForgetPasswordService({Dio? dio}) : _dio = dio ?? Dio();
+
   // Accepts only email for OTP request
   Future<Map<String, dynamic>> requestOtp({required String email}) async {
-    final url = Uri.parse(AppUrls.baseUrl + AppUrls.forgotPassword);
     if (email.isEmpty) {
       return {'success': false, 'message': 'Email is required'};
     }
-    final body = {'email': email};
+
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(body),
+      final response = await _dio.post(
+        '${AppUrls.baseUrl}${AppUrls.forgetPassword}',
+        data: {'email': email},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
       );
+
       if (response.statusCode == 200) {
-        return {'success': true, ...jsonDecode(response.body)};
+        return {'success': true, ...response.data as Map<String, dynamic>};
       } else {
-        final data = jsonDecode(response.body);
         return {
           'success': false,
-          'message': data['message'] ?? 'OTP request failed',
+          'message': response.data['message']?.toString() ?? 'OTP request failed',
         };
       }
-    } catch (e) {
-      return {'success': false, 'message': 'Network error: $e'};
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'message': e.response?.data?['message']?.toString() ?? 'Network error: ${e.message}',
+      };
     }
   }
 
-  // Accepts only email for OTP verification
+  // Verify OTP
   Future<Map<String, dynamic>> verifyOtp({
     required String email,
     required int otp,
   }) async {
-    final url = Uri.parse(AppUrls.baseUrl + AppUrls.verifyEmail);
     if (email.isEmpty) {
       return {'success': false, 'message': 'Email is required'};
     }
-    final body = {'email': email, 'oneTimeCode': otp};
+
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(body),
+      final response = await _dio.post(
+        '${AppUrls.baseUrl}${AppUrls.verifyEmail}',
+        data: {'email': email, 'oneTimeCode': otp},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
       );
+
       if (response.statusCode == 200) {
-        return {'success': true, ...jsonDecode(response.body)};
+        return {'success': true, ...response.data as Map<String, dynamic>};
       } else {
-        final data = jsonDecode(response.body);
         return {
           'success': false,
-          'message': data['message'] ?? 'OTP verification failed',
+          'message': response.data['message']?.toString() ?? 'OTP verification failed',
         };
       }
-    } catch (e) {
-      return {'success': false, 'message': 'Network error: $e'};
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'message': e.response?.data?['message']?.toString() ?? 'Network error: ${e.message}',
+      };
     }
   }
 
+  // Reset password
   Future<Map<String, dynamic>> resetPassword({
     required String token,
+    required String email,
     required String newPassword,
     required String confirmPassword,
   }) async {
-    final url = Uri.parse(AppUrls.baseUrl + AppUrls.resetPassword);
+    if (email.isEmpty) {
+      return {'success': false, 'message': 'Email is required'};
+    }
+
     try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
+      final response = await _dio.put(
+        '${AppUrls.baseUrl}${AppUrls.resetPassword}',
+        data: {
+          'email': email,
           'newPassword': newPassword,
           'confirmPassword': confirmPassword,
-        }),
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
       );
+
       if (response.statusCode == 200) {
-        return {'success': true, ...jsonDecode(response.body)};
+        return {'success': true, ...response.data as Map<String, dynamic>};
       } else {
-        final data = jsonDecode(response.body);
         return {
           'success': false,
-          'message': data['message'] ?? 'Password reset failed',
+          'message': response.data['message']?.toString() ?? 'Password reset failed',
         };
       }
-    } catch (e) {
-      return {'success': false, 'message': 'Network error: $e'};
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'message': e.response?.data?['message']?.toString() ?? 'Network error: ${e.message}',
+      };
     }
   }
 }

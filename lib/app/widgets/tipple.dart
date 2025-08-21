@@ -62,4 +62,3 @@ class Tipple extends StatelessWidget {
     );
   }
 }
-

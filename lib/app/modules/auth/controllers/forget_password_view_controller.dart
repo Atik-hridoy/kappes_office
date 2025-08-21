@@ -20,10 +20,10 @@ class ForgotPasswordViewController extends GetxController {
       return;
     }
     final email = emailController.text.trim();
-    // if (email.isEmpty) {
-    //   Get.snackbar('Error', 'Email cannot be empty.');
-    //   return;
-    // }
+    if (email.isEmpty) {
+      Get.snackbar('Error', 'Email cannot be empty.');
+      return;
+    }
     try {
       isLoading.value = true;
       final result = await _service.requestOtp(email: email);
@@ -36,7 +36,13 @@ class ForgotPasswordViewController extends GetxController {
         debugPrint(
           'ForgotPasswordViewController.resetPassword result: ${result['success']}',
         );
-        Get.to(VerifyOtpView());
+        Get.to(
+          () => VerifyOtpView(),
+          arguments: {
+            'email': email,
+            'from': 'forgot_password',
+          },
+        );
       } else {
         final msg =
             (result['message'] != null)

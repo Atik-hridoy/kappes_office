@@ -9,7 +9,7 @@ import 'package:canuck_mall/app/modules/profile/views/support_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/terms_conditions_view.dart';
 import 'package:get/get.dart';
 import '../modules/auth/bindings/auth_binding.dart';
-import '../modules/auth/views/forgot_password_view.dart';
+import '../modules/auth/views/forget_password_view.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/reset_password_view.dart';
 import '../modules/auth/views/signup_view.dart';

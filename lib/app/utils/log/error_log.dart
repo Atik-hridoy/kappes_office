@@ -50,4 +50,14 @@ class ErrorLogger {
       category: 'Validation',
     );
   }
+
+  static void logError(String message, {String? tag, Map<String, dynamic>? context}) {
+    AppLogger.error(
+      message,
+      tag: tag ?? 'ERROR',
+      error: 'ERROR',
+      context: context,
+      category: 'Error',
+    );
+  }
 }

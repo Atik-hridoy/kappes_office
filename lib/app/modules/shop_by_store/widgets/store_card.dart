@@ -20,9 +20,6 @@ class StoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth =
-        MediaQuery.of(context).size.width; // For responsiveness
-
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.lightGray),
@@ -70,15 +67,18 @@ class StoreCard extends StatelessWidget {
           // Logo + Texts
           Positioned(
             bottom: AppSize.height(height: 2.2),
-            left: AppSize.height(height: 2.5),
-            right: AppSize.height(height: 2.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Elevated square logo
-                Container(
-                  height: AppSize.height(height: 10.5),
-                  width: AppSize.height(height: 10.5),
+            left: AppSize.height(height: 1.5),  // Reduced left padding
+            right: AppSize.height(height: 1.5), // Reduced right padding
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final logoSize = constraints.maxWidth * 0.25; // Make logo size relative to available width
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Elevated square logo
+                    Container(
+                      height: logoSize,
+                      width: logoSize,
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
@@ -106,46 +106,48 @@ class StoreCard extends StatelessWidget {
                           ),
                   ),
                 ),
-                SizedBox(width: screenWidth * 0.04),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppText(
-                        title: shopName,
-                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                              fontSize: AppSize.height(height: 2.0),
-                              letterSpacing: 0,
-                            ),
-                      ),
-                      SizedBox(height: AppSize.height(height: 0.8)),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    SizedBox(width: constraints.maxWidth * 0.03), // Make spacing relative to available width
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: AppSize.height(height: 2.0),
-                            color: Colors.grey.shade600,
+                          AppText(
+                            title: shopName,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  fontSize: AppSize.height(height: 2.0),
+                                  letterSpacing: 0,
+                                ),
                           ),
-                          SizedBox(width: AppSize.width(width: 1.2)),
-                          Expanded(
-                            child: Text(
-                              address,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey.shade700,
-                                    fontSize: AppSize.height(height: 1.6),
-                                  ),
-                            ),
+                          SizedBox(height: AppSize.height(height: 0.8)),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: AppSize.height(height: 2.0),
+                                color: Colors.grey.shade600,
+                              ),
+                              SizedBox(width: AppSize.width(width: 1.2)),
+                              Expanded(
+                                child: Text(
+                                  address,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Colors.grey.shade700,
+                                        fontSize: AppSize.height(height: 1.6),
+                                      ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
