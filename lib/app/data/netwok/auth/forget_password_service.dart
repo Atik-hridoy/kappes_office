@@ -91,13 +91,21 @@ class ForgetPasswordService {
     }
 
     try {
-      final response = await _dio.put(
-        '${AppUrls.baseUrl}${AppUrls.resetPassword}',
-        data: {
-          'email': email,
-          'newPassword': newPassword,
-          'confirmPassword': confirmPassword,
-        },
+      final url = '${AppUrls.baseUrl}${AppUrls.resetPassword}';
+      final requestData = {
+        'email': email,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword,
+      };
+      
+      print('Making reset password request to: $url');
+      print('Request data: $requestData');
+      print('Using token: $token');
+      
+      // Try with POST first, as it's more common for password updates
+      final response = await _dio.post(
+        url,
+        data: requestData,
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -107,13 +115,18 @@ class ForgetPasswordService {
           validateStatus: (status) => status! < 500,
         ),
       );
+      
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
 
       if (response.statusCode == 200) {
         return {'success': true, ...response.data as Map<String, dynamic>};
       } else {
+        final errorMessage = response.data['message']?.toString() ?? 'Password reset failed (Status: ${response.statusCode})';
+        print('Error response: $errorMessage');
         return {
           'success': false,
-          'message': response.data['message']?.toString() ?? 'Password reset failed',
+          'message': errorMessage,
         };
       }
     } on DioException catch (e) {

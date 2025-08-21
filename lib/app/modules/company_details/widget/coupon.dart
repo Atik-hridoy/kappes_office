@@ -39,6 +39,9 @@ class Coupon extends StatelessWidget {
                     imagePath: AppImages.shopLogo,
                     height: AppSize.height(height: 5.0),
                     width: AppSize.height(height: 5.0),
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.error, color: AppColors.error);
+                    },
                   ),
                 ),
                 Column(

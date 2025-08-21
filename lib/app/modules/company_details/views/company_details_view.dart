@@ -41,6 +41,9 @@ class CompanyDetailsView extends GetView<CompanyDetailsController> {
                     child: AppImage(
                       imagePath: AppImages.coverImage,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
                     ),
                   ),
 

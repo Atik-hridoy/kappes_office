@@ -46,6 +46,8 @@ class _CustomSliderState extends State<CustomSlider> {
                         child: AppImage(
                           imagePath: widget.item![index],
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(Icons.error, color: AppColors.error),
                         ),
                       ),
                     ),

@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
+import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
@@ -50,16 +51,25 @@ class CompanyAboutUsView extends GetView {
                   imagePath: AppIcons.facebookIcon,
                   height: AppSize.height(height: 2.5),
                   width: AppSize.height(height: 2.5),
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, color: AppColors.error);
+                  },
                 ),
                 AppImage(
                   imagePath: AppIcons.instagramIcon,
                   height: AppSize.height(height: 2.5),
                   width: AppSize.height(height: 2.5),
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, color: AppColors.error);
+                  },
                 ),
                 AppImage(
                   imagePath: AppIcons.youtubeIcon,
                   height: AppSize.height(height: 2.5),
                   width: AppSize.height(height: 2.5),
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, color: AppColors.error);
+                  },
                 ),
               ],
             ),

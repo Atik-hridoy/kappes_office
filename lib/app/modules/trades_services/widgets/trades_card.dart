@@ -35,6 +35,8 @@ class TradesCard extends StatelessWidget {
               height: AppSize.height(height: 12.0),
               width: AppSize.height(height: 12.0),
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.error, color: AppColors.error),
             ),
             Column(
               spacing: AppSize.height(height: 0.5),

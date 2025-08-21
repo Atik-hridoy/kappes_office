@@ -120,6 +120,9 @@ class MessagesView extends GetView<MessagesController> {
                                   imagePath: AppImages.shopLogo,
                                   height: AppSize.height(height: 5.0),
                                   width: AppSize.height(height: 5.0),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(Icons.error, color: AppColors.error);
+                                  },
                                 ),
                               ),
                               SizedBox(width: AppSize.width(width: 2.0)),

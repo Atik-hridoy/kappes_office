@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/constants/app_logo.dart';
+import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ class SplashView extends GetView<SplashController> {
               imagePath: AppLogo.primaryLogo,
               height: AppSize.height(height: 18.0),
               width: AppSize.height(height: 18.0),
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.error, color: AppColors.error),
             ),
           ),
         ),

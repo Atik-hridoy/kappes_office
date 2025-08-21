@@ -15,7 +15,7 @@ class AppImage extends StatelessWidget {
     this.fallbackIcon = Icons.image_not_supported,
     this.width = 100.0,
     this.height = 100.0,
-    this.fit = BoxFit.contain,
+    this.fit = BoxFit.contain, required Widget Function(dynamic context, dynamic error, dynamic stackTrace) errorBuilder,
   });
 
   @override

@@ -137,11 +137,27 @@ class StoreController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final shopId =
-        Get.arguments
-            as String; // Fetch Shop ID passed from the previous screen
-    if (shopId.isNotEmpty) {
-      fetchStoreDetails(shopId); // Fetch store details for given ID
+    try {
+      // Safely get shopId from arguments
+      final shopId = Get.arguments?.toString();
+      
+      if (shopId != null && shopId.isNotEmpty) {
+        fetchStoreDetails(shopId);
+      } else {
+        // Handle case when shopId is not provided
+        AppLogger.error(
+          'Shop ID is required but not provided',
+          error: 'Invalid or missing shopId in route arguments',
+        );
+        Get.back(); // Go back to previous screen if no shopId
+      }
+    } catch (e, stackTrace) {
+      // Handle any other errors
+      AppLogger.error(
+        'Error initializing StoreController',
+        error: e.toString(),
+      );
+      Get.back(); // Go back to previous screen on error
     }
   }
 }

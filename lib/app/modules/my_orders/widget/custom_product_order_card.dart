@@ -38,6 +38,9 @@ class CustomProductOrderCard extends StatelessWidget {
               height: AppSize.height(height: 10.0),
               width: AppSize.height(height: 10.0),
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, color: AppColors.error);
+              },
             ),
           ),
           Flexible(

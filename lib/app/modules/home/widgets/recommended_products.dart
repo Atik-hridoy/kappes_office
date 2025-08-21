@@ -1,9 +1,10 @@
+import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/utils/image_utils.dart';
 import 'package:canuck_mall/app/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/recommended_product_view_controller.dart';
-import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class RecommendedProducts extends StatelessWidget {
   const RecommendedProducts({super.key});
@@ -27,7 +28,7 @@ class RecommendedProducts extends StatelessWidget {
           itemBuilder: (context, index) {
             final product = controller.products[index];
             final List images = product['images'] ?? [];
-            String imageUrl = 'https://via.placeholder.com/150';
+            String imageUrl = ImageUtils.productPlaceholder;
             if (images.isNotEmpty && images[0] != null) {
               // Check if the image path is already a full URL
               if (images[0].toString().startsWith('http')) {

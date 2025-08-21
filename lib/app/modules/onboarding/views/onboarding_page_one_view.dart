@@ -20,6 +20,9 @@ class OnboardingPageOneView extends GetView {
             width: double.maxFinite,
             height: AppSize.height(height: 60.0),
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.error, color: AppColors.error);
+            },
           ),
           SizedBox(height: AppSize.height(height: 3.0)),
           AppText(

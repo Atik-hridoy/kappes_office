@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/utils/image_utils.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/search_box.dart';
 import 'package:flutter/material.dart';
@@ -84,10 +85,9 @@ class TrendingProductsView extends GetView<TrendingProductsController> {
                         final product = controller.products[index];
                         final List images = product['images'] ?? [];
 
-                        final imageUrl =
-                            images.isNotEmpty
-                                ? '${AppUrls.imageUrl}${images.first}'
-                                : 'https://via.placeholder.com/150';
+                        final imageUrl = images.isNotEmpty
+                            ? '${AppUrls.imageUrl}${images.first}'
+                            : ImageUtils.productPlaceholder;
 
                         return ProductCard(
                           imageUrl: imageUrl,

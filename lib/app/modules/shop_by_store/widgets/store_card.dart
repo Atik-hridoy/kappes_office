@@ -20,6 +20,9 @@ class StoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safeShopName = shopName.isNotEmpty ? shopName : 'Unnamed Store';
+    final safeAddress = address.isNotEmpty ? address : 'Address not available';
+    
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.lightGray),
@@ -31,19 +34,7 @@ class StoreCard extends StatelessWidget {
           // Cover image
           ClipRRect(
             borderRadius: BorderRadius.circular(AppSize.height(height: 1.9)),
-            child: shopCover.isNotEmpty
-                ? AppImage(
-                    imagePath: shopCover,
-                    fit: BoxFit.cover,
-                    width: double.maxFinite,
-                    height: AppSize.height(height: 25.0),
-                  )
-                : Image.asset(
-                    'assets/images/placeholder_cover.png',
-                    fit: BoxFit.cover,
-                    width: double.maxFinite,
-                    height: AppSize.height(height: 25.0),
-                  ),
+            child: _buildCoverImage(),
           ),
 
           // White rounded bottom overlay
@@ -93,17 +84,7 @@ class StoreCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(AppSize.height(height: 0.8)),
-                    child: shopLogo.isNotEmpty
-                        ? AppImage(
-                            imagePath: shopLogo,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          )
-                        : Image.asset(
-                            'assets/images/placeholder_logo.png',
-                            fit: BoxFit.cover,
-                          ),
+                    child: _buildLogoImage(),
                   ),
                 ),
                     SizedBox(width: constraints.maxWidth * 0.03), // Make spacing relative to available width
@@ -112,12 +93,14 @@ class StoreCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          AppText(
-                            title: shopName,
-                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          Text(
+                            safeShopName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                   fontSize: AppSize.height(height: 2.0),
                                   letterSpacing: 0,
-                                ),
+                                ) ?? const TextStyle(fontSize: 14),
                           ),
                           SizedBox(height: AppSize.height(height: 0.8)),
                           Row(
@@ -131,12 +114,15 @@ class StoreCard extends StatelessWidget {
                               SizedBox(width: AppSize.width(width: 1.2)),
                               Expanded(
                                 child: Text(
-                                  address,
+                                  safeAddress,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                         color: Colors.grey.shade700,
                                         fontSize: AppSize.height(height: 1.6),
+                                      ) ?? TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 12,
                                       ),
                                 ),
                               ),
@@ -152,6 +138,58 @@ class StoreCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCoverImage() {
+    try {
+      if (shopCover.isEmpty) {
+        return _buildPlaceholderCover();
+      }
+      
+      return AppImage(
+        imagePath: shopCover,
+        fit: BoxFit.cover,
+        width: double.maxFinite,
+        height: AppSize.height(height: 25.0),
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholderCover(),
+      );
+    } catch (e) {
+      return _buildPlaceholderCover();
+    }
+  }
+
+  Widget _buildLogoImage() {
+    try {
+      if (shopLogo.isEmpty) {
+        return _buildPlaceholderLogo();
+      }
+      
+      return AppImage(
+        imagePath: shopLogo,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholderLogo(),
+      );
+    } catch (e) {
+      return _buildPlaceholderLogo();
+    }
+  }
+
+  Widget _buildPlaceholderCover() {
+    return Container(
+      width: double.maxFinite,
+      height: AppSize.height(height: 25.0),
+      color: Colors.grey[200],
+      child: Icon(Icons.store, size: 40, color: Colors.grey[400]),
+    );
+  }
+
+  Widget _buildPlaceholderLogo() {
+    return Container(
+      color: Colors.grey[200],
+      child: Icon(Icons.store, color: Colors.grey[400]),
     );
   }
 }

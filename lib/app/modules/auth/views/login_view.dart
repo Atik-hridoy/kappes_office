@@ -2,6 +2,7 @@ import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/auth/controllers/login_controller.dart';
 import 'package:canuck_mall/app/modules/auth/widgets/custom_icon_button.dart';
+import 'package:canuck_mall/app/widgets/dialogs/error_dialog.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -142,12 +143,10 @@ class LoginView extends GetView<LoginController> {
     if (success) {
       Get.offAllNamed(Routes.bottomNav);
     } else if (controller.errorMessage.value.isNotEmpty) {
-      Get.snackbar(
-        'Login Failed',
-        controller.errorMessage.value,
-        backgroundColor: Colors.red.withOpacity(0.7),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+      ErrorDialog.show(
+        title: 'Login Failed',
+        message: controller.errorMessage.value,
+        buttonText: 'OK',
       );
     }
   }

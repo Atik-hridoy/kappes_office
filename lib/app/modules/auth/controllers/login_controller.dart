@@ -63,9 +63,22 @@ class LoginController extends GetxController {
 
   // Centralized error handler
   bool _handleError(String message) {
-    errorMessage.value = message;
+    // Clean up the error message for better display
+    String cleanMessage = message;
+    
+    // Handle common error patterns
+    if (message.contains('DioException') || message.contains('SocketException')) {
+      cleanMessage = 'Unable to connect to the server. Please check your internet connection.';
+    } else if (message.contains('404')) {
+      cleanMessage = 'Server not found. Please try again later.';
+    } else if (message.contains('401') || message.toLowerCase().contains('invalid credentials')) {
+      cleanMessage = 'Invalid email or password. Please try again.';
+    } else if (message.toLowerCase().contains('timeout')) {
+      cleanMessage = 'Connection timeout. Please check your internet connection.';
+    }
+    
+    errorMessage.value = cleanMessage;
     AppLogger.error('Login Error', tag: 'AUTH', context: {'error': message}, error: message);
-    Get.snackbar('Error', message);
     return false;
   }
 

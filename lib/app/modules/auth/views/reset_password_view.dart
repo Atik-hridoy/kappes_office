@@ -12,7 +12,8 @@ class ResetPasswordView extends GetView<ResetPasswordViewController> {
   const ResetPasswordView({super.key});
   @override
   Widget build(BuildContext context) {
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final controller = Get.put(ResetPasswordViewController());
+    
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
@@ -20,7 +21,7 @@ class ResetPasswordView extends GetView<ResetPasswordViewController> {
           child: Padding(
             padding: EdgeInsets.all(AppSize.height(height: 2.0)),
             child: Form(
-              key: formKey,
+              key: controller.formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,7 +105,7 @@ class ResetPasswordView extends GetView<ResetPasswordViewController> {
                   SizedBox(height: AppSize.height(height: 0.5)),
                   Obx(
                     () => TextFormField(
-                      controller: controller.confirmPasswordIsIncorrect,
+                      controller: controller.confirmPasswordController,
                       obscureText: !controller.isConfirmPasswordVisible.value,
                       decoration: InputDecoration(
                         hintText: AppStaticKey.reEnterYourNewPassword,
@@ -141,17 +142,17 @@ class ResetPasswordView extends GetView<ResetPasswordViewController> {
                   ),
 
                   SizedBox(height: AppSize.height(height: 3.0)),
-                  AppCommonButton(
-                    onPressed: () {
-                      if (!formKey.currentState!.validate()) {
-                        return;
-                      }
-                     controller.showSuccessMessage(context);
-                    },
-                    title: AppStaticKey.saveChanges,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
+                  Obx(
+                    () => AppCommonButton(
+                      onPressed: controller.isLoading.value
+                          ? () {}
+                          : () => controller.resetPassword(),
+                      title: controller.isLoading.value ? 'Resetting...' : AppStaticKey.saveChanges,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                      isLoading: controller.isLoading.value,
                     ),
                   ),
                 ],

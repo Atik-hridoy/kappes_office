@@ -97,6 +97,8 @@ class _ProductCardState extends State<ProductCard> {
                           child: AppImage(
                             imagePath: widget.imageUrl,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error, color: AppColors.error),
                           ),
                         ),
                       ),

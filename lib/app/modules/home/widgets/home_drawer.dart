@@ -81,6 +81,9 @@ class HomeDrawer extends StatelessWidget {
                       imagePath: AppIcons.shopByProvince,
                       height: AppSize.height(height: 3.0),
                       width: AppSize.height(height: 3.0),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
                     ),
                     AppText(
                       title: AppStaticKey.shopByProvince,
@@ -107,7 +110,10 @@ class HomeDrawer extends StatelessWidget {
                       imagePath: AppIcons.shopByTerritory,
                       height: AppSize.height(height: 3.0),
                       width: AppSize.height(height: 3.0),
-                    ),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
+                      ),
                     AppText(
                       title: AppStaticKey.shopByTerritory,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -133,6 +139,9 @@ class HomeDrawer extends StatelessWidget {
                       imagePath: AppIcons.shopByStore,
                       height: AppSize.height(height: 3.0),
                       width: AppSize.height(height: 3.0),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
                     ),
                     AppText(
                       title: AppStaticKey.shopByStore,
@@ -159,6 +168,9 @@ class HomeDrawer extends StatelessWidget {
                       imagePath: AppIcons.deals,
                       height: AppSize.height(height: 3.0),
                       width: AppSize.height(height: 3.0),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
                     ),
                     AppText(
                       title: AppStaticKey.tradesServices,
@@ -185,6 +197,9 @@ class HomeDrawer extends StatelessWidget {
                       imagePath: AppIcons.pieIcon,
                       height: AppSize.height(height: 3.0),
                       width: AppSize.height(height: 3.0),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, color: AppColors.error);
+                      },
                     ),
                     AppText(
                       title: AppStaticKey.dealsOffers,
