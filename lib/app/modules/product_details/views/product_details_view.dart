@@ -1,3 +1,4 @@
+import 'package:canuck_mall/app/model/recomended_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/constants/app_icons.dart';
@@ -407,7 +408,41 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () async {
+                        // Keep original add-to-cart behavior but navigate to checkout immediately after adding
                         await controller.addProductToCart();
+                        // Build products argument for checkout using selected variant, qty and computed price
+                        final prod = controller.product.value;
+                        if (prod == null) return;
+                        final variantId = controller.selectedVariantId.value.isNotEmpty
+                            ? controller.selectedVariantId.value
+                            : (prod.productVariantDetails.isNotEmpty ? prod.productVariantDetails.first.variantId.id : '');
+                        // Safely find variant — firstWhere must return non-null, so handle with try/catch
+                        ProductVariantDetails? variant;
+                        try {
+                          variant = prod.productVariantDetails.firstWhere((v) => v.variantId.id == variantId);
+                        } catch (_) {
+                          variant = prod.productVariantDetails.isNotEmpty ? prod.productVariantDetails.first : null;
+                        }
+                        final unitPrice = variant != null ? variant.variantPrice : prod.basePrice;
+                        final qty = controller.selectedQuantity.value;
+                        final totalPrice = unitPrice * qty;
+                        final productsArg = [
+                          {
+                            'productId': prod.id,
+                            'variantId': variantId,
+                            'quantity': qty,
+                            'totalPrice': totalPrice,
+                            'name': prod.name,
+                          }
+                        ];
+                        Get.toNamed(
+                          Routes.checkoutView,
+                          arguments: {
+                            'products': productsArg,
+                            'itemCost': totalPrice,
+                            'shopId': prod.shop.id,
+                          },
+                        );
                       },
                       title: AppStaticKey.addToCart,
                       backgroundColor: AppColors.white200,
@@ -422,11 +457,35 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   Expanded(
                     child: AppCommonButton(
                       onPressed: () {
-                        controller.createDirectOrder(
-                          shopId: controller.product.value?.shop.id ?? '',
-                          shippingAddressText: controller.shippingAddress.value,
-                          paymentMethod: controller.selectedPaymentMethod.value,
-                          deliveryOption: controller.selectedDeliveryOption.value,
+                        // Immediately navigate to checkout with the selected options (no validation)
+                        final prod = controller.product.value;
+                        if (prod == null) return;
+                        final variantId = controller.selectedVariantId.value.isNotEmpty
+                            ? controller.selectedVariantId.value
+                            : (prod.productVariantDetails.isNotEmpty ? prod.productVariantDetails.first.variantId.id : '');
+                        final variant = prod.productVariantDetails.firstWhere(
+                          (v) => v.variantId.id == variantId,
+                         
+                        );
+                        final unitPrice = variant != null ? variant.variantPrice : prod.basePrice;
+                        final qty = controller.selectedQuantity.value;
+                        final totalPrice = unitPrice * qty;
+                        final productsArg = [
+                          {
+                            'productId': prod.id,
+                            'variantId': variantId,
+                            'quantity': qty,
+                            'totalPrice': totalPrice,
+                            'name': prod.name,
+                          }
+                        ];
+                        Get.toNamed(
+                          Routes.checkoutView,
+                          arguments: {
+                            'products': productsArg,
+                            'itemCost': totalPrice,
+                            'shopId': prod.shop.id,
+                          },
                         );
                       },
                       title: AppStaticKey.buyNow,
