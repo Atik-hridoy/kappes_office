@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
+import 'package:canuck_mall/app/modules/home/controllers/home_controller.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';

@@ -9,6 +9,7 @@ import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
+import 'package:canuck_mall/app/modules/home/controllers/home_controller.dart';
 
 class CheckoutViewController extends GetxController {
   // User Details
@@ -50,6 +51,26 @@ class CheckoutViewController extends GetxController {
   void onInit() {
     super.onInit();
     loadUserData();
+    _getInitialLocation();
+  }
+
+  // Get initial location from HomeController
+  void _getInitialLocation() {
+    try {
+      final homeController = Get.find<HomeController>();
+      if (homeController.currentAddress.value.isNotEmpty) {
+        address.value = homeController.currentAddress.value;
+        userAddress.value = homeController.currentAddress.value;
+        // Save to local storage for persistence
+        LocalStorage.setString(LocalStorageKeys.myAddress, address.value);
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Error getting initial location from HomeController',
+        error: e,
+        context: {'stack': stackTrace.toString()}
+      );
+    }
   }
 
   void loadUserData() {
