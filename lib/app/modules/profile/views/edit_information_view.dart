@@ -10,13 +10,69 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../controllers/Edit_information_view_controller.dart';
 
-class EditInformationView extends GetView<EditInformationViewController> {
+class EditInformationView extends StatefulWidget {
   const EditInformationView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+  State<EditInformationView> createState() => _EditInformationViewState();
+}
 
+class _EditInformationViewState extends State<EditInformationView> {
+  final EditInformationViewController controller = Get.find<EditInformationViewController>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
+  final _formKey = GlobalKey<FormState>();
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    _nameController = TextEditingController(text: controller.fullName.value);
+    _emailController = TextEditingController(text: controller.email.value);
+    // Remove country code for display
+    final phoneNumber = controller.phone.value.replaceAll(RegExp(r'^\+?\d+\s*'), '');
+    _phoneController = TextEditingController(text: phoneNumber);
+    _addressController = TextEditingController(text: controller.address.value);
+    
+    // Update controllers when values change from the controller
+    ever(controller.fullName, (value) {
+      if (_nameController.text != value) {
+        _nameController.text = value;
+      }
+    });
+    
+    ever(controller.email, (value) {
+      if (_emailController.text != value) {
+        _emailController.text = value;
+      }
+    });
+    
+    ever(controller.phone, (value) {
+      if (_phoneController.text != value) {
+        _phoneController.text = value;
+      }
+    });
+    
+    ever(controller.address, (value) {
+      if (_addressController.text != value) {
+        _addressController.text = value;
+      }
+    });
+  }
+  
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -32,7 +88,7 @@ class EditInformationView extends GetView<EditInformationViewController> {
           child: Skeletonizer(
             enabled: controller.isFetching.value,
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -65,8 +121,8 @@ class EditInformationView extends GetView<EditInformationViewController> {
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
                   ),
                   TextFormField(
-                    key: ValueKey('name_${controller.fullName.value}'),
-                    initialValue: controller.fullName.value,
+                    key: ValueKey('name_field'),
+                    controller: _nameController,
                     decoration: const InputDecoration(
                       hintText: AppStaticKey.enterYourFullName,
                     ),
@@ -86,8 +142,8 @@ class EditInformationView extends GetView<EditInformationViewController> {
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
                   ),
                   TextFormField(
-                    key: ValueKey('email_${controller.email.value}'),
-                    initialValue: controller.email.value,
+                    key: ValueKey('email_field'),
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       hintText: AppStaticKey.enterYourEmail,
                     ),
@@ -107,19 +163,37 @@ class EditInformationView extends GetView<EditInformationViewController> {
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
                   ),
                   IntlPhoneField(
-                    key: ValueKey('phone_${controller.phone.value}'),
-                    initialValue: controller.phone.value,
+                    key: ValueKey('phone_field'),
+                    controller: _phoneController,
                     decoration: const InputDecoration(
                       hintText: AppStaticKey.enterYourPhoneNumber,
                       border: OutlineInputBorder(),
                     ),
                     initialCountryCode: 'CA',
-                    onChanged: (phone) => controller.phone.value = phone.completeNumber,
+                    disableAutoFillHints: true,
+                    disableLengthCheck: true,
+                    keyboardType: TextInputType.phone,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: (phone) {
+                      if (phone.number.isNotEmpty) {
+                        controller.phone.value = phone.completeNumber;
+                        // Update the controller text without the country code for display
+                        _phoneController.text = phone.number;
+                      } else {
+                        controller.phone.value = '';
+                      }
+                    },
                     validator: (value) {
-                      if (value == null || value.number.isEmpty) {
+                      if (value == null || value.number.trim().isEmpty) {
                         return AppStaticKey.thisFieldCannotBeEmpty;
                       }
                       return null;
+                    },
+                    onSaved: (phone) {
+                      if (phone != null) {
+                        controller.phone.value = phone.completeNumber;
+                        _phoneController.text = phone.number; // Update display text
+                      }
                     },
                   ),
                   SizedBox(height: AppSize.height(height: 2.0)),
@@ -130,8 +204,8 @@ class EditInformationView extends GetView<EditInformationViewController> {
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w500),
                   ),
                   TextFormField(
-                    key: ValueKey('address_${controller.address.value}'),
-                    initialValue: controller.address.value,
+                    key: ValueKey('address_field'),
+                    controller: _addressController,
                     maxLines: 3,
                     decoration: const InputDecoration(
                       hintText: AppStaticKey.enterYourAddress,
@@ -151,7 +225,7 @@ class EditInformationView extends GetView<EditInformationViewController> {
                     title: controller.isLoading.value ? "Updating..." : AppStaticKey.update,
                     isLoading: controller.isLoading.value,
                     onPressed: () {
-                      if (formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         controller.updateProfile();
                       }
                     },

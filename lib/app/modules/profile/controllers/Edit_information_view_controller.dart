@@ -28,9 +28,10 @@ class EditInformationViewController extends GetxController {
     super.onInit();
     fullName.value = LocalStorage.myName;
     email.value = LocalStorage.myEmail;
-    phone.value = ''; // preload if available
-    address.value = ''; // preload if available
-    AppLogger.info('✅ Loaded user from LocalStorage: $fullName | $email');
+    // Store the full phone number but don't include it in the display
+    phone.value = LocalStorage.myPhone;
+    address.value = LocalStorage.myAddress;
+    AppLogger.info('✅ Loaded user from LocalStorage: $fullName | $email | $phone');
   }
 
   @override
@@ -106,10 +107,11 @@ class EditInformationViewController extends GetxController {
     AppLogger.info('📦 Sending: $name | $mail | $mobile | $addr');
 
     try {
+      // Don't clean the phone number here as it's already formatted by the IntlPhoneField
       final success = await _service.updateProfile(
         name,
         mail,
-        mobile,
+        mobile, // This should already be in the correct format with country code
         addr,
         imageFile.value,
       );
@@ -117,6 +119,7 @@ class EditInformationViewController extends GetxController {
       if (success) {
         await LocalStorage.setString(LocalStorageKeys.myName, name);
         await LocalStorage.setString(LocalStorageKeys.myEmail, mail);
+        await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
         await fetchLatestProfile(); // refresh data including image url
         await LocalStorage.getAllPrefData();
 

@@ -15,6 +15,7 @@ class LocalStorage {
   static String myName = "";
   static String myEmail = "";
   static String myAddress = ""; // Address storage
+  static String get myPhone => preferences?.getString(LocalStorageKeys.phone) ?? "";
   static String phone = ""; // Phone number storage
 
   static SharedPreferences? preferences;
@@ -37,6 +38,7 @@ static Future<void> getAllPrefData() async {
   myImage = localStorage.getString(LocalStorageKeys.myImage) ?? "";
   myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
   myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
+  phone = localStorage.getString(LocalStorageKeys.phone) ?? "";
 
   AppLogger.info(userId, tag: "Local Storage");
 }
