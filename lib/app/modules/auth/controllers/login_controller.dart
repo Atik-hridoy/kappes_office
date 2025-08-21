@@ -21,17 +21,17 @@ class LoginController extends GetxController {
 
   // Centralized function for login validation and authentication
   Future<bool> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      return _handleError('Email and password are required');
-    }
-
-    await _handleRememberMe(isRemember.value);
-    isLoading.value = true;
-
     try {
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      if (email.isEmpty || password.isEmpty) {
+        return _handleError('Email and password are required');
+      }
+
+      await _handleRememberMe(isRemember.value);
+      isLoading.value = true;
+
       final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.login}',
         data: jsonEncode({'email': email, 'password': password}),
@@ -47,6 +47,9 @@ class LoginController extends GetxController {
       if (data['success'] == true && data['data'] != null) {
         await _storeTokens(data['data']);
         await fetchAndSaveProfile();
+        
+        // Force update the auth state
+        await LocalStorage.getAllPrefData();
         return true;
       } else {
         return _handleError(data['message'] ?? 'Login failed');
@@ -68,20 +71,34 @@ class LoginController extends GetxController {
 
   // Save tokens to local storage
   Future<bool> _storeTokens(Map<String, dynamic> data) async {
-    final token = data['accessToken'] ?? data['token'] ?? '';
-    final refreshToken = data['refreshToken'] ?? '';
+    try {
+      final token = data['accessToken'] ?? data['token'] ?? '';
+      final refreshToken = data['refreshToken'] ?? '';
 
-    if (token.isEmpty) {
-      return _handleError('Token missing in login response');
+      if (token.isEmpty) {
+        return _handleError('Token missing in login response');
+      }
+
+      // Save tokens and update login state
+      await Future.wait([
+        LocalStorage.setString(LocalStorageKeys.token, token),
+        LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken),
+        LocalStorage.setBool(LocalStorageKeys.isLogIn, true),
+      ]);
+      
+      // Force reload the storage values
+      await LocalStorage.getAllPrefData();
+      
+      AppLogger.storage('Login tokens saved to storage', context: {
+        'token': token,
+        'isLoggedIn': LocalStorage.isLogIn
+      });
+      
+      return true;
+    } catch (e) {
+      AppLogger.error('Error storing tokens', error: e.toString(), tag: 'AUTH');
+      return false;
     }
-
-    await LocalStorage.setString(LocalStorageKeys.token, token);
-    await LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken);
-    await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
-    AppLogger.storage('Login tokens saved to storage', context: {'token': token});
-
-    await LocalStorage.getAllPrefData();
-    return true;
   }
 
   // Fetch and store user profile after successful login

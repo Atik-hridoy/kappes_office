@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/profile/widget/custom_list_tile.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
@@ -221,7 +222,14 @@ class ProfileView extends GetView<ProfileController> {
                             title: AppStaticKey.language,
                           ),
                           CustomListTile(
-                            onPressed: () => Get.offAllNamed(Routes.login),
+                            onPressed: () async {
+                              // Clear all authentication data
+                              await LocalStorage.clearAll();
+                              // Force reload the storage values
+                              await LocalStorage.getAllPrefData();
+                              // Navigate to login screen
+                              Get.offAllNamed(Routes.login);
+                            },
                             image: AppIcons.logOut,
                             title: AppStaticKey.logOut,
                           ),

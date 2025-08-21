@@ -61,6 +61,7 @@ import '../modules/store/views/store_view.dart';
 import '../modules/trades_services/bindings/trades_services_binding.dart';
 import '../modules/trades_services/views/search_services_view.dart';
 import '../modules/trades_services/views/trades_services_view.dart';
+import '../middleware/auth_middleware.dart';
 
 part 'app_routes.dart';
 
@@ -121,6 +122,7 @@ class AppPages {
       name: _Paths.bottomNav,
       page: () => const BottomNavView(),
       binding: BottomNavBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.home,
@@ -131,16 +133,19 @@ class AppPages {
       name: _Paths.saved,
       page: () => const SavedView(),
       binding: SavedBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.category,
       page: () => const CategoryView(),
       binding: CategoryBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.profile,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.searchProductView,
