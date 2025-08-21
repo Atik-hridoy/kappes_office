@@ -50,6 +50,8 @@ class StoreHeader extends StatelessWidget {
                 child: AppImage(
                   imagePath: logoUrl.isNotEmpty ? logoUrl : AppImages.shopLogo,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.error, color: AppColors.error),
                 ),
               ),
             ),

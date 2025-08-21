@@ -34,7 +34,9 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
                 title: AppStaticKey.searchLocation,
                 controller: controller.searchController,
               ),
-              
+
+              SizedBox(height: AppSize.height(height: 2.0)),
+
               // Use current location button
               SizedBox(
                 width: double.maxFinite,
@@ -54,10 +56,10 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
                   ),
                 ),
               ),
-              
+
               SizedBox(height: AppSize.height(height: 2.0)),
 
-              // Google Map
+              // Google Map with center pin overlay
               Container(
                 height: AppSize.height(height: 30.0),
                 width: double.maxFinite,
@@ -67,60 +69,74 @@ class SearchLocationView extends GetView<SearchLocationViewController> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
-                  child: GoogleMap(
-                    initialCameraPosition: controller.initialCameraPosition,
-                    onMapCreated: (GoogleMapController mapController) {
-                      controller.mapController = mapController;
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
-                    markers: controller.selectedMarker.value != null
-                        ? {controller.selectedMarker.value!}
-                        : {},
-                    onTap: (LatLng position) => controller.onMapTap(position), // Handle map tap
-                  ),
+                  child: Obx(() => GoogleMap(
+                        onMapCreated: (GoogleMapController mapController) {
+                          controller.mapController = mapController;
+                        },
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                        markers: controller.selectedMarker.value != null
+                            ? {controller.selectedMarker.value!}
+                            : {},
+                        onTap: (LatLng position) {
+                          controller.moveToLocation(position, label: 'Selected Location');
+                        }, initialCameraPosition:   CameraPosition(
+                          target: LatLng(37.7749, -122.4194), // Default to San Francisco
+                          zoom: 10,
+                        ),
+                      )),
                 ),
               ),
-              
+
               SizedBox(height: AppSize.height(height: 2.0)),
 
               // Search History
-              Container(
-                padding: EdgeInsets.all(AppSize.height(height: 1.5)),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSize.height(height: 1.5)),
-                  border: Border.all(color: AppColors.lightGray),
-                ),
-                child: controller.buildSearchHistory(),
+              Text(
+                'Search History',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: AppSize.height(height: 2.0)),
               ),
-              
+              Obx(() {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.searchHistory.length,
+                  itemBuilder: (context, index) {
+                    final location = controller.searchHistory[index];
+                    return ListTile(
+                      title: Text(location),
+                      onTap: () {
+                        controller.searchController.text = location;
+                        controller.onSearchChanged();
+                      },
+                    );
+                  },
+                );
+              }),
+
               // Confirm Location Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: controller.selectedMarker.value != null
-                      ? controller.onConfirmLocation
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    disabledBackgroundColor: AppColors.lightGray,
-                    padding: EdgeInsets.symmetric(vertical: AppSize.height(height: 1.5)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: controller.selectedMarker.value != null
+                          ? () => controller.confirmSelection()
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        disabledBackgroundColor: AppColors.lightGray,
+                        padding: EdgeInsets.symmetric(vertical: AppSize.height(height: 1.5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSize.height(height: 1.0)),
+                        ),
+                      ),
+                      child: Text(
+                        AppStaticKey.confirmLocation,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: AppColors.white,
+                          fontSize: AppSize.height(height: 2.0),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    AppStaticKey.confirmLocation,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.white,
-                      fontSize: AppSize.height(height: 2.0),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: AppSize.height(height: 1.0)),
+                  )),
             ],
           ),
         ),

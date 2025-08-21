@@ -29,6 +29,9 @@ class CompanyDetailsHeader extends StatelessWidget {
             child: AppImage(
               imagePath: AppImages.shopLogo,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, color: AppColors.error);
+              },
             ),
           ),
         ),

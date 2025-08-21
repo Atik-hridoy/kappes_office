@@ -70,6 +70,8 @@ class StoreView extends GetView<StoreController> {
                         fit: BoxFit.cover,
                         width: double.maxFinite,
                         height: AppSize.height(height: 25.0),
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.error, color: AppColors.error),
                       );
                     },
                   ),
@@ -90,6 +92,8 @@ class StoreView extends GetView<StoreController> {
                       fit: BoxFit.cover,
                       width: AppSize.height(height: 13.0),
                       height: AppSize.height(height: 13.0),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.error, color: AppColors.error),
                     ),
                   ),
                 ),

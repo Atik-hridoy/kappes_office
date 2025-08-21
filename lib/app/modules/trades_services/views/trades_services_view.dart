@@ -44,6 +44,8 @@ class TradesServicesView extends GetView<TradesServicesController> {
                       height: AppSize.height(height: 23.0),
                       width: double.maxFinite,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.error, color: AppColors.error),
                     ),
                   ),
                   Positioned(

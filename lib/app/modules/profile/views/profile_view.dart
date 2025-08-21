@@ -84,6 +84,9 @@ class ProfileView extends GetView<ProfileController> {
                           fit: BoxFit.cover,
                           width: double.maxFinite,
                           height: AppSize.height(height: 25.0),
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.error, color: AppColors.error);
+                          },
                         ),
                         Positioned(
                           bottom: 0.0,
@@ -125,6 +128,9 @@ class ProfileView extends GetView<ProfileController> {
                                   fit: BoxFit.cover,
                                   width: AppSize.width(width: 30.0),
                                   height: AppSize.width(width: 30.0),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(Icons.error, color: AppColors.error);
+                                  },
                                 )),
                             ),
                           ),

@@ -1,101 +1,156 @@
 // ignore_for_file: library_prefixes
 
-
 import 'package:get/get.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../../../data/netwok/store/shop_by_store_service.dart';
 import '../../../data/local/storage_service.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import '../../../model/store/get_all_shops_model.dart';
 import '../../../constants/app_urls.dart';
+import '../../../utils/image_utils.dart';
 
 class ShopByStoreController extends GetxController {
-
-  final shops = <Shop>[].obs;
-  final isLoading = false.obs;
+  static const _pageSize = 10;
+  
+  final PagingController<int, Shop> pagingController = 
+      PagingController(firstPageKey: 1);
   final ShopByStoreService _shopByStoreService = ShopByStoreService();
-
-
-  Future<void> fetchShopsByStoreName(String searchTerm) async {
-    isLoading.value = true;
-    final token = LocalStorage.token;
-    try {
-      isLoading(true);
-      if (token.isEmpty) {
-        {
-          AppLogger.warning('No token found. Shops not fetched.');
-        }
-        shops.clear();
-        return;
-      }
-
-      List<Shop> shpList = await _shopByStoreService.getAllShops(token) ?? [];
-
-      AppLogger.debug("============>> get shop by chironjit before ${shpList.length}");
-
-      if (shpList.isNotEmpty) {
-        shops.value = shpList;
-      }
-
-      isLoading(false);
-    } catch (e) {
-      AppLogger.error(
-        'Shop fetch error: $e',
-        tag: 'SHOP_BY_STORE',
-        error: e.toString(),
-        context: {'error': e.toString()},
-      );
-      shops.clear();
-    } finally {
-      isLoading(false);
-    }
-  }
-
+  final isLoading = false.obs;
+  final searchQuery = ''.obs;
+  
   @override
   void onInit() {
     super.onInit();
-    fetchShopsByStoreName('');
+    pagingController.addPageRequestListener((pageKey) {
+      fetchShops(pageKey);
+    });
   }
 
-  String shopLogo(int index) {
-    final s = shops[index];
-    final url = _fullUrl(s.logo ?? s.banner ?? s.coverPhoto);
-    return (url != null && url.toString().isNotEmpty)
-        ? url
-        : 'https://via.placeholder.com/80x80.png?text=No+Logo';
+  @override
+  void onClose() {
+    pagingController.dispose();
+    super.onClose();
   }
 
-  String shopCover(int index) {
-    final s = shops[index];
-    final url = _fullUrl(s.coverPhoto ?? s.banner ?? s.logo);
-    return (url != null && url.toString().isNotEmpty)
-        ? url
-        : 'https://via.placeholder.com/300x120.png?text=No+Cover';
+  Future<void> fetchShops(int pageKey) async {
+    try {
+      isLoading.value = true;
+      final token = LocalStorage.token;
+      
+      if (token.isEmpty) {
+        AppLogger.error('Authentication token is missing', tag: 'SHOP_BY_STORE', error: 'Please log in to view shops');
+        throw Exception('Please log in to view shops');
+      }
+      
+      final shops = await _shopByStoreService.getAllShops(
+        token: token,
+        page: pageKey,
+        limit: _pageSize,
+      );
+      
+      final isLastPage = shops.length < _pageSize;
+      
+      if (isLastPage) {
+        AppLogger.debug('Reached last page of shops', tag: 'SHOP_BY_STORE');
+        pagingController.appendLastPage(shops);
+      } else {
+        final nextPageKey = pageKey + 1;
+        AppLogger.debug('Loaded ${shops.length} shops, next page: $nextPageKey', tag: 'SHOP_BY_STORE');
+        pagingController.appendPage(shops, nextPageKey);
+      }
+    } catch (error) {
+      AppLogger.error(
+        'Error fetching shops (page $pageKey): $error',
+        tag: 'SHOP_BY_STORE',
+        error: error.toString(),
+      );
+      
+      pagingController.error = error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  void searchShops(String query) {
+    searchQuery.value = query;
+    pagingController.refresh();
+  }
+  
+  void refreshShops() {
+    pagingController.refresh();
   }
 
-  String shopIcon(int index) {
-    // No iconUrl in model; reuse logo as icon fallback
-    final s = shops[index];
-    final url = _fullUrl(s.logo ?? s.banner ?? s.coverPhoto);
-    return (url != null && url.toString().isNotEmpty)
-        ? url
-        : 'https://via.placeholder.com/40x40.png?text=No+Icon';
+  String shopLogo(Shop shop) {
+    try {
+      final url = _fullUrl(shop.logo ?? shop.banner ?? shop.coverPhoto) ?? '';
+      return url.isNotEmpty 
+          ? url 
+          : ImageUtils.shopLogoPlaceholder;
+    } catch (e) {
+      AppLogger.error('Error in shopLogo: $e', error: e);
+      return ImageUtils.shopLogoPlaceholder;
+    }
   }
 
-  String shopName(int index) => shops[index].name;
-  String address(int index) {
-    final addr = shops[index].address;
-    return [
-      addr.province,
-      addr.city,
-      addr.country,
-      addr.detailAddress,
-    ].where((e) => e.toString().isNotEmpty).join(', ');
+  String shopCover(Shop shop) {
+    try {
+      final url = _fullUrl(shop.coverPhoto ?? shop.banner ?? shop.logo) ?? '';
+      return url.isNotEmpty 
+          ? url 
+          : ImageUtils.shopCoverPlaceholder;
+    } catch (e) {
+      AppLogger.error('Error in shopCover: $e', error: e);
+      return ImageUtils.shopCoverPlaceholder;
+    }
+  }
+
+  String shopIcon(Shop shop) {
+    try {
+      final url = _fullUrl(shop.logo ?? shop.banner ?? shop.coverPhoto) ?? '';
+      return url.isNotEmpty 
+          ? url 
+          : ImageUtils.shopIconPlaceholder;
+    } catch (e) {
+      AppLogger.error('Error in shopIcon: $e', error: e);
+      return ImageUtils.shopIconPlaceholder;
+    }
+  }
+
+  String shopName(Shop shop) {
+    try {
+      return shop.name.isNotEmpty ? shop.name : 'Unnamed Shop';
+    } catch (e) {
+      AppLogger.error('Error in shopName: $e', error: e);
+      return 'Error';
+    }
+  }
+
+  String address(Shop shop) {
+    try {
+      final addr = shop.address;
+      if (addr == null) return 'Address not available';
+      
+      return [
+        if (addr.province.isNotEmpty) addr.province,
+        if (addr.city.isNotEmpty) addr.city,
+        if (addr.country.isNotEmpty) addr.country,
+        if (addr.detailAddress.isNotEmpty) addr.detailAddress,
+      ].join(', ');
+    } catch (e) {
+      AppLogger.error('Error in address: $e', error: e);
+      return 'Address not available';
+    }
   }
 
   String? _fullUrl(String? path) {
-    if (path == null || path.isEmpty) return null;
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    if (path.startsWith('/')) return '${AppUrls.imageUrl}$path';
-    return '${AppUrls.imageUrl}/$path';
+    try {
+      if (path == null || path.isEmpty) return null;
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      if (path.startsWith('/')) return '${AppUrls.imageUrl}$path';
+      return '${AppUrls.imageUrl}/$path';
+    } catch (e) {
+      AppLogger.error('Error in _fullUrl: $e for path: $path', error: e);
+      return null;
+    }
   }
 }

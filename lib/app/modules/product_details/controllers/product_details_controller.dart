@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
@@ -10,6 +12,8 @@ import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:canuck_mall/app/modules/home/controllers/home_controller.dart';
 
 class ProductDetailsController extends GetxController {
   // Services
@@ -36,16 +40,54 @@ class ProductDetailsController extends GetxController {
 
   // Order form data
   final RxString selectedShop = ''.obs;
-  final RxString shippingAddress = ''.obs;
+  final RxString orderShippingAddress = ''.obs;
   final RxString selectedPaymentMethod = ''.obs;
   final RxString selectedDeliveryOption = ''.obs;
   final RxString couponCode = ''.obs;
 
+  /// Shipping address shown on product details (comes from HomeController or saved prefs)
+  final shippingAddress = ''.obs;
+
+  static const String _kLastLocationKey = 'last_location';
+
   @override
   void onInit() {
     super.onInit();
+    _initShippingAddress();
     onAppInitialDataLoadFunction();
     _initializeOrderService();
+  }
+
+  Future<void> _initShippingAddress() async {
+    // Try to get live HomeController if it's available
+    try {
+      final home = Get.find<HomeController>();
+      shippingAddress.value = home.currentAddress.value;
+      // keep in sync with home controller changes
+      ever(home.currentAddress, (_) => shippingAddress.value = home.currentAddress.value);
+      return;
+    } catch (_) {
+      // HomeController not registered — fall through to read persisted location
+    }
+
+    // Fallback: read last saved location from SharedPreferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final s = prefs.getString(_kLastLocationKey);
+      if (s != null) {
+        final map = jsonDecode(s) as Map<String, dynamic>;
+        final addr = (map['address'] ?? '').toString();
+        if (addr.isNotEmpty) {
+          shippingAddress.value = addr;
+          return;
+        }
+        if (map['latitude'] != null && map['longitude'] != null) {
+          shippingAddress.value = '${map['latitude']}, ${map['longitude']}';
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
   }
 
   void _initializeOrderService() {
@@ -353,7 +395,7 @@ class ProductDetailsController extends GetxController {
   void clearOrderData() {
     createdOrder.value = null;
     orderErrorMessage('');
-    shippingAddress('');
+    orderShippingAddress('');
     selectedPaymentMethod('');
     selectedDeliveryOption('');
     couponCode('');

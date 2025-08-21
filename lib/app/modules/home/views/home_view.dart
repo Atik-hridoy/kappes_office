@@ -1,4 +1,3 @@
-
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/dev_data/bannar_dev_data.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
@@ -22,6 +21,8 @@ class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
   @override
   Widget build(BuildContext context) {
+    // Ensure HomeController is registered so `controller` (and Get.find) works.
+    final controller = Get.put(HomeController());
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -35,15 +36,19 @@ class HomeView extends GetView<HomeController> {
             Row(
               children: [
                 InkWell(
-                  onTap: () {
-                    Get.toNamed(Routes.searchLocation);
+                  onTap: () async {
+                    final result = await Get.toNamed(Routes.searchLocation);
+                    if (result != null && result is Map) {
+                      final address = (result['address'] ?? '${result['latitude']}, ${result['longitude']}').toString();
+                      controller.updateAddress(address);
+                    }
                   },
-                  child: AppText(
-                    title: "Edmonton, Alberta",
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  child: Obx(() => AppText(
+                        title: controller.currentAddress.value,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )),
                 ),
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
@@ -67,6 +72,9 @@ class HomeView extends GetView<HomeController> {
               imagePath: AppIcons.notification2,
               width: AppSize.height(height: 3.0),
               height: AppSize.height(height: 3.0),
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, color: AppColors.error);
+              },
             ),
           ),
           SizedBox(width: AppSize.width(width: 2.0)),
@@ -76,9 +84,13 @@ class HomeView extends GetView<HomeController> {
             },
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            child: ImageIcon(
-              AssetImage(AppIcons.cart),
-              size: AppSize.height(height: 3.0),
+            child: AppImage(
+              imagePath: AppIcons.cart,
+              width: AppSize.height(height: 3.0),
+              height: AppSize.height(height: 3.0),
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, color: AppColors.error);
+              },
             ),
           ),
         ],
@@ -90,7 +102,6 @@ class HomeView extends GetView<HomeController> {
           child: Column(
             children: [
               Row(
-                spacing: AppSize.height(height: 2.0),
                 children: [
                   Flexible(
                     child: InkWell(
@@ -103,6 +114,7 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                   ),
+                  SizedBox(width: AppSize.height(height: 2.0)),
                   FilterBox(),
                 ],
               ),

@@ -32,6 +32,9 @@ class PopularCategories extends StatelessWidget {
                   fit: BoxFit.contain,
                   height: AppSize.height(height: 4.5),
                   width: AppSize.height(height: 4.5),
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, color: AppColors.error);
+                  },
                 ),
               ),
               SizedBox(

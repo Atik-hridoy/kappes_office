@@ -2,6 +2,7 @@ import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/utils/image_utils.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:canuck_mall/app/widgets/product_card.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -74,10 +75,9 @@ class SavedView extends GetView<SavedController> {
               final product = savedItem.product;
               final imagePath =
                   product.images.isNotEmpty ? product.images.first : '';
-              final imageUrl =
-                  imagePath.isNotEmpty
-                      ? '${AppUrls.imageUrl}$imagePath'
-                      : 'https://via.placeholder.com/150';
+              final imageUrl = imagePath.isNotEmpty
+                  ? '${AppUrls.imageUrl}$imagePath'
+                  : ImageUtils.productPlaceholder;
 
               return InkWell(
                 onTap: () {

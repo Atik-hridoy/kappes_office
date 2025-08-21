@@ -163,6 +163,9 @@ class _ContactCard extends StatelessWidget {
                 imagePath: AppIcons.supportPhone,
                 height: AppSize.height(height: 5.0),
                 width: AppSize.height(height: 5.0),
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error, color: AppColors.error);
+                },
               ),
               title: AppText(
                 title: AppStaticKey.phone,
@@ -182,6 +185,9 @@ class _ContactCard extends StatelessWidget {
                 imagePath: AppIcons.supportMail,
                 height: AppSize.height(height: 5.0),
                 width: AppSize.height(height: 5.0),
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error, color: AppColors.error);
+                },
               ),
               title: AppText(
                 title: AppStaticKey.emailAddress,

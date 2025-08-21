@@ -88,6 +88,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                       width: double.infinity,
                       height: AppSize.height(height: 40.0),
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.error, color: AppColors.error),
                     ),
                   ),
                   Positioned(
@@ -206,6 +208,8 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                         height: AppSize.height(height: 5.5),
                         width: AppSize.height(height: 5.5),
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.error, color: AppColors.error),
                       ),
                     ),
                     SizedBox(width: AppSize.width(width: 2.0)),

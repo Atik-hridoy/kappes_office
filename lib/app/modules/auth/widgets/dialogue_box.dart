@@ -24,6 +24,9 @@ class DialogueBox extends StatelessWidget {
             imagePath: AppImages.vectorImage,
             height: AppSize.height(height: 7.0),
             width: AppSize.height(height: 7.0),
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.error, color: AppColors.error);
+            },
           ),
           SizedBox(height: AppSize.height(height: 2.0)),
           Text(

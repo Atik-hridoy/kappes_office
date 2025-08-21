@@ -47,7 +47,6 @@ abstract class AppUrls {
   static const String getProduct = '/product';
   static const String getProductByShopId = '/shop/products';
   static const String getReviews = '/review/product';
-  //static const String getShop = '/shop';
   static const String searchProduct ='/products';
   static const String review = 'review/product/6858dafad21add59c265e18e';
 
@@ -71,6 +70,7 @@ abstract class AppUrls {
   static const String getCoupon = '/coupon';
   static const String addToCart = '/cart/create';
   static const String wishlist = '/wishlist';
+  static const String shipping = '/settings/shipping-details';
 
   // message
 

@@ -43,6 +43,9 @@ class CustomIconButton extends StatelessWidget {
                 imagePath: path,
                 height: AppSize.height(height: 3.0),
                 width: AppSize.height(height: 3.0),
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error, color: AppColors.error);
+                },
               ),
               SizedBox(
                 width: AppSize.width(width: 3.0),
