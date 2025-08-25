@@ -157,7 +157,7 @@ class LoginView extends GetView<LoginController> {
         onPressed: controller.isLoading.value 
             ? () {} // Empty callback when loading
             : () => _handleLogin(), // Wrapped in a non-nullable function
-        title: controller.isLoading.value ? 'Signing in...' : AppStaticKey.singIn,
+        title: controller.isLoading.value ? 'Signing in...' : AppStaticKey.signIn,
         style: Get.textTheme.bodyLarge!.copyWith(
           fontWeight: FontWeight.w600,
           color: AppColors.white,

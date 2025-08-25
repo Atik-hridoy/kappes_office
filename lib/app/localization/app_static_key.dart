@@ -11,7 +11,7 @@ abstract class AppStaticKey {
       "Find the perfect product, whether you're looking for eco-friendly skincare, artisan jewelry, or locally made decor. The best of Canada is right at your fingertips";
   static const String onboardTwoDescription =
       "Explore a vast selection of products across various categories, from fashion and home essentials to eco-friendly goods, local crafts, and much more.";
-  static const String singIn = "Sing In";
+  static const String signIn = "Sign In";
   static const String alreadyHaveAnAccount = "Already have an account? ";
   static const String signUp = "Sign Up";
   static const String welcomeBack = "Welcome Back";

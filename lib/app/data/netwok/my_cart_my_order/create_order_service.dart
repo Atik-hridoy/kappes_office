@@ -22,7 +22,7 @@ class OrderService {
           if (error.response?.statusCode == 401) {
             // Token refresh logic could go here, for example:
             // refreshToken();
-            AppLogger.debug('Unauthorized - Token expired or invalid');
+            AppLogger.debug('Unauthorized - Token expired or invalid', tag: 'OrderService', error: 'Unauthorized - Token expired or invalid');
           }
           return handler.next(error);
         },
@@ -33,10 +33,10 @@ class OrderService {
   Future<OrderResponse> createOrder(OrderRequest request) async {
     try {
       AppLogger.debug(
-        'OrderService: Sending order request: ${request.toJson()}',
+        'OrderService: Sending order request: ${request.toJson()}', tag: 'OrderService', error: 'OrderService: Sending order request: ${request.toJson()}',
       );
       AppLogger.debug(
-        'OrderService: Posting to URL: ${_dio.options.baseUrl}${AppUrls.createOrder}',
+        'OrderService: Posting to URL: ${_dio.options.baseUrl}${AppUrls.createOrder}', tag: 'OrderService', error: 'OrderService: Posting to URL: ${_dio.options.baseUrl}${AppUrls.createOrder}',
       );
       final response = await _dio.post(
         AppUrls.createOrder,
@@ -45,18 +45,18 @@ class OrderService {
 
       // Check for a successful status code (201 indicates resource creation)
       if (response.statusCode == 201 || response.statusCode == 200) {
-        AppLogger.debug("==================>> create order success $response.statusCode");
+        AppLogger.debug("==================>> create order success $response.statusCode", tag: 'OrderService', error: '==================>> create order success $response.statusCode');
         return OrderResponse.fromJson(response.data);
       } else {
         throw _handleError(response);
       }
     } on DioException catch (e) {
       // Handle Dio specific errors like connectivity issues, etc.
-      AppLogger.debug('DioException: ${e.message}');
+      AppLogger.debug('DioException: ${e.message}', tag: 'OrderService', error: 'DioException: ${e.message}');
       throw _handleError(e.response);
     } catch (e) {
       // Handle other types of errors
-      AppLogger.debug('Unexpected error: $e');
+      AppLogger.debug('Unexpected error: $e', tag: 'OrderService', error: 'Unexpected error: $e');
       throw ApiException(message: 'An unexpected error occurred');
     }
   }
@@ -66,7 +66,7 @@ class OrderService {
     final errorData = response?.data as Map<String, dynamic>?;
 
     // You can log the response for debugging purposes
-    AppLogger.debug('Error response: ${errorData ?? 'No error data available'}');
+    AppLogger.debug('Error response: ${errorData ?? 'No error data available'}', tag: 'OrderService', error: 'Error response: ${errorData ?? 'No error data available'}'      );
 
     return ApiException(
       code: statusCode,

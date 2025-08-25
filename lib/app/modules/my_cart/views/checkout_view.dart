@@ -24,7 +24,6 @@ class CheckoutView extends StatefulWidget {
 
 class _CheckoutViewState extends State<CheckoutView> {
   double itemCost = 0.0;
-  double shippingFee = 0.0;
   double discount = 0.0;
   double total = 0.0;
   bool _agreedToTnC = false;
@@ -51,12 +50,16 @@ class _CheckoutViewState extends State<CheckoutView> {
         products = args['products'] as List<dynamic>;
       }
     }
+    // Listen to shipping fee changes
+    final controller = Get.find<CheckoutViewController>();
+    ever(controller.shippingFee, (_) => _calculateTotal());
     _calculateTotal();
   }
 
   void _calculateTotal() {
+    final controller = Get.find<CheckoutViewController>();
     setState(() {
-      total = itemCost + shippingFee - discount;
+      total = itemCost + controller.shippingFee.value - discount;
       if (total < 0) total = 0;
     });
   }
@@ -322,20 +325,44 @@ class _CheckoutViewState extends State<CheckoutView> {
                       ],
                     ),
                     SizedBox(height: AppSize.height(height: 1.0)),
-                    Row(
+                    Obx(() => Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        AppText(
-                          title: AppStaticKey.shippingFee,
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Row(
+                          children: [
+                            AppText(
+                              title: AppStaticKey.shippingFee,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            if (controller.isCalculatingShipping.value)
+                              Padding(
+                                padding: EdgeInsets.only(left: 8.0),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                         AppText(
-                          title: "\$${shippingFee.toStringAsFixed(2)}",
-                          style: Theme.of(context).textTheme.bodySmall!
-                              .copyWith(fontWeight: FontWeight.w500),
+                          title: controller.isCalculatingShipping.value
+                              ? "Calculating..."
+                              : "\$${controller.shippingFee.value.toStringAsFixed(2)}",
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: controller.isCalculatingShipping.value
+                                ? Colors.grey
+                                : null,
+                          ),
                         ),
                       ],
-                    ),
+                    )),
                     SizedBox(height: AppSize.height(height: 1.0)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

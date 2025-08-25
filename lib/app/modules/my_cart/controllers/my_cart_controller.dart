@@ -41,7 +41,7 @@ class MyCartController extends GetxController {
       }
       final result = await CartService().fetchCartData(token);
 
-      AppLogger.debug('📦 Fetched cart data: ${result.toString()}');
+      AppLogger.debug('📦 Fetched cart data: ${result.toString()}', tag: 'MY_CART', error: result.toString());
 
       cartData.value = result;
 

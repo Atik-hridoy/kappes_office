@@ -37,25 +37,13 @@ class StoreController extends GetxController {
     try {
       isLoading.value = true; // Set loading state to true before fetching
       update(); // Trigger UI update to show loading indicator
-      AppLogger.debug('Fetching shop details for shop ID: $shopId', tag: 'STORE_CONTROLLER');
+      AppLogger.debug('Fetching shop details for shop ID: $shopId', tag: 'STORE_CONTROLLER', error: shopId);
 
       // Fetching store details from the service
       final result = await _storeService.fetchShopDetails(shopId);
 
       // Logging the fetched shop details
-      AppLogger.debug(
-        'Shop details fetched',
-        tag: 'STORE_CONTROLLER',
-        context: {
-          'id': result['data']['_id'] ?? 'N/A',
-          'name': result['data']['name'] ?? 'N/A',
-          'email': result['data']['email'] ?? 'N/A',
-          'phone': result['data']['phone'] ?? 'N/A',
-          'address': result['data']['address'] ?? 'N/A',
-          'hasLogo': (result['data']['logo'] != null && result['data']['logo'].toString().isNotEmpty) ? 'Yes' : 'No',
-          'hasCoverPhoto': (result['data']['coverPhoto'] != null && result['data']['coverPhoto'].toString().isNotEmpty) ? 'Yes' : 'No',
-        },
-      );
+      AppLogger.debug('Shop details fetched', tag: 'STORE_CONTROLLER', error: result['data']);
 
       // Setting fetched data to the store
       store.value = result['data']; // Set the store data
@@ -86,7 +74,7 @@ class StoreController extends GetxController {
 
       isLoading.value = false; // Set loading to false after data is fetched
       update(); // Trigger UI update after data fetch
-      AppLogger.info('Shop details fetched successfully', tag: 'STORE_CONTROLLER');
+      AppLogger.info('Shop details fetched successfully', tag: 'STORE_CONTROLLER',);
     } catch (e) {
       // Handle errors if any occur during data fetching
       error.value = 'Failed to fetch store details';
@@ -99,7 +87,7 @@ class StoreController extends GetxController {
   // Fetch products for the store by Shop ID
   Future<void> fetchProducts(String shopId) async {
     try {
-      AppLogger.debug('Fetching products for Shop ID: $shopId', tag: 'STORE_CONTROLLER');
+      AppLogger.debug('Fetching products for Shop ID: $shopId', tag: 'STORE_CONTROLLER', error: shopId);
       final productData = await _storeService.fetchProductsByShopId(shopId);
 
       products.clear(); // Clear existing products

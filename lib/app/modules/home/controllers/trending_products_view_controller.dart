@@ -20,17 +20,19 @@ class TrendingProductsController extends GetxController {
   Future<void> fetchTrendingProducts() async {
     AppLogger.debug(
       '\n🟡 TrendingProductController: Fetching trending products...',
+      tag: 'TRENDING_PRODUCTS',
+      error: 'TrendingProductController: Fetching trending products...',
     );
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
       final token = LocalStorage.token;
-      AppLogger.debug('🔐 Token used: $token');
+      AppLogger.debug('🔐 Token used: $token', tag: 'TRENDING_PRODUCTS', error: token);
 
       final result = await _service.getTrendingProducts(token: token);
 
-      AppLogger.debug('✅ Total products received: ${result.length}');
+      AppLogger.debug('✅ Total products received: ${result.length}', tag: 'TRENDING_PRODUCTS', error: result.length);
       for (var i = 0; i < result.length; i++) {
         final p = result[i];
         final name = p['name'] ?? 'Unnamed';
@@ -39,6 +41,8 @@ class TrendingProductsController extends GetxController {
 
         AppLogger.debug(
           '➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price',
+          tag: 'TRENDING_PRODUCTS',
+          error: '➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price',
         );
       }
 
@@ -48,7 +52,7 @@ class TrendingProductsController extends GetxController {
       errorMessage.value = 'Failed to fetch products: $e';
     } finally {
       isLoading.value = false;
-      AppLogger.debug('📴 Done fetching trending products\n');
+      AppLogger.debug('📴 Done fetching trending products\n', tag: 'TRENDING_PRODUCTS', error: 'Done fetching trending products\n');
     }
   }
 }

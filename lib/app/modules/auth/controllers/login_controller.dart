@@ -41,7 +41,7 @@ class LoginController extends GetxController {
         ),
       );
       
-      AppLogger.debug('Login response received', tag: 'AUTH', context: response.data);
+      AppLogger.debug('Login response received', tag: 'AUTH', context: response.data, error:  response.data);
 
       final data = response.data;
       if (data['success'] == true && data['data'] != null) {

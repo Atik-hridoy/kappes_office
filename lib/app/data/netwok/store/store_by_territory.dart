@@ -23,7 +23,7 @@ class ShopByTerritoryService {
       );
 
       final data = response.data;
-      AppLogger.debug('🌐 Territory response: $data', tag: 'SHOP_TERRITORY');
+      AppLogger.debug('🌐 Territory response: $data', tag: 'SHOP_TERRITORY', error: data);
       if (data is Map<String, dynamic>) {
         // Handle multiple possible backend shapes
         final raw = data['data'];

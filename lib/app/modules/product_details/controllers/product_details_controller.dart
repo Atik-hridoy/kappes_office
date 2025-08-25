@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/add_to_cart_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 import 'package:canuck_mall/app/data/netwok/product_details/product_details_service.dart';
@@ -30,6 +32,7 @@ class ProductDetailsController extends GetxController {
   final RxInt selectedQuantity = 1.obs;
   final RxString selectedVariantId = ''.obs;
   final RxBool isAddingToCart = false.obs;
+  final RxInt currentImageIndex = 0.obs;
   final RxList<String> availableColors = <String>[].obs;
   final RxList<String> availableSizes = <String>[].obs;
 
@@ -111,22 +114,121 @@ class ProductDetailsController extends GetxController {
         throw ArgumentError('Invalid product details argument');
       }
     } catch (e) {
-      AppLogger.error('Error loading product details: $e', error: 'Error loading product details: $e');
-      Get.snackbar('Error', 'Failed to load product details');
-      rethrow;
+      String errorMessage = 'Failed to load product details';
+      
+      // Handle different types of errors
+      if (e is DioException) {
+        if (e.response?.statusCode == 400) {
+          errorMessage = 'Invalid product request. Please try again.';
+          // Log the error with proper error parameter
+          AppLogger.error('Bad request (400): ${e.response?.data}', error: 'Bad Request');
+        } else if (e.response?.statusCode == 404) {
+          errorMessage = 'Product not found';
+        } else if (e.type == DioExceptionType.connectionTimeout ||
+                  e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Connection timeout. Please check your internet connection.';
+        } else {
+          errorMessage = 'Network error: ${e.message}';
+        }
+      } else if (e is FormatException) {
+        errorMessage = 'Error parsing product data';
+      }
+      
+      AppLogger.error('Error in fetchProductDetails: $e', error: errorMessage);
+      
+      // Show user-friendly error message
+      if (Get.isSnackbarOpen) {
+        Get.back(); // Close any existing snackbar
+      }
+      Get.snackbar(
+        'Error',
+        errorMessage,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+      
+      // Navigate back if we can't load the product
+      if (product.value == null) {
+        await Future.delayed(const Duration(seconds: 2));
+        // Use the actual route name from your app's routes
+        if (Get.currentRoute == '/product-details') {
+          Get.back();
+        }
+      }
+    } finally {
+      isLoading(false);
     }
   }
 
   Future<void> fetchProductDetails(String id) async {
     try {
       isLoading(true);
-      AppLogger.info('Fetching product details...');
+      
+      // Log the start of product details fetch
+      AppLogger.info(
+        '🔄 [ProductDetails] Starting to fetch product details',
+        tag: 'PRODUCT_DETAILS',
+      );
+      
+      // Validate product ID
+      if (id.isEmpty) {
+        throw Exception('Invalid product ID');
+      }
+      
+      // Log the product ID being fetched
+      AppLogger.debug(
+        '🔍 [ProductDetails] Fetching product with ID: $id',
+        tag: 'PRODUCT_DETAILS',
+        error: 'Fetching product details',
+        context: {'productId': id},
+      );
+          
+      // Make the API call
       final response = await _productDetailsService.getProductById(id);
+      
+      // Log the raw response (be careful with large responses)
+      AppLogger.debug(
+        '📦 [ProductDetails] Received response for product ID: $id',
+        tag: 'PRODUCT_DETAILS',
+        error: 'Product details response',
+        context: {
+          'status': 'success',
+          'responseType': response.runtimeType.toString(),
+        },
+      );
+          
+      // Process the response
       product.value = ProductData.fromJson(response);
+      
+      // Initialize variant data and log the result
       _initializeVariantData();
-      AppLogger.info('Product details fetched successfully: ${product.value?.name}');
+      
+      // Get product details for logging
+      final productName = product.value?.name ?? 'Unknown';
+      final variants = product.value?.productVariantDetails ?? [];
+      
+      // Log successful product load
+      AppLogger.info(
+        '✅ [ProductDetails] Successfully loaded product: $productName (ID: $id)',
+        tag: 'PRODUCT_DETAILS',
+        context: {
+          'productId': id,
+          'productName': productName,
+          'variantsCount': variants.length,
+          'hasVariants': variants.isNotEmpty,
+        },
+      );
     } catch (e) {
-      AppLogger.error('Error fetching product details: $e', error: 'Error fetching product details: $e');
+      AppLogger.error(
+        '❌ [ProductDetails] Error fetching product details',
+        tag: 'PRODUCT_DETAILS',
+        error: e,
+        context: {
+          'productId': id,
+          'error': e.toString(),
+          'stackTrace': StackTrace.current.toString(),
+        },
+      );
       Get.snackbar('Error', 'Failed to fetch product details');
       rethrow;
     } finally {

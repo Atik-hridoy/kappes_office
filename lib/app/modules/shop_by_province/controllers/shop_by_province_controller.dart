@@ -25,15 +25,15 @@ class ShopByProvinceController extends GetxController {
     try {
       isLoading(true);
       final result = await _shopByProvinceService.getShopsByProvince(token);
-      AppLogger.debug('🌐 Province result: ${result.toJson()}', tag: 'SHOP_PROVINCE');
+      AppLogger.debug('🌐 Province result: ${result.toJson()}', tag: 'SHOP_PROVINCE', error: result.toJson());
       if (result.success) {
         provinces.value = result.data;
         // Log the full list and each entry for debugging
         AppLogger.info('✅ Provinces list loaded (${result.data.length} items)', tag: 'SHOP_PROVINCE');
-        AppLogger.debug('📃 Provinces list (json): ${result.data.map((e) => e.toJson()).toList()}', tag: 'SHOP_PROVINCE');
+        AppLogger.debug('📃 Provinces list (json): ${result.data.map((e) => e.toJson()).toList()}', tag: 'SHOP_PROVINCE', error: result.data.map((e) => e.toJson()).toList());
         for (var i = 0; i < result.data.length; i++) {
           final p = result.data[i];
-          AppLogger.debug('• [$i] province=${p.province}, productCount=${p.productCount}', tag: 'SHOP_PROVINCE');
+          AppLogger.debug('• [$i] province=${p.province}, productCount=${p.productCount}', tag: 'SHOP_PROVINCE', error: p.toJson());
         }
       } else {
         provinces.clear();
