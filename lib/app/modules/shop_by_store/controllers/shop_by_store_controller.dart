@@ -51,11 +51,11 @@ class ShopByStoreController extends GetxController {
       final isLastPage = shops.length < _pageSize;
       
       if (isLastPage) {
-        AppLogger.debug('Reached last page of shops', tag: 'SHOP_BY_STORE');
+        AppLogger.debug('Reached last page of shops', tag: 'SHOP_BY_STORE', error: shops);
         pagingController.appendLastPage(shops);
       } else {
         final nextPageKey = pageKey + 1;
-        AppLogger.debug('Loaded ${shops.length} shops, next page: $nextPageKey', tag: 'SHOP_BY_STORE');
+        AppLogger.debug('Loaded ${shops.length} shops, next page: $nextPageKey', tag: 'SHOP_BY_STORE', error: shops);
         pagingController.appendPage(shops, nextPageKey);
       }
     } catch (error) {

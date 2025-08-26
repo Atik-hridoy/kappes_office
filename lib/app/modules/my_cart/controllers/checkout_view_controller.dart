@@ -1,5 +1,7 @@
 // checkout_view_controller.dart
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
+import 'package:canuck_mall/app/data/netwok/my_cart_my_order/shipping_service.dart';
+import 'package:canuck_mall/app/model/sheeping_model.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -44,14 +46,79 @@ class CheckoutViewController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isEditingAddress = false.obs;
   final RxBool termsAccepted = false.obs;
-
   final RxBool isRemember = false.obs;
+  final RxBool isCalculatingShipping = false.obs;
+  
+  // Shipping
+  final ShippingService _shippingService = ShippingService();
+  final RxDouble shippingFee = 0.0.obs;
+  final Rx<ShippingData?> shippingData = Rx<ShippingData?>(null);
 
   @override
   void onInit() {
     super.onInit();
     loadUserData();
     _getInitialLocation();
+    _loadShippingData();
+  }
+
+  Future<void> _loadShippingData() async {
+    try {
+      isLoading.value = true;
+      final details = await _shippingService.getShippingDetails();
+      shippingData.value = details.data;
+      calculateShippingFee();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load shipping information');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> calculateShippingFee() async {
+    if (shippingData.value == null || userAddress.value.isEmpty) {
+      shippingFee.value = 0.0;
+      return;
+    }
+
+    // Only proceed if the address has changed
+    final currentAddress = userAddress.value;
+    isCalculatingShipping.value = true;
+    
+    try {
+      await Future.delayed(const Duration(milliseconds: 500)); // Debounce delay
+      if (currentAddress != userAddress.value) return; // Address changed while waiting
+
+      final address = currentAddress.toLowerCase();
+      double newFee = 0.0;
+      
+      // Check for free shipping conditions first
+      if (shippingData.value!.freeShipping.area?.any((area) => 
+          address.contains(area.toLowerCase())) ?? false) {
+        newFee = 0.0;
+      } 
+      // Check for central shipping
+      else if (shippingData.value!.centralShipping.area?.any((area) => 
+          address.contains(area.toLowerCase())) ?? false) {
+        newFee = shippingData.value!.centralShipping.cost.toDouble();
+      }
+      // Check for country shipping
+      else if (shippingData.value!.countryShipping.area?.any((area) => 
+          address.contains(area.toLowerCase())) ?? false) {
+        newFee = shippingData.value!.countryShipping.cost.toDouble();
+      }
+      // Default to worldwide shipping
+      else {
+        newFee = shippingData.value!.worldWideShipping.cost.toDouble();
+      }
+      
+      // Only update if the fee has actually changed
+      if (shippingFee.value != newFee) {
+        shippingFee.value = newFee;
+      }
+    } finally {
+      isCalculatingShipping.value = false;
+    }
   }
 
   // Get initial location from HomeController
@@ -116,15 +183,26 @@ class CheckoutViewController extends GetxController {
 
   Future<void> saveAddress() async {
     try {
-      await LocalStorage.setString(LocalStorageKeys.myName, name.value);
-      await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
-      await LocalStorage.setString(LocalStorageKeys.myAddress, address.value);
+      // Only update if address has actually changed
+      if (userName.value != name.value ||
+          userPhone.value != phone.value ||
+          userAddress.value != address.value) {
+            
+        await LocalStorage.setString(LocalStorageKeys.myName, name.value);
+        await LocalStorage.setString(LocalStorageKeys.phone, phone.value);
+        await LocalStorage.setString(LocalStorageKeys.myAddress, address.value);
 
-      userName.value = name.value;
-      userPhone.value = phone.value;
-      userAddress.value = address.value;
+        userName.value = name.value;
+        userPhone.value = phone.value;
+        userAddress.value = address.value;
+        
+        // Recalculate shipping fee when address changes
+        if (userAddress.value.isNotEmpty) {
+          await calculateShippingFee();
+        }
 
-      Get.snackbar('Success', 'Address updated successfully');
+        Get.snackbar('Success', 'Address updated successfully');
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to save address');
     }
@@ -138,6 +216,8 @@ class CheckoutViewController extends GetxController {
   ) async {
     AppLogger.debug(
       'Checkout initiated. agreedToTnC: $agreedToTnC, shopId: ${shopId ?? 'null'}',
+      tag: 'CHECKOUT',
+      error: 'Checkout initiated. agreedToTnC: $agreedToTnC, shopId: ${shopId ?? 'null'}',
     );
     if (!agreedToTnC) {
       Get.snackbar(
@@ -161,7 +241,7 @@ class CheckoutViewController extends GetxController {
       );
       return;
     }
-    AppLogger.debug('Shop ID from args: $shopIdFromArgs');
+    AppLogger.debug('Shop ID from args: $shopIdFromArgs', error: shopIdFromArgs);
     if (shopIdFromArgs.isEmpty) {
       Get.snackbar(
         'Order',
@@ -250,14 +330,17 @@ class CheckoutViewController extends GetxController {
     try {
       AppLogger.debug(
         '[Checkout] Creating order with payload: ${orderRequest.toJson()}',
+        tag: 'CHECKOUT',
+        error: orderRequest.toJson(),
       );
 
       final response = await OrderService(token).createOrder(orderRequest);
 
-      AppLogger.debug("===============status by chironjit $response.body");
-
+     
       AppLogger.debug(
         '[Checkout] OrderService response: ${response.toString()}',
+        tag: 'CHECKOUT',
+        error: response.toString(),
       );
       if (response.success && response.data != null) {
         AppLogger.success(
@@ -272,6 +355,8 @@ class CheckoutViewController extends GetxController {
                 .toList();
         AppLogger.debug(
           '[Checkout] Passing products to success view: type=${productsList.runtimeType}, value=$productsList',
+          tag: 'CHECKOUT',
+          error: productsList.runtimeType,
         );
         Get.offNamed(
           Routes.checkoutSuccessfulView,

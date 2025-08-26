@@ -62,9 +62,16 @@ class LoginView extends GetView<LoginController> {
           SizedBox(height: AppSize.height(height: 2.0)),
           AppText(
             title: AppStaticKey.logInToContinueShoppingAndEnjoyPersonalizedOffers,
-            maxLine: 3,
+            maxLine: 2,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(letterSpacing: 0.0),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: const Color(0xFF696969),
+              fontFamily: 'Poppins',
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              height: 1.5, // Increased from 1.5 to 2.0 for better spacing
+              letterSpacing: 0.0,
+            ),
           ),
         ],
       ),
@@ -76,7 +83,7 @@ class LoginView extends GetView<LoginController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: AppStaticKey.email, style: Theme.of(context).textTheme.titleSmall),
-        SizedBox(height: AppSize.height(height: 0.5)),
+        SizedBox(height: AppSize.height(height: 1.5)),
         TextFormField(
           controller: controller.emailController,
           decoration: InputDecoration(hintText: AppStaticKey.enterYourEmailAddress),
@@ -93,7 +100,7 @@ class LoginView extends GetView<LoginController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: AppStaticKey.password, style: Theme.of(context).textTheme.titleSmall),
-        SizedBox(height: AppSize.height(height: 0.5)),
+        SizedBox(height: AppSize.height(height: 1.5)),
         Obx(() => TextFormField(
           controller: controller.passwordController,
           obscureText: !controller.isPasswordVisible.value,
@@ -157,7 +164,7 @@ class LoginView extends GetView<LoginController> {
         onPressed: controller.isLoading.value 
             ? () {} // Empty callback when loading
             : () => _handleLogin(), // Wrapped in a non-nullable function
-        title: controller.isLoading.value ? 'Signing in...' : AppStaticKey.singIn,
+        title: controller.isLoading.value ? 'Signing in...' : AppStaticKey.signIn,
         style: Get.textTheme.bodyLarge!.copyWith(
           fontWeight: FontWeight.w600,
           color: AppColors.white,

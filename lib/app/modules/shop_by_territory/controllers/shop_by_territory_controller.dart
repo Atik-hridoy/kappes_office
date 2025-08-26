@@ -26,13 +26,13 @@ class ShopByTerritoryController extends GetxController {
     try {
       isLoading(true);
       final result = await _service.getTerritories(token, searchTerm);
-      AppLogger.debug('🌐 Territory result: ${result.toJson()}', tag: 'SHOP_TERRITORY');
+      AppLogger.debug('🌐 Territory result: ${result.toJson()}', tag: 'SHOP_TERRITORY', error: result.toJson());
       if (result.success) {
         territories.value = result.data;
         AppLogger.info('✅ Territories list loaded (${result.data.length} items)', tag: 'SHOP_TERRITORY');
         for (var i = 0; i < result.data.length; i++) {
           final t = result.data[i];
-          AppLogger.debug('• [$i] province=${t.province}, productCount=${t.productCount}', tag: 'SHOP_TERRITORY');
+          
         }
         if (result.data.isEmpty) {
           AppLogger.warning('⚠️ Success true but empty territories list', tag: 'SHOP_TERRITORY');

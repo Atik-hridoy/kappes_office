@@ -48,7 +48,7 @@ class OnboardingView extends GetView<OnboardingController> {
             onPressed: () {
               Get.offAllNamed(Routes.login);
             },
-            title: AppStaticKey.singIn,
+            title: AppStaticKey.signIn,
             width: AppSize.width(width: 80.0),
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
               fontWeight: FontWeight.w500,

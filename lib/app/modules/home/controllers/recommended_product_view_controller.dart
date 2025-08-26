@@ -25,7 +25,7 @@ class RecommendedProductController extends GetxController {
 
       final result = await _service.getRecommendedProducts(token: token);
 
-      AppLogger.debug('✅ Total products received: ${result.length}');
+      AppLogger.debug('✅ Total products received: ${result.length}', error: result.length);
       for (var i = 0; i < result.length; i++) {
         final p = result[i];
         final name = p['name'] ?? 'Unnamed';
@@ -34,6 +34,8 @@ class RecommendedProductController extends GetxController {
 
         AppLogger.debug(
           '➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price',
+          tag: 'RECOMMENDED_PRODUCTS',
+          error: '➡️ Product[$i]: ID=$id | Name="$name" | Price=\$$price',
         );
       }
 
@@ -42,7 +44,7 @@ class RecommendedProductController extends GetxController {
       errorMessage.value = 'Failed to fetch products: $e';
     } finally {
       isLoading.value = false;
-      AppLogger.debug('📴 Done fetching recommended products');
-    }
+        AppLogger.debug('📴 Done fetching recommended products', tag: 'RECOMMENDED_PRODUCTS', error: '📴 Done fetching recommended products');
+      }
   }
 }

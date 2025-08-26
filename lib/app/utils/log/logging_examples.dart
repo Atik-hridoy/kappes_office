@@ -17,7 +17,7 @@ class LoggingExamples {
     AppLogger.info('User logged in successfully', tag: 'AUTH');
     AppLogger.warning('Network connection is slow', tag: 'NETWORK');
     AppLogger.error('Failed to load product data', tag: 'API', error: Exception('Failed to load product data'));
-    AppLogger.debug('User session token: xyz123', tag: 'AUTH');
+    AppLogger.debug('User session token: xyz123', tag: 'AUTH', error: Exception('User session token: xyz123'));
   }
 
   /// Example: Specialized logging for common categories.

@@ -1,6 +1,5 @@
 import 'package:canuck_mall/app/data/netwok/auth/forget_password_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
-import 'package:canuck_mall/app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -56,23 +55,43 @@ class ResetPasswordViewController extends GetxController {
       print('New Password: $newPassword');
       print('Confirm Password: $confirmPassword');
       
+      print('Using token for password reset: $token');
+      
       final result = await _forgetPasswordService.resetPassword(
-        token: token,
         email: email,
         newPassword: newPassword,
         confirmPassword: confirmPassword,
+        token: token,
       );
+      
+      print('Reset password response: $result');
       
       print('Reset Password Response: $result');
       
       isLoading.value = false;
       
       if (result['success'] == true) {
-        showSuccessMessage(Get.context!);
+        // Close any open dialogs first
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
         
-        // Navigate to login after a short delay
-        await Future.delayed(const Duration(seconds: 2));
-        Get.offAllNamed(Routes.login);
+        // Navigate to login first to prevent any context issues
+        await Get.offAllNamed(Routes.login);
+        
+        // Show success message after navigation
+        if (Get.isSnackbarOpen) {
+          Get.back();
+        }
+        
+        Get.snackbar(
+          'Success',
+          'Your password has been reset successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.shade700,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
       } else {
         final errorMsg = result['message']?.toString() ?? 'Failed to reset password';
         errorMessage.value = errorMsg;
@@ -97,44 +116,7 @@ class ResetPasswordViewController extends GetxController {
     }
   }
 
-  void showSuccessMessage(BuildContext context) {
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 50),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Success!',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Your password has been reset successfully.'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                      Get.offAllNamed(Routes.login);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    } catch (e, stackTrace) {
-      AppUtils.appError("Error in showSuccessMessage: $e\n$stackTrace");
-    }
-  }
+  // Removed showSuccessMessage method as we're now using snackbar
 
   @override
   void onClose() {

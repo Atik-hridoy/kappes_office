@@ -212,7 +212,7 @@ class AppLogger {
     _log(Level.error, message, tag, context, category);
   }
 
-  static void debug(dynamic message, {String? tag, Map<String, dynamic>? context, String? category}) {
+  static void debug(dynamic message, {String? tag, Map<String, dynamic>? context, String? category, required Object error}) {
     _log(Level.debug, message, tag, context, category);
   }
 

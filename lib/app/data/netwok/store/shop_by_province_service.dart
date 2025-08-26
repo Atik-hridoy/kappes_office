@@ -20,7 +20,7 @@ class ShopByProvinceService {
       );
 
       final data = response.data;
-      AppLogger.debug('🌐 Province response: $data', tag: 'SHOP_PROVINCE');
+      AppLogger.debug('🌐 Province response: $data', tag: 'SHOP_PROVINCE', error: data);
       if (data is Map<String, dynamic>) {
         return ProvinceStore.fromJson(data);
       }

@@ -9,10 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/modules/saved/controllers/saved_controller.dart';
 
-/// Main entry point for the app.
-///
-/// This function is responsible for initializing the app, setting up the
-/// system UI, loading local preferences, and running the app.
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

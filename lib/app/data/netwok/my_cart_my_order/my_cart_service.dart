@@ -15,7 +15,7 @@ class CartService extends GetConnect {
   // Function to fetch cart data with token
   Future<GetCartModel> fetchCartData(String token) async {
     try {
-      AppLogger.debug("🔵 [CartService] Starting to fetch cart data...");
+      AppLogger.debug("🔵 [CartService] Starting to fetch cart data...", tag: 'CartService', error: '🔵 [CartService] Starting to fetch cart data...');
       
       if (token.isEmpty) {
         AppLogger.error('❌ [CartService] Error: Empty token provided', tag: 'CartService', error: 'Empty token provided');
@@ -28,8 +28,8 @@ class CartService extends GetConnect {
         'Content-Type': 'application/json',
       };
 
-      AppLogger.debug("🔵 [CartService] Making request to: $cartUrl");
-      AppLogger.debug("🔵 [CartService] Headers: ${dio.options.headers}");
+      AppLogger.debug("🔵 [CartService] Making request to: $cartUrl",     tag: 'CartService', error: '🔵 [CartService] Making request to: $cartUrl');
+      AppLogger.debug("🔵 [CartService] Headers: ${dio.options.headers}", tag: 'CartService', error: '🔵 [CartService] Headers: ${dio.options.headers}');
 
       // Increase timeout duration for slow server responses
       final response = await dio.get(
@@ -40,8 +40,8 @@ class CartService extends GetConnect {
         ),
       );
 
-      AppLogger.debug("🟢 [CartService] Response Status: ${response.statusCode}");
-      AppLogger.debug("🟢 [CartService] Response Data: ${response.data}");
+      AppLogger.debug("🟢 [CartService] Response Status: ${response.statusCode}", tag: 'CartService', error: '🟢 [CartService] Response Status: ${response.statusCode}');
+      AppLogger.debug("🟢 [CartService] Response Data: ${response.data}", tag: 'CartService', error: '🟢 [CartService] Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         if (response.data == null) {
@@ -51,7 +51,7 @@ class CartService extends GetConnect {
 
         try {
           final cartData = GetCartModel.fromJson(response.data);
-          AppLogger.debug('✅ [CartService] Successfully parsed cart data');
+          AppLogger.debug('✅ [CartService] Successfully parsed cart data', tag: 'CartService', error: '✅ [CartService] Successfully parsed cart data');
           return cartData;
         } catch (e) {
           AppLogger.error('❌ [CartService] Error parsing cart data: $e', tag: 'CartService', error: 'Error parsing cart data: $e');

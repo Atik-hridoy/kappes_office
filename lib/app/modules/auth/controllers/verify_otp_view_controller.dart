@@ -108,7 +108,22 @@ class VerifyOtpViewController extends GetxController {
       
       if (result['success'] == true) {
         if (from == 'forgot_password') {
-          final token = result['data']?['token']?.toString() ?? '';
+          // Extract verifyToken from the response data
+          final token = result['data']?['verifyToken']?.toString() ?? '';
+          
+          if (token.isEmpty) {
+            ErrorLogger.logCaughtError(
+              'No token found in OTP verification response',
+              StackTrace.current,
+              tag: 'VerifyOtpViewController',
+              context: {
+                'email': email.value,
+                'from': from,
+                'response': result.toString(),
+              },
+            );
+            print('Full response: $result');
+          }
           print('✅ Password reset OTP verified successfully!');
           print('🔑 Token received: ${token.isNotEmpty ? 'Token received' : 'No token received!'}');
           print('🔄 Navigating to reset password screen...');
@@ -118,7 +133,7 @@ class VerifyOtpViewController extends GetxController {
             Routes.resetPassword,
             arguments: {
               'email': email.value,
-              'token': token,
+              'token': token, // Token passed to reset password screen
             },
           );
         } else {

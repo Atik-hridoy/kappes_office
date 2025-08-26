@@ -5,7 +5,6 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 
 class OnboardingPageTwoView extends GetView {
@@ -24,7 +23,7 @@ class OnboardingPageTwoView extends GetView {
               return Icon(Icons.error, color: AppColors.error);
             },
           ),
-          SizedBox(height: AppSize.height(height: 3.0)),
+          SizedBox(height: AppSize.height(height: 2.0)),
           SizedBox(
             width: AppSize.width(width: 60.0),
             child: AppText(

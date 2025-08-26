@@ -21,7 +21,7 @@ class GetOrderService {
         requestBody: true,
         responseBody: true,
         error: true,
-        logPrint: (obj) => AppLogger.debug(obj),
+        logPrint: (obj) => AppLogger.debug(obj, tag: 'GetOrderService', error: obj),
       ),
     );
   }
@@ -53,7 +53,7 @@ class GetOrderService {
         AppUrls.getOrders,
         queryParameters: params,
       );
-      AppLogger.debug('[GetOrderService] Raw response: ${response.data}');
+      AppLogger.debug('[GetOrderService] Raw response: ${response.data}', tag: 'GetOrderService', error: 'Raw response: ${response.data}');
       if (response.statusCode == 200 && response.data != null) {
         return OrderResponseModel.fromJson(response.data);
       } else {

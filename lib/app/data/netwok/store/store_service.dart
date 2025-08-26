@@ -8,9 +8,9 @@ class StoreService {
   /// Fetch shop details by Shop ID
   Future<Map<String, dynamic>> fetchShopDetails(String shopId) async {
     try {
-      AppLogger.debug('Fetching details for Shop ID: $shopId', tag: 'STORE_SERVICE');
+      
       final response = await _dio.get('${AppUrls.baseUrl}/shop/$shopId');
-      AppLogger.debug('Shop details response: ${response.data}', tag: 'STORE_SERVICE');
+     
 
       if (response.statusCode == 200 && response.data['success']) {
         AppLogger.info('Successfully fetched shop details', tag: 'STORE_SERVICE');
@@ -28,9 +28,9 @@ class StoreService {
   /// Fetch products by Shop ID
   Future<List<dynamic>> fetchProductsByShopId(String shopId) async {
     try {
-      AppLogger.debug('Fetching products for Shop ID: $shopId', tag: 'STORE_SERVICE');
+      
       final response = await _dio.get('${AppUrls.baseUrl}/shop/products/$shopId');
-      AppLogger.debug('Products response: ${response.data}', tag: 'STORE_SERVICE');
+      
 
       if (response.statusCode == 200 && response.data['success']) {
         AppLogger.info('Successfully fetched products', tag: 'STORE_SERVICE');

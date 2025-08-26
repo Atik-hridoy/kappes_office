@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/modules/my_cart/controllers/checkout_view_controller.dart';
-import 'package:canuck_mall/app/modules/home/controllers/home_controller.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -90,15 +90,56 @@ class ShippingAddressCard extends StatelessWidget {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                controller.userName.value =
-                                    nameController.text.trim();
-                                controller.userAddress.value =
-                                    addressController.text.trim();
-                                controller.userPhone.value =
-                                    phoneController.text.trim();
-                                await controller.saveUserData();
-                                // ignore: use_build_context_synchronously
-                                Navigator.of(context).pop();
+                                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                                try {
+                                  // Show loading state
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) => WillPopScope(
+                                      onWillPop: () => Future.value(false),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  );
+
+                                  // Update address and calculate shipping
+                                  controller.userName.value = nameController.text.trim();
+                                  controller.userAddress.value = addressController.text.trim();
+                                  controller.userPhone.value = phoneController.text.trim();
+                                  
+                                  await controller.saveUserData();
+                                  await controller.calculateShippingFee();
+                                  
+                                  // Close loading dialog
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                  
+                                  // Close address dialog
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                    scaffoldMessenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Address updated successfully'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  // Close loading dialog if there's an error
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                    scaffoldMessenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed to update address: $e'),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                }
                               },
                               child: Text('Save'),
                             ),

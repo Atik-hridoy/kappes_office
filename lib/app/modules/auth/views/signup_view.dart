@@ -244,7 +244,7 @@ class SignUpView extends GetView<SignUpViewController> {
                                   ..onTap = () {
                                     Get.offAllNamed(Routes.login);
                                   },
-                            text: AppStaticKey.singIn,
+                            text: AppStaticKey.signIn,
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall!.copyWith(

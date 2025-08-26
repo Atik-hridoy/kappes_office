@@ -1,13 +1,14 @@
 import 'dart:convert';
+import 'package:canuck_mall/app/constants/app_urls.dart';
+import 'package:canuck_mall/app/data/local/storage_keys.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
+import 'package:canuck_mall/app/utils/error_handling/auth_error_handler.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:canuck_mall/app/data/local/storage_service.dart';
-import 'package:canuck_mall/app/data/local/storage_keys.dart';
-import 'package:canuck_mall/app/constants/app_urls.dart';
-import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -19,67 +20,94 @@ class LoginController extends GetxController {
   final RxString errorMessage = ''.obs;
   final Dio _dio = Dio();
 
-  // Centralized function for login validation and authentication
+  /// Validates the login form fields
+  bool _validateForm() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    
+    if (email.isEmpty) {
+      errorMessage.value = 'Please enter your email address';
+      return false;
+    }
+    
+    if (!GetUtils.isEmail(email)) {
+      errorMessage.value = 'Please enter a valid email address';
+      return false;
+    }
+    
+    if (password.isEmpty) {
+      errorMessage.value = 'Please enter your password';
+      return false;
+    }
+    
+    if (password.length < 8) {
+      errorMessage.value = 'Password must be at least 8 characters long';
+      return false;
+    }
+    
+    errorMessage.value = '';
+    return true;
+  }
+
+  /// Handles the login process
   Future<bool> login() async {
+    if (!_validateForm()) {
+      return false;
+    }
+
     try {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
-
-      if (email.isEmpty || password.isEmpty) {
-        return _handleError('Email and password are required');
-      }
-
+      
       await _handleRememberMe(isRemember.value);
       isLoading.value = true;
+      errorMessage.value = '';
 
       final response = await _dio.post(
         '${AppUrls.baseUrl}${AppUrls.login}',
-        data: jsonEncode({'email': email, 'password': password}),
+        data: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
         options: Options(
           headers: {'Content-Type': 'application/json'},
           responseType: ResponseType.json,
+          validateStatus: (status) => status! < 500,
         ),
       );
       
-      AppLogger.debug('Login response received', tag: 'AUTH', context: response.data);
+      AppLogger.debug(
+        'Login response received',
+        tag: 'AUTH',
+        context: response.data,
+        error: response.data.toString(),
+      );
 
-      final data = response.data;
-      if (data['success'] == true && data['data'] != null) {
-        await _storeTokens(data['data']);
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        await _storeTokens(response.data['data']);
         await fetchAndSaveProfile();
-        
-        // Force update the auth state
         await LocalStorage.getAllPrefData();
         return true;
       } else {
-        return _handleError(data['message'] ?? 'Login failed');
+        errorMessage.value = AuthErrorHandler.handleError(
+          response.data['message'] ?? 'Login failed',
+        );
+        return false;
       }
-    } catch (e) {
-      return _handleError(e.toString());
+    } on DioException catch (e) {
+      errorMessage.value = AuthErrorHandler.handleError(e);
+      return false;
+    } catch (e, _) {
+      errorMessage.value = 'An unexpected error occurred. Please try again.';
+      AppLogger.error(
+        'Unexpected login error: ${e.toString()}',
+        tag: 'AUTH',
+        error: e,
+      );
+      return false;
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // Centralized error handler
-  bool _handleError(String message) {
-    // Clean up the error message for better display
-    String cleanMessage = message;
-    
-    // Handle common error patterns
-    if (message.contains('DioException') || message.contains('SocketException')) {
-      cleanMessage = 'Unable to connect to the server. Please check your internet connection.';
-    } else if (message.contains('404')) {
-      cleanMessage = 'Server not found. Please try again later.';
-    } else if (message.contains('401') || message.toLowerCase().contains('invalid credentials')) {
-      cleanMessage = 'Invalid email or password. Please try again.';
-    } else if (message.toLowerCase().contains('timeout')) {
-      cleanMessage = 'Connection timeout. Please check your internet connection.';
-    }
-    
-    errorMessage.value = cleanMessage;
-    AppLogger.error('Login Error', tag: 'AUTH', context: {'error': message}, error: message);
-    return false;
   }
 
   // Save tokens to local storage
@@ -89,7 +117,8 @@ class LoginController extends GetxController {
       final refreshToken = data['refreshToken'] ?? '';
 
       if (token.isEmpty) {
-        return _handleError('Token missing in login response');
+        errorMessage.value = 'Token missing in login response';
+        return false;
       }
 
       // Save tokens and update login state
@@ -147,38 +176,35 @@ class LoginController extends GetxController {
 
   // Handle the "Remember Me" functionality
   Future<void> _handleRememberMe(bool remember) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (remember) {
-      await prefs.setBool('rememberMe', true);
-      await prefs.setString('savedEmail', emailController.text.trim());
-      await prefs.setString('savedPassword', passwordController.text.trim());
-    } else {
-      await prefs.setBool('rememberMe', false);
-      await prefs.remove('savedEmail');
-      await prefs.remove('savedPassword');
+    try {
+      if (remember) {
+        await LocalStorage.setString('remembered_email', emailController.text);
+      } else {
+        // Clear the remembered email if not checked
+        await LocalStorage.setString('remembered_email', '');
+      }
+    } catch (e) {
+      AppLogger.error('Error handling remember me', tag: 'AUTH', error: e);
     }
   }
 
   @override
-  void onReady() {
-    super.onReady();
-    _checkRememberMe();
+  void onInit() {
+    super.onInit();
+    // Don't await here to avoid blocking UI
+    checkRememberedEmail();
   }
 
   // Auto-login based on remembered credentials
-  Future<void> _checkRememberMe() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isRemembered = prefs.getBool('rememberMe') ?? false;
-
-    if (isRemembered) {
-      final savedEmail = prefs.getString('savedEmail') ?? '';
-      final savedPassword = prefs.getString('savedPassword') ?? '';
-      if (savedEmail.isNotEmpty && savedPassword.isNotEmpty) {
-        emailController.text = savedEmail;
-        passwordController.text = savedPassword;
+  Future<void> checkRememberedEmail() async {
+    try {
+      final rememberedEmail = await LocalStorage.getString('remembered_email') ?? '';
+      if (rememberedEmail.isNotEmpty) {
+        emailController.text = rememberedEmail;
         isRemember.value = true;
-        await login();
       }
+    } catch (e) {
+      AppLogger.error('Error checking remembered email', tag: 'AUTH', error: e);
     }
   }
 
