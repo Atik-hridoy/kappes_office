@@ -229,15 +229,36 @@ class ProfileView extends GetView<ProfileController> {
                           ),
                           CustomListTile(
                             onPressed: () async {
-                              // Clear all authentication data
-                              await LocalStorage.clearAll();
-                              // Force reload the storage values
-                              await LocalStorage.getAllPrefData();
-                              // Navigate to login screen
-                              Get.offAllNamed(Routes.login);
+                              // Show confirmation dialog
+                              final shouldLogout = await Get.dialog<bool>(
+                                AlertDialog(
+                                  title: Text('Logout'),
+                                  content: Text('Are you sure you want to log out?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Get.back(result: false),
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Get.back(result: true),
+                                      child: Text('Logout'),
+                                    ),
+                                  ],
+                                ),
+                              ) ?? false;
+
+                              if (shouldLogout) {
+                                // Clear all authentication data
+                                await LocalStorage.clearAll();
+                                // Force reload the storage values
+                                await LocalStorage.getAllPrefData();
+                                // Navigate to login screen
+                                Get.offAllNamed(Routes.login);
+                              }
                             },
                             image: AppIcons.logOut,
                             title: AppStaticKey.logOut,
+                            showArrow: false,
                           ),
                         ],
                       ),

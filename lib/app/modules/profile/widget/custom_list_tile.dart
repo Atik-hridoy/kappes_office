@@ -8,12 +8,14 @@ class CustomListTile extends StatelessWidget {
   final String image;
   final String title;
   final VoidCallback onPressed;
+  final bool showArrow;
 
   const CustomListTile({
     super.key,
     required this.image,
     required this.title,
     required this.onPressed,
+    this.showArrow = true,
   });
 
   @override
@@ -56,11 +58,12 @@ class CustomListTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    size: AppSize.height(height: 2.0),
-                    color: AppColors.gray,
-                  ),
+                  if (showArrow)
+                    Icon(
+                      Icons.arrow_forward_ios_outlined,
+                      size: AppSize.height(height: 2.0),
+                      color: AppColors.gray,
+                    ),
                 ],
               ),
             ),

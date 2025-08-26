@@ -20,7 +20,13 @@ class VerifySignupService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return {'success': true, 'data': data};
+        // Extract token from response if available
+        final token = data['token']?.toString() ?? '';
+        return {
+          'success': true, 
+          'data': data,
+          'token': token, // Include token in the response
+        };
       } else {
         final error = jsonDecode(response.body);
         return {'success': false, 'message': error['message'] ?? 'Invalid OTP'};
