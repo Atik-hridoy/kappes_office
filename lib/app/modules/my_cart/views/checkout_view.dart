@@ -33,6 +33,14 @@ class _CheckoutViewState extends State<CheckoutView> {
   @override
   void initState() {
     super.initState();
+    
+    // Ensure controller is initialized
+    try {
+      Get.find<CheckoutViewController>();
+    } catch (e) {
+      Get.put(CheckoutViewController());
+    }
+    
     final args = Get.arguments;
     if (args != null) {
       if (args['itemCost'] != null) {

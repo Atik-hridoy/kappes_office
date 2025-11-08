@@ -21,7 +21,7 @@ class CategoryView extends StatelessWidget {
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
         title: AppText(
-          title: AppStaticKey.savedItems,
+          title: AppStaticKey.category,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,
@@ -48,7 +48,14 @@ class CategoryView extends StatelessWidget {
               final category = controller.categories[index];
               return InkWell(
                 onTap: () {
-                  Get.toNamed(Routes.searchProductView);
+                  // Navigate to search product view with category filter
+                  Get.toNamed(
+                    Routes.searchProductView,
+                    arguments: {
+                      'categoryId': category['_id'],
+                      'categoryName': category['name'],
+                    },
+                  );
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,

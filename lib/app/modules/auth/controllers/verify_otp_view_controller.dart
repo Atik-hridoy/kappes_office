@@ -1,7 +1,7 @@
 // File: lib/app/modules/auth/controllers/verify_otp_view_controller.dart
 import 'dart:async';
 import 'package:canuck_mall/app/data/netwok/auth/forget_password_service.dart';
-import 'package:flutter/material.dart';
+import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/auth/verify_signup_service.dart';
@@ -41,12 +41,18 @@ class VerifyOtpViewController extends GetxController {
   }
 
   Future<bool> verifyOtp() async {
+    // Prevent multiple simultaneous calls
+    if (isLoading.value) {
+      print('⚠️ OTP verification already in progress, ignoring duplicate call');
+      return false;
+    }
+    
     print('=== Starting OTP Verification ===');
     print('Flow Type: $from');
     print('Email: ${email.value}');
     print('OTP Code: ${otpCode.value}');
     
-    isLoading.value = true;
+    // Clear previous error message
     errorMessage.value = '';
     
     // Validate OTP format
@@ -71,11 +77,8 @@ class VerifyOtpViewController extends GetxController {
     
     print('All validations passed. Proceeding with OTP verification...');
     
-    // Show loading state
-    Get.dialog(
-      const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false,
-    );
+    // Set loading state (button will show loading indicator)
+    isLoading.value = true;
     
     try {
       Map<String, dynamic> result;
@@ -213,6 +216,58 @@ class VerifyOtpViewController extends GetxController {
     super.onInit();
 
     onAppInitialDataLoadFun();
+  }
+
+  Future<void> resendOtp() async {
+    if (isLoading.value) {
+      print('⚠️ Already processing, ignoring resend request');
+      return;
+    }
+    
+    if (email.value.isEmpty) {
+      errorMessage.value = 'Email is required to resend OTP';
+      return;
+    }
+    
+    print('🔄 Resending OTP to: ${email.value}');
+    isLoading.value = true;
+    errorMessage.value = '';
+    
+    try {
+      Map<String, dynamic> result;
+      
+      if (from == 'forgot_password') {
+        // Use the dedicated resend OTP endpoint for forgot password
+        result = await _forgetPasswordService.resendOtp(email: email.value);
+      } else {
+        // Use the dedicated resend OTP endpoint for signup
+        result = await _verifySignupService.resendOtp(email: email.value);
+      }
+      
+      if (result['success'] == true) {
+        // Reset timer
+        remaining.value = 120;
+        _timer?.cancel();
+        startTimer();
+        
+        Get.snackbar(
+          'Success',
+          'A new OTP has been sent to your email',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primary.withOpacity(0.8),
+          colorText: AppColors.white,
+        );
+        print('✅ OTP resent successfully');
+      } else {
+        errorMessage.value = result['message']?.toString() ?? 'Failed to resend OTP';
+        print('❌ Failed to resend OTP: ${errorMessage.value}');
+      }
+    } catch (e) {
+      errorMessage.value = 'An error occurred while resending OTP';
+      print('Error resending OTP: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override

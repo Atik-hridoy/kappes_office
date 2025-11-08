@@ -138,7 +138,7 @@ class HomeView extends GetView<HomeController> {
                   Spacer(),
                   InkWell(
                     onTap: () {
-                      Get.toNamed(Routes.categoryView);
+                      Get.toNamed(Routes.category);
                     },
                     child: AppText(
                       title: AppStaticKey.seeAll,

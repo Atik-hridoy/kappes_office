@@ -78,10 +78,10 @@ class LanguageView extends GetView<LanguageViewController> {
                     const Spacer(),
                     Radio(
                       activeColor: AppColors.primary,
-                      value: "arabic",
+                      value: "french",
                       groupValue: controller.selectedLanguage.value,
                       onChanged: (value) {
-                        controller.selectedLanguage.value = "arabic";
+                        controller.selectedLanguage.value = "french";
                       },
                     ),
                   ],
@@ -89,7 +89,9 @@ class LanguageView extends GetView<LanguageViewController> {
               ),
             ),
             AppCommonButton(
-              onPressed: () {},
+              onPressed: () {
+                controller.changeLanguage();
+              },
               title: AppStaticKey.continued,
               fontSize: AppSize.height(height: 1.70),
             ),

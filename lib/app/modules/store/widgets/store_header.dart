@@ -14,6 +14,7 @@ class StoreHeader extends StatelessWidget {
   final double rating;
   final int reviewCount;
   final bool isVerified;
+  final int followerCount;
   
   const StoreHeader({
     super.key, 
@@ -24,6 +25,7 @@ class StoreHeader extends StatelessWidget {
     this.rating = 0.0,
     this.reviewCount = 0,
     this.isVerified = false,
+    this.followerCount = 0,
   });
 
   @override
@@ -133,7 +135,10 @@ class StoreHeader extends StatelessWidget {
                   AssetImage(AppIcons.follow),
                   size: AppSize.height(height: 2.0),
                 ),
-                Text("1k followers", style: TextStyle(fontSize: 12)),
+                Text(
+                  "${_formatFollowerCount(followerCount)} ${followerCount == 1 ? 'follower' : 'followers'}",
+                  style: TextStyle(fontSize: 12),
+                ),
               ],
             ),
             SizedBox(height: AppSize.height(height: 1.0)),
@@ -141,5 +146,15 @@ class StoreHeader extends StatelessWidget {
         ),
       ],
     );
+  }
+  
+  // Helper method to format follower count (e.g., 1000 -> 1k, 1500000 -> 1.5M)
+  static String _formatFollowerCount(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
   }
 }

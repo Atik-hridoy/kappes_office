@@ -99,8 +99,26 @@ class MyCartController extends GetxController {
   void goToCheckout() {
     final items = cartData.value?.data?.items ?? [];
     if (items.isEmpty) {
-      Get.snackbar('Error', 'Cart is empty');
+      Get.snackbar(
+        'Error',
+        'Cart is empty',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
       return;
+    }
+
+    // Validate that all items have required data
+    for (var item in items) {
+      if (item.productId?.id == null || item.variantId?.id == null) {
+        Get.snackbar(
+          'Error',
+          'Some cart items are missing required information',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+        return;
+      }
     }
 
     final products = items.map((item) => {
@@ -114,6 +132,18 @@ class MyCartController extends GetxController {
     }).toList();
 
     final shopId = items.first.productId?.shopId ?? '';
+    
+    if (shopId.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Shop information is missing',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    AppLogger.info('Navigating to checkout with ${products.length} products, shopId: $shopId');
 
     Get.toNamed(
       Routes.checkoutView,

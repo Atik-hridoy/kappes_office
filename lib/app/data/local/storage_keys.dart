@@ -9,5 +9,6 @@ class LocalStorageKeys {
   static const String myName = "myName";
   static const String myEmail = "myEmail";
   static const String myAddress = "myAddress";
-  static const String phone = "phone"; // For storing multiple addresses
+  static const String phone = "phone";
+  static const String language = "language"; // For storing user language preference
 }

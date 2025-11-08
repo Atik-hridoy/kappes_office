@@ -33,11 +33,12 @@ class SearchBox extends StatelessWidget {
     return SizedBox(
       height: height ?? AppSize.height(height: 6.0),
       child: TextField(
-        controller: controller, // ✅ NEW
+        controller: controller,
         onTap: onPressed,
         readOnly: redOnly,
         enabled: isEnable,
-        onSubmitted: onSearch, // ✅ Call onSearch when the user submits
+        onChanged: onSearch, // ✅ Trigger search as user types
+        onSubmitted: onSearch, // ✅ Also trigger when user presses Enter
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(left: AppSize.height(height: 2.0)),
           hintText: title ?? AppStaticKey.search,

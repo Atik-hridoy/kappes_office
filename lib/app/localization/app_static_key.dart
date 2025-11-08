@@ -206,11 +206,78 @@ abstract class AppStaticKey {
 
   static var fullAddress;
 
-  static String error = "Error";
-
-  static String pleaseAcceptTerms = "Please accept terms and conditions";
+  static const String error = "Error";
+  static const String success = "Success";
+  static const String pleaseAcceptTerms = "Please accept terms and conditions";
 
   static var editAddress;
-
   static var cancel;
+  
+  // Common Actions
+  static const String remove = "Remove";
+  static const String save = "Save";
+  static const String logout = "Logout";
+  static const String areYouSure = "Are you sure?";
+  static const String yes = "Yes";
+  static const String no = "No";
+  static const String ok = "OK";
+  
+  // Product & Cart Messages
+  static const String removeItem = "Remove Item";
+  static const String areYouSureRemoveItem = "Are you sure you want to remove this item?";
+  static const String removed = "Removed";
+  static const String itemRemoved = "has been removed";
+  static const String productRemovedFromWishlist = "Product removed from wishlist";
+  static const String productAddedToWishlist = "Product added to wishlist";
+  static const String addedToCart = "Added to cart";
+  static const String failedToAddToCart = "Failed to add to cart";
+  static const String pleaseLoginToAddToCart = "Please login to add items to cart";
+  static const String pleaseSelectProductOptions = "Please select product options";
+  static const String addedToFavorites = "Added to favorites";
+  static const String removedFromFavorites = "Removed from favorites";
+  
+  // Store & Chat Messages
+  static const String pleaseLoginToChat = "Please login to start a chat";
+  static const String storeInfoNotAvailable = "Store information not available";
+  static const String failedToCreateChat = "Failed to create chat";
+  static const String errorStartingChat = "An error occurred while starting the chat";
+  static const String noStoreDataFound = "No store data found.";
+  static const String noProductsAvailable = "No products available";
+  static const String noSavedProducts = "No saved products";
+  static const String productNotFound = "Product not found";
+  static const String noProductsFound = "No products found.";
+  
+  // Order Messages
+  static const String pleaseLoginToCreateOrder = "Please login to create order";
+  static const String orderCreatedSuccessfully = "Order created successfully!";
+  static const String failedToCreateOrder = "Failed to create order";
+  static const String shippingAddressRequired = "Shipping address is required";
+  static const String pleaseSelectPaymentMethod = "Please select a payment method";
+  static const String noOrdersFound = "No orders found.";
+  
+  // Profile & Settings
+  static const String passwordChangedSuccessfully = "Password changed successfully!";
+  static const String failedToChangePassword = "Failed to change password. Please try again.";
+  static const String allFieldsMustBeFilled = "All fields must be filled";
+  static const String profileUpdatedSuccessfully = "Profile updated successfully!";
+  static const String failedToUpdateProfile = "Failed to update profile. Try again later.";
+  static const String somethingWentWrong = "Something went wrong";
+  static const String areYouSureLogout = "Are you sure you want to log out?";
+  
+  // Address Messages
+  static const String editShippingAddressTitle = "Edit Shipping Address";
+  static const String addressUpdatedSuccessfully = "Address updated successfully";
+  static const String failedToUpdateAddress = "Failed to update address";
+  
+  // Notifications (noNotificationsAvailable only, notifications already exists above)
+  static const String noNotificationsAvailable = "No notifications available.";
+  
+  // Language
+  static const String languageChanged = "Language Changed";
+  static const String languageChangedTo = "Language has been changed to";
+  
+  // General Messages (refresh only, retry and cancel already exist above)
+  static const String refresh = "Refresh";
+  static const String loading = "Loading...";
+  static const String noDataAvailable = "No data available";
 }

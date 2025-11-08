@@ -17,7 +17,6 @@ abstract class Routes {
   static const category = _Paths.category;
   static const profile = _Paths.profile;
   static const searchProductView = _Paths.searchProductView;
-  static const categoryView = _Paths.categoryView;
   static const recommendedProductView = _Paths.recommendedProductView;
   static const trendingProductsView = _Paths.trendingProductsView;
   static const searchLocation = _Paths.searchLocation;
@@ -67,7 +66,6 @@ abstract class _Paths {
   static const category = '/category';
   static const profile = '/profile';
   static const searchProductView = '/searchProductView';
-  static const categoryView = '/categoryView';
   static const recommendedProductView = '/recommendedProductView';
   static const trendingProductsView = '/trendingProductsView';
   static const searchLocation = '/searchLocation';

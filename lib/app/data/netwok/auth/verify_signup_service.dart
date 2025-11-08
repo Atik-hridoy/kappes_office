@@ -35,4 +35,40 @@ class VerifySignupService {
       return {'success': false, 'message': 'OTP verification error: $e'};
     }
   }
+
+  /// Resend OTP for signup verification
+  Future<Map<String, dynamic>> resendOtp({required String email}) async {
+    if (email.isEmpty) {
+      return {'success': false, 'message': 'Email is required'};
+    }
+
+    final url = Uri.parse('${AppUrls.baseUrl}${AppUrls.resendOtp}');
+    
+    print('🔄 Resending OTP to: $email using ${AppUrls.resendOtp}');
+    
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      print('📥 Resend OTP Response Status: ${response.statusCode}');
+      print('📥 Resend OTP Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, ...data};
+      } else {
+        final error = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': error['message'] ?? 'Failed to resend OTP'
+        };
+      }
+    } catch (e) {
+      print('❌ Resend OTP Error: $e');
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
 }

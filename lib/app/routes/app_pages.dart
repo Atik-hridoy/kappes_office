@@ -153,11 +153,6 @@ class AppPages {
       binding: HomeBinding(),
     ),
     GetPage(
-      name: _Paths.categoryView,
-      page: () => const CategoryView(),
-      binding: HomeBinding(),
-    ),
-    GetPage(
       name: _Paths.recommendedProductView,
       page: () => const RecommendedProductView(),
       binding: HomeBinding(),

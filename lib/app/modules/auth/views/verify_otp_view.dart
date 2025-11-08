@@ -74,28 +74,119 @@ class VerifyOtpView extends GetView<VerifyOtpViewController> {
                         )
                         : SizedBox.shrink(),
               ),
-              SizedBox(height: AppSize.height(height: 3.0)),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await controller.verifyOtp();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: EdgeInsets.symmetric(
-                      vertical: AppSize.height(height: 1.5),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+              SizedBox(height: AppSize.height(height: 2.0)),
+              // Countdown Timer Display
+              Obx(
+                () => Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: AppSize.height(height: 1.0),
+                    horizontal: AppSize.width(width: 4.0),
                   ),
-                  child: Text(
-                    AppStaticKey.verify,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.white,
-                        ),
+                  decoration: BoxDecoration(
+                    color: controller.remaining.value > 0
+                        ? AppColors.primary.withOpacity(0.1)
+                        : Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 18,
+                        color: controller.remaining.value > 0
+                            ? AppColors.primary
+                            : Colors.red,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        controller.remaining.value > 0
+                            ? 'OTP expires in ${controller.formattedTime}'
+                            : 'OTP expired',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: controller.remaining.value > 0
+                                  ? AppColors.primary
+                                  : Colors.red,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 2.0)),
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () async {
+                            await controller.verifyOtp();
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSize.height(height: 1.5),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: controller.isLoading.value
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            AppStaticKey.verify,
+                            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white,
+                                ),
+                          ),
+                  ),
+                ),
+              ),
+              SizedBox(height: AppSize.height(height: 1.5)),
+              // Resend OTP Button
+              Obx(
+                () => TextButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () async {
+                          await controller.resendOtp();
+                        },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.refresh,
+                        size: 18,
+                        color: controller.isLoading.value
+                            ? Colors.grey
+                            : AppColors.primary,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        controller.remaining.value > 0
+                            ? 'Didn\'t receive the code? Resend'
+                            : 'Resend OTP',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: controller.isLoading.value
+                                  ? Colors.grey
+                                  : AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
               ),

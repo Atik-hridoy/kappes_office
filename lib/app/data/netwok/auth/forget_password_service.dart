@@ -42,6 +42,47 @@ class ForgetPasswordService {
     }
   }
 
+  // Resend OTP using dedicated endpoint
+  Future<Map<String, dynamic>> resendOtp({required String email}) async {
+    if (email.isEmpty) {
+      return {'success': false, 'message': 'Email is required'};
+    }
+
+    print('🔄 Resending OTP to: $email using ${AppUrls.resendOtp}');
+
+    try {
+      final response = await _dio.post(
+        '${AppUrls.baseUrl}${AppUrls.resendOtp}',
+        data: {'email': email},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      print('📥 Resend OTP Response Status: ${response.statusCode}');
+      print('📥 Resend OTP Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return {'success': true, ...response.data as Map<String, dynamic>};
+      } else {
+        return {
+          'success': false,
+          'message': response.data['message']?.toString() ?? 'Failed to resend OTP',
+        };
+      }
+    } on DioException catch (e) {
+      print('❌ Resend OTP Error: ${e.message}');
+      return {
+        'success': false,
+        'message': e.response?.data?['message']?.toString() ?? 'Network error: ${e.message}',
+      };
+    }
+  }
+
   // Verify OTP
   Future<Map<String, dynamic>> verifyOtp({
     required String email,

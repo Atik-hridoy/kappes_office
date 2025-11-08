@@ -8,7 +8,6 @@ import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../constants/app_images.dart';
 import '../../../widgets/product_card.dart';
 import '../controllers/store_controller.dart';
 import '../widgets/store_header.dart';
@@ -59,76 +58,66 @@ class StoreView extends GetView<StoreController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Gallery Carousel
-              if (galleryImages.isNotEmpty)
-                SizedBox(
-                  height: AppSize.height(height: 25.0),
-                  child: PageView.builder(
-                    itemCount: galleryImages.length,
-                    itemBuilder: (context, index) {
-                      return AppImage(
-                        imagePath: galleryImages[index],
-                        fit: BoxFit.cover,
-                        width: double.maxFinite,
-                        height: AppSize.height(height: 25.0),
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.error, color: AppColors.error),
-                      );
-                    },
-                  ),
-                ),
-              // Store Logo (as avatar)
-              Center(
-                child: CircleAvatar(
-                  radius: AppSize.height(height: 7.0),
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: AppSize.height(height: 6.5),
-                    backgroundColor: Colors.grey[200],
-                    child: AppImage(
-                      imagePath:
-                          controller.shopLogoUrl.value.isNotEmpty
-                              ? controller.shopLogoUrl.value
-                              : AppImages.shopLogo,
-                      fit: BoxFit.cover,
-                      width: AppSize.height(height: 13.0),
-                      height: AppSize.height(height: 13.0),
-                      errorBuilder: (context, error, stackTrace) =>
-                          Icon(Icons.error, color: AppColors.error),
+              Stack(
+                children: [
+                  // Gallery Images
+                  if (galleryImages.isNotEmpty)
+                    SizedBox(
+                      height: AppSize.height(height: 25.0),
+                      child: PageView.builder(
+                        itemCount: galleryImages.length,
+                        itemBuilder: (context, index) {
+                          return AppImage(
+                            imagePath: galleryImages[index],
+                            fit: BoxFit.cover,
+                            width: double.maxFinite,
+                            height: AppSize.height(height: 25.0),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error, color: AppColors.error),
+                          );
+                        },
+                      ),
                     ),
+                  // Follow Button
+                  Positioned(
+                    top: AppSize.height(height: 1.5),
+                    right: AppSize.width(width: 4.0),
+                    child: FollowButton(),
                   ),
-                ),
+                ],
               ),
-              // Follow Button
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: AppSize.width(width: 8.0),
-                    top: AppSize.height(height: 2.0),
-                  ),
-                  child: FollowButton(),
-                ),
-              ),
+              SizedBox(height: AppSize.height(height: 2.0)),
               // Store Header Section
-              StoreHeader(
-                onPressed: () {
-                  Get.toNamed(Routes.messages);
-                },
-                shopName: controller.storeName,
-                logoUrl: controller.shopLogoUrl.value,
-                coverPhotoUrl: controller.shopCoverUrl.value,
-                rating: controller.storeRating,
-                reviewCount: controller.reviewCount,
-                isVerified: controller.isVerified,
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSize.width(width: 2.0),
+                ),
+                child: StoreHeader(
+                  onPressed: () {
+                    controller.handleCreateChat();
+                  },
+                  shopName: controller.storeName,
+                  logoUrl: controller.shopLogoUrl.value,
+                  coverPhotoUrl: controller.shopCoverUrl.value,
+                  rating: controller.storeRating,
+                  reviewCount: controller.reviewCount,
+                  isVerified: controller.isVerified,
+                  followerCount: controller.followerCount,
+                ),
               ),
               SizedBox(height: AppSize.height(height: 2.0)),
               // Store Description
-              AppText(
-                title:
-                    store['description']?.isNotEmpty ?? false
-                        ? store['description']
-                        : "No description available.",
-                style: Theme.of(context).textTheme.bodyMedium,
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSize.width(width: 2.0),
+                ),
+                child: AppText(
+                  title:
+                      store['description']?.isNotEmpty ?? false
+                          ? store['description']
+                          : "No description available.",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
               SizedBox(height: AppSize.height(height: 2.0)),
               Divider(color: AppColors.lightGray),

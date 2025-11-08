@@ -2,13 +2,13 @@ import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/category/views/category_view.dart';
 import 'package:canuck_mall/app/modules/home/views/home_view.dart';
+import 'package:canuck_mall/app/modules/messages/views/messages_view.dart';
 import 'package:canuck_mall/app/modules/profile/views/profile_view.dart';
 import 'package:canuck_mall/app/modules/saved/views/saved_view.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import '../controllers/bottom_nav_controller.dart';
 
 class BottomNavView extends GetView<BottomNavController> {
@@ -119,24 +119,12 @@ Widget _buildSelectedPage(
 ) {
   final index = controller.selectedIndex.value;
 
-  // Handle navigation to messages tab using named route
-  if (index == 1) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Navigate to messages but keep the bottom navigation
-      Get.toNamed(Routes.messages);
-      // Reset to home tab to maintain bottom nav state
-      Future.delayed(Duration.zero, () {
-        controller.selectedIndex.value = 0;
-      });
-    });
-    // Show home view while navigating
-    return const HomeView();
-  }
-
-  // Handle other tabs
+  // Handle tabs directly without navigation
   switch (index) {
     case 0:
       return const HomeView();
+    case 1:
+      return const MessagesView();
     case 2:
       return const SavedView();
     case 3:

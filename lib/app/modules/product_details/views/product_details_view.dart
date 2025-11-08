@@ -60,13 +60,6 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           return const Center(child: Text('Product not found'));
         }
 
-        final imageUrl =
-            product.images.isNotEmpty
-                ? (product.images.first.startsWith('http')
-                    ? product.images.first
-                    : AppUrls.imageUrl + product.images.first)
-                : AppImages.banner3;
-
         final variants = product.productVariantDetails;
         final colors = variants.map((v) => v.variantId.color).toSet().toList();
         final sizes = variants.map((v) => v.variantId.size).toSet().toList();
@@ -78,51 +71,158 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      AppSize.height(height: 1.5),
-                    ),
-                    child: AppImage(
-                      imagePath: imageUrl,
-                      width: double.infinity,
-                      height: AppSize.height(height: 40.0),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Icon(Icons.error, color: AppColors.error),
-                    ),
-                  ),
-                  Positioned(
-                    top: AppSize.height(height: 1.5),
-                    right: AppSize.width(width: 2.0),
-                    child: InkWell(
-                      onTap: () => controller.toggleFavorite(),
-                      child: Obx(
-                        () => Container(
-                          padding: EdgeInsets.all(AppSize.height(height: 0.5)),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(
-                              AppSize.height(height: 100.0),
+              // Main Image Display with PageView
+              Obx(() {
+                final currentIndex = controller.currentImageIndex.value;
+                final images = product.images.isNotEmpty 
+                    ? product.images 
+                    : [AppImages.banner3];
+                
+                return Column(
+                  children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            AppSize.height(height: 1.5),
+                          ),
+                          child: AspectRatio(
+                            aspectRatio: 1.0, // Square aspect ratio
+                            child: PageView.builder(
+                              itemCount: images.length,
+                              onPageChanged: (index) {
+                                controller.currentImageIndex.value = index;
+                              },
+                              itemBuilder: (context, index) {
+                                final imageUrl = images[index].startsWith('http')
+                                    ? images[index]
+                                    : AppUrls.imageUrl + images[index];
+                                
+                                return AppImage(
+                                  imagePath: imageUrl,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error, color: AppColors.error),
+                                );
+                              },
                             ),
                           ),
-                          child: Icon(
-                            controller.isFavourite.value
-                                ? Icons.favorite_outlined
-                                : Icons.favorite_border,
-                            size: AppSize.height(height: 2.5),
-                            color:
-                                controller.isFavourite.value
-                                    ? AppColors.lightRed
-                                    : null,
+                        ),
+                        // Favorite Button
+                        Positioned(
+                          top: AppSize.height(height: 1.5),
+                          right: AppSize.width(width: 2.0),
+                          child: InkWell(
+                            onTap: () => controller.toggleFavorite(),
+                            child: Obx(
+                              () => Container(
+                                padding: EdgeInsets.all(AppSize.height(height: 0.5)),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    AppSize.height(height: 100.0),
+                                  ),
+                                ),
+                                child: Icon(
+                                  controller.isFavourite.value
+                                      ? Icons.favorite_outlined
+                                      : Icons.favorite_border,
+                                  size: AppSize.height(height: 2.5),
+                                  color:
+                                      controller.isFavourite.value
+                                          ? AppColors.lightRed
+                                          : null,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        // Image Counter
+                        if (images.length > 1)
+                          Positioned(
+                            bottom: AppSize.height(height: 1.5),
+                            right: AppSize.width(width: 2.0),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppSize.width(width: 2.0),
+                                vertical: AppSize.height(height: 0.5),
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(
+                                  AppSize.height(height: 2.0),
+                                ),
+                              ),
+                              child: Text(
+                                '${currentIndex + 1}/${images.length}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: AppSize.height(height: 1.5),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
+                    // Thumbnail Images
+                    if (images.length > 1) ...[
+                      SizedBox(height: AppSize.height(height: 1.0)),
+                      SizedBox(
+                        height: AppSize.height(height: 8.0),
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: images.length,
+                          itemBuilder: (context, index) {
+                            final imageUrl = images[index].startsWith('http')
+                                ? images[index]
+                                : AppUrls.imageUrl + images[index];
+                            
+                            final isSelected = currentIndex == index;
+                            
+                            return GestureDetector(
+                              onTap: () {
+                                controller.currentImageIndex.value = index;
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                  right: AppSize.width(width: 2.0),
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: isSelected 
+                                        ? AppColors.primary 
+                                        : AppColors.lightGray,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSize.height(height: 1.0),
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    AppSize.height(height: 0.8),
+                                  ),
+                                  child: AppImage(
+                                    imagePath: imageUrl,
+                                    width: AppSize.height(height: 8.0),
+                                    height: AppSize.height(height: 8.0),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Icon(Icons.error, color: AppColors.error),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }),
               SizedBox(height: AppSize.height(height: 1.5)),
 
               AppText(
@@ -166,30 +266,80 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               ),
               SizedBox(height: AppSize.height(height: 0.5)),
 
-              Row(
-                children: [
-                  AppText(
-                    title: "\$${product.basePrice.toStringAsFixed(2)}",
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.w900,
-                      fontSize: AppSize.height(height: 2.0),
-                      color: AppColors.primary,
+              Obx(() {
+                // Get selected variant based on color and size
+                final selectedVariant = product.productVariantDetails.firstWhere(
+                  (v) => v.variantId.color.name == controller.selectColor.value &&
+                         v.variantId.size == controller.selectedProductSize.value,
+                  orElse: () => product.productVariantDetails.isNotEmpty 
+                      ? product.productVariantDetails.first 
+                      : ProductVariantDetails(
+                          variantId: Variant(
+                            id: '', categoryId: '', subCategoryId: '', createdBy: '',
+                            networkType: [], size: '', isDeleted: false, slug: '',
+                            createdAt: DateTime.now(), updatedAt: DateTime.now(),
+                            color: ColorData(name: '', code: ''),
+                          ),
+                          variantQuantity: 0,
+                          variantPrice: product.basePrice,
+                        ),
+                );
+                
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        AppText(
+                          title: "\$${selectedVariant.variantPrice.toStringAsFixed(2)}",
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontSize: AppSize.height(height: 2.5),
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        if (selectedVariant.variantPrice != product.basePrice) ...[
+                          SizedBox(width: AppSize.width(width: 2.0)),
+                          AppText(
+                            title: "\$${product.basePrice.toStringAsFixed(2)}",
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: AppSize.height(height: 2.0),
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ),
-                  if (product.productVariantDetails.isNotEmpty) ...[
-                    SizedBox(width: AppSize.width(width: 2.0)),
-                    AppText(
-                      title:
-                          "\$${product.productVariantDetails[0].variantPrice.toStringAsFixed(2)}",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: AppSize.height(height: 2.0),
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey.shade500,
-                      ),
+                    SizedBox(height: AppSize.height(height: 0.5)),
+                    Row(
+                      children: [
+                        Icon(
+                          selectedVariant.variantQuantity > 0 
+                              ? Icons.check_circle 
+                              : Icons.cancel,
+                          size: 16,
+                          color: selectedVariant.variantQuantity > 0 
+                              ? Colors.green 
+                              : Colors.red,
+                        ),
+                        SizedBox(width: 4),
+                        AppText(
+                          title: selectedVariant.variantQuantity > 0
+                              ? "In Stock (${selectedVariant.variantQuantity} available)"
+                              : "Out of Stock",
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            color: selectedVariant.variantQuantity > 0 
+                                ? Colors.green 
+                                : Colors.red,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ],
-              ),
+                );
+              }),
               SizedBox(height: AppSize.height(height: 1.0)),
               Divider(color: AppColors.lightGray),
 
@@ -295,13 +445,26 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                   () => Row(
                     children:
                         colors.map((color) {
-                          String code = color.code;
-                          if (code.length == 7 && code.startsWith('#')) {
-                            code = code.replaceFirst('#', '0xFF');
-                          } else if (code.length == 9 && code.startsWith('#')) {
-                            code = code.replaceFirst('#', '0x');
+                          // Convert hex color code to Flutter Color
+                          Color colorValue;
+                          try {
+                            String code = color.code.trim();
+                            // Remove # if present
+                            if (code.startsWith('#')) {
+                              code = code.substring(1);
+                            }
+                            // Add alpha channel if not present (6 chars = RGB, need ARGB)
+                            if (code.length == 6) {
+                              code = 'FF$code'; // Add full opacity
+                            }
+                            // Parse as hex integer
+                            colorValue = Color(int.parse(code, radix: 16));
+                          } catch (e) {
+                            // Fallback to grey if parsing fails
+                            print('Error parsing color ${color.code}: $e');
+                            colorValue = Colors.grey;
                           }
-                          final colorValue = Color(int.parse(code));
+                          
                           return Padding(
                             padding: EdgeInsets.only(
                               right: AppSize.width(width: 2.0),
@@ -318,9 +481,12 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                                 ),
                                 SizedBox(height: AppSize.height(height: 0.5)),
                                 AppText(
-                                  title:
-                                      color.name.isNotEmpty ? color.name : code,
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                  title: color.name.isNotEmpty ? color.name : color.code,
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    fontWeight: controller.selectColor.value == color.name
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                                 ),
                               ],
                             ),

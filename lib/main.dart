@@ -51,7 +51,7 @@ class CanuckMall extends StatelessWidget {
       title: "Kappes Office",
       theme: lightTheme,
       translations: AppTranslation(),
-      locale: const Locale('en', 'US'),
+      locale: _getInitialLocale(),
       fallbackLocale: const Locale('en', 'US'),
       initialRoute:
           LocalStorage.isLogIn && LocalStorage.token.isNotEmpty
@@ -59,5 +59,17 @@ class CanuckMall extends StatelessWidget {
               : Routes.onboarding,
       getPages: AppPages.routes,
     );
+  }
+
+  Locale _getInitialLocale() {
+    // This will be called synchronously, so we check preferences directly
+    final prefs = LocalStorage.preferences;
+    if (prefs != null) {
+      final savedLang = prefs.getString('language');
+      if (savedLang == 'french') {
+        return const Locale('fr', 'FR');
+      }
+    }
+    return const Locale('en', 'US');
   }
 }

@@ -17,10 +17,10 @@ class SearchProductView extends GetView<SearchProductViewController> {
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
-        title: AppText(
-          title: AppStaticKey.searchProduct,
+        title: Obx(() => AppText(
+          title: controller.categoryName ?? AppStaticKey.searchProduct,
           style: Theme.of(context).textTheme.titleMedium,
-        ),
+        )),
         centerTitle: true,
       ),
       body: Padding(
