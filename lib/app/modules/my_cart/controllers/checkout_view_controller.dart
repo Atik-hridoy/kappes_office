@@ -2,7 +2,6 @@
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/create_order_service.dart';
 import 'package:canuck_mall/app/data/netwok/my_cart_my_order/shipping_service.dart';
 import 'package:canuck_mall/app/model/sheeping_model.dart';
-import 'package:canuck_mall/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
@@ -12,6 +11,7 @@ import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/modules/home/controllers/home_controller.dart';
+import 'package:canuck_mall/app/modules/payment/views/payment_webview.dart';
 
 class CheckoutViewController extends GetxController {
   // User Details
@@ -253,7 +253,20 @@ class CheckoutViewController extends GetxController {
 
     try {
       isLoading.value = true;
+      AppLogger.debug(
+        '🔄 [Checkout] About to call createOrder with ${products.length} products',
+        tag: 'CHECKOUT',
+        error: 'About to call createOrder with ${products.length} products',
+      );
+      
       await createOrder(products, shopId ?? '');
+      
+      AppLogger.debug(
+        '✅ [Checkout] createOrder completed successfully',
+        tag: 'CHECKOUT',
+        error: 'createOrder completed successfully',
+      );
+      
       isLoading.value = false;
       if (kDebugMode) {
         AppLogger.success('Order creation success!');
@@ -273,48 +286,137 @@ class CheckoutViewController extends GetxController {
   }
 
   Future<void> createOrder(List<OrderProduct> products, String shopId) async {
-    // Use MyCartController to get the cart items with their total price
-    final cartController = Get.find<MyCartController>();
-    final cartItems = cartController.cartData.value?.data?.items ?? [];
-    // Build the products list with totalPrice for each product
-    final orderProducts =
-        cartItems
-            .map(
-              (item) => OrderProduct(
-                product: item.productId?.id ?? '',
-                variant: item.variantId?.id ?? '',
-                quantity: item.variantQuantity,
-                totalPrice: item.totalPrice,
-              ),
-            )
-            .toList();
-    // Use this list instead of the passed-in products
-    products = orderProducts;
+    AppLogger.debug(
+      '🎯 [CreateOrder] Method started with ${products.length} products, shopId: $shopId',
+      tag: 'CHECKOUT',
+      error: 'Method started with ${products.length} products, shopId: $shopId',
+    );
+    
+    // Get products from arguments instead of cart to avoid cart dependency
+    final args = Get.arguments;
+    if (args != null && args['products'] != null) {
+      AppLogger.debug(
+        '📦 [CreateOrder] Found products in arguments, processing...',
+        tag: 'CHECKOUT',
+        error: 'Found products in arguments, processing...',
+      );
+      final argProducts = args['products'] as List;
+      AppLogger.debug(
+        '🔍 [CreateOrder] Raw products from arguments: $argProducts',
+        tag: 'CHECKOUT',
+        error: 'Raw products from arguments: $argProducts',
+      );
+      
+      products = argProducts.map((p) {
+        AppLogger.debug(
+          '🔍 [CreateOrder] Processing product: $p (type: ${p.runtimeType})',
+          tag: 'CHECKOUT',
+          error: 'Processing product: $p (type: ${p.runtimeType})',
+        );
+        
+        // Handle both Map and OrderProduct objects
+        if (p is Map<String, dynamic>) {
+          final productId = p['product'] ?? p['productId'] ?? '';
+          final variantId = p['variant'] ?? p['variantId'] ?? '';
+          final quantity = p['quantity'] ?? 1;
+          final totalPrice = (p['totalPrice'] ?? 0.0).toDouble();
+          
+          AppLogger.debug(
+            '📦 [CreateOrder] Extracted: productId=$productId, variantId=$variantId, quantity=$quantity, totalPrice=$totalPrice',
+            tag: 'CHECKOUT',
+            error: 'Extracted: productId=$productId, variantId=$variantId, quantity=$quantity, totalPrice=$totalPrice',
+          );
+          
+          return OrderProduct(
+            product: productId,
+            variant: variantId,
+            quantity: quantity,
+            totalPrice: totalPrice,
+          );
+        } else if (p is OrderProduct) {
+          return p;
+        } else {
+          // Log unknown product type
+          AppLogger.debug('⚠️ [CreateOrder] Unknown product type: ${p.runtimeType}', tag: 'CHECKOUT', error: 'Unknown product type: ${p.runtimeType}');
+          return OrderProduct(
+            product: '',
+            variant: '',
+            quantity: 1,
+            totalPrice: 0.0,
+          );
+        }
+      }).toList();
+      AppLogger.debug(
+        '📦 [CreateOrder] Processed ${products.length} products from arguments',
+        tag: 'CHECKOUT',
+        error: 'Processed ${products.length} products from arguments',
+      );
+    }
+    
     // Validate required fields
+    // Ensure all local storage data is loaded
+    await LocalStorage.getAllPrefData();
+    
     final userId = LocalStorage.userId;
     final token = LocalStorage.token;
-    if (userId.isEmpty || token.isEmpty) {
-      Get.snackbar('Error', 'User not logged in or token missing');
+    AppLogger.debug(
+      '🔐 [CreateOrder] Validating credentials: userId.isEmpty=${userId.isEmpty}, token.isEmpty=${token.isEmpty}',
+      tag: 'CHECKOUT',
+      error: 'Validating credentials: userId.isEmpty=${userId.isEmpty}, token.isEmpty=${token.isEmpty}',
+    );
+    AppLogger.debug(
+      '🔐 [CreateOrder] userId: $userId, token: ${token.isNotEmpty ? "${token.substring(0, 20)}..." : "empty"}',
+      tag: 'CHECKOUT',
+      error: 'userId: $userId, token: ${token.isNotEmpty ? "${token.substring(0, 20)}..." : "empty"}',
+    );
+    
+    if (token.isEmpty) {
+      AppLogger.debug('❌ [CreateOrder] Token missing - user not logged in', tag: 'CHECKOUT', error: 'Token missing - user not logged in');
+      Get.snackbar('Error', 'Please login to create order');
       return;
     }
 
+    AppLogger.debug(
+      '📝 [CreateOrder] Validating form fields: name="${name.value}" (${name.value.length} chars), phone="${phone.value}" (${phone.value.length} chars), address="${address.value}" (${address.value.length} chars)',
+      tag: 'CHECKOUT',
+      error: 'Validating form fields: name="${name.value}" (${name.value.length} chars), phone="${phone.value}" (${phone.value.length} chars), address="${address.value}" (${address.value.length} chars)',
+    );
+
     if (name.value.isEmpty || phone.value.isEmpty || address.value.isEmpty) {
+      AppLogger.debug('❌ [CreateOrder] Name, phone, and shipping address are required', tag: 'CHECKOUT', error: 'Name, phone, and shipping address are required');
       Get.snackbar('Error', 'Name, phone, and shipping address are required');
       return;
     }
+    
+    
     if (products.isEmpty) {
+      AppLogger.debug('❌ [CreateOrder] Your cart is empty', tag: 'CHECKOUT', error: 'Your cart is empty');
       Get.snackbar('Error', 'Your cart is empty');
       return;
     }
+    
+    AppLogger.debug(
+      '✅ [CreateOrder] All validations passed, proceeding with order creation',
+      tag: 'CHECKOUT',
+      error: 'All validations passed, proceeding with order creation',
+    );
 
     // Prepare order request
+    final shippingAddr = address.value;
+        
     final orderRequest = OrderRequest(
       shop: shopId,
       products: products,
       coupon: couponCode.value.isNotEmpty ? couponCode.value : null,
-      shippingAddress: address.value,
-      paymentMethod: parsePaymentMethod(selectedPaymentMethod.value),
+      shippingAddress: shippingAddr,
+      paymentMethod: 'Card', // Force Card payment to get payment URL
       deliveryOptions: parseDeliveryOption(selectedDeliveryOption.value),
+    );
+    
+    AppLogger.debug(
+      '💳 [CreateOrder] Forcing Card payment method to get payment URL',
+      tag: 'CHECKOUT',
+      error: 'Forcing Card payment method to get payment URL',
     );
 
     // Calculate and print total price
@@ -329,12 +431,35 @@ class CheckoutViewController extends GetxController {
     isLoading(true);
     try {
       AppLogger.debug(
-        '[Checkout] Creating order with payload: ${orderRequest.toJson()}',
+        '🚀 [Checkout] About to create OrderService and call createOrder',
         tag: 'CHECKOUT',
-        error: orderRequest.toJson(),
+        error: 'About to create OrderService and call createOrder',
+      );
+      AppLogger.debug(
+        '📋 [Checkout] Order request payload: ${orderRequest.toJson()}',
+        tag: 'CHECKOUT',
+        error: 'Order request payload: ${orderRequest.toJson()}',
+      );
+      AppLogger.debug(
+        '🔑 [Checkout] Using token: ${token.substring(0, 20)}...',
+        tag: 'CHECKOUT',
+        error: 'Using token: ${token.substring(0, 20)}...',
       );
 
-      final response = await OrderService(token).createOrder(orderRequest);
+      final orderService = OrderService(token);
+      AppLogger.debug(
+        '🔧 [Checkout] OrderService created, calling createOrder...',
+        tag: 'CHECKOUT',
+        error: 'OrderService created, calling createOrder...',
+      );
+      
+      final response = await orderService.createOrder(orderRequest);
+      
+      AppLogger.debug(
+        '📨 [Checkout] Got response from OrderService',
+        tag: 'CHECKOUT',
+        error: 'Got response from OrderService',
+      );
 
      
       AppLogger.debug(
@@ -347,21 +472,36 @@ class CheckoutViewController extends GetxController {
           '[Checkout] Order successfully stored on backend. User ID: $userId',
         );
         AppLogger.data('[Checkout] Order Data: ${response.data}', description: 'Order Data', context: {'userId': userId});
-        // Ensure products is a List<Map<String, dynamic>> for safe navigation
-        final productsList =
-            (response.data?.products ?? [])
-                // ignore: unnecessary_type_check
-                .map((item) => item is OrderItem ? item.toJson() : item)
-                .toList();
+        
+        // Check if payment URL is available
+        final paymentUrl = response.data?.url;
         AppLogger.debug(
-          '[Checkout] Passing products to success view: type=${productsList.runtimeType}, value=$productsList',
-          tag: 'CHECKOUT',
-          error: productsList.runtimeType,
+          '🔍 [Checkout] Checking payment URL: paymentUrl=$paymentUrl, isNull=${paymentUrl == null}, isEmpty=${paymentUrl?.isEmpty}', 
+          tag: 'CHECKOUT', 
+          error: 'Checking payment URL: paymentUrl=$paymentUrl, isNull=${paymentUrl == null}, isEmpty=${paymentUrl?.isEmpty}',
         );
-        Get.offNamed(
-          Routes.checkoutSuccessfulView,
-          arguments: {'orderData': response.data, 'products': productsList},
-        );
+        
+        if (paymentUrl != null && paymentUrl.isNotEmpty) {
+          AppLogger.debug('🌐 [Checkout] Payment URL found, redirecting to WebView: $paymentUrl', tag: 'CHECKOUT', error: 'Payment URL found, redirecting to WebView: $paymentUrl');
+          // Navigate to payment WebView
+          Get.to(() => PaymentWebView(url: paymentUrl));
+        } else {
+          // Fallback to success view if no payment URL
+          final productsList =
+              (response.data?.products ?? [])
+                  // ignore: unnecessary_type_check
+                  .map((item) => item is OrderItem ? item.toJson() : item)
+                  .toList();
+          AppLogger.debug(
+            '[Checkout] No payment URL, going to success view',
+            tag: 'CHECKOUT',
+            error: 'No payment URL, going to success view',
+          );
+          Get.offNamed(
+            Routes.checkoutSuccessfulView,
+            arguments: {'orderData': response.data, 'products': productsList},
+          );
+        }
       } else if (!response.success) {
         AppLogger.error(
           '[Checkout] Backend responded with error: ${response.message}',

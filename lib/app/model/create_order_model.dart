@@ -89,81 +89,84 @@ class OrderResponse {
 }
 
 class OrderData {
-  final String id;
-  final String user;
-  final String shop;
-  final List<OrderItem> products;
-  final String deliveryOptions;
+  final String? id;
+  final String? user;
+  final String? shop;
+  final List<OrderItem>? products;
+  final String? deliveryOptions;
   final String? coupon;
-  final double discount;
-  final double deliveryCharge;
-  final String status;
-  final String shippingAddress;
-  final String paymentMethod;
-  final String paymentStatus;
-  final String payment;
-  final bool isPaymentTransferdToVendor;
-  final bool isNeedRefund;
-  final double totalAmount;
-  final double finalAmount;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime deliveryDate;
-  final int v;
+  final double? discount;
+  final double? deliveryCharge;
+  final String? status;
+  final String? shippingAddress;
+  final String? paymentMethod;
+  final String? paymentStatus;
+  final String? payment;
+  final bool? isPaymentTransferdToVendor;
+  final bool? isNeedRefund;
+  final double? totalAmount;
+  final double? finalAmount;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deliveryDate;
+  final int? v;
+  final String? url;
 
   OrderData({
-    required this.id,
-    required this.user,
-    required this.shop,
-    required this.products,
-    required this.deliveryOptions,
+    this.id,
+    this.user,
+    this.shop,
+    this.products,
+    this.deliveryOptions,
     this.coupon,
-    required this.discount,
-    required this.deliveryCharge,
-    required this.status,
-    required this.shippingAddress,
-    required this.paymentMethod,
-    required this.paymentStatus,
-    required this.payment,
-    required this.isPaymentTransferdToVendor,
-    required this.isNeedRefund,
-    required this.totalAmount,
-    required this.finalAmount,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deliveryDate,
-    required this.v,
+    this.discount,
+    this.deliveryCharge,
+    this.status,
+    this.shippingAddress,
+    this.paymentMethod,
+    this.paymentStatus,
+    this.payment,
+    this.isPaymentTransferdToVendor,
+    this.isNeedRefund,
+    this.totalAmount,
+    this.finalAmount,
+    this.createdAt,
+    this.updatedAt,
+    this.deliveryDate,
+    this.v,
+    this.url,
   });
 
   factory OrderData.fromJson(Map<String, dynamic> json) => OrderData(
-        id: json['_id'] ?? '',
-        user: json['user'] ?? '',
-        shop: json['shop'] ?? '',
-        products: (json['products'] as List<dynamic>?)?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList() ?? [],
-        deliveryOptions: json['deliveryOptions'] ?? '',
+        id: json['_id'],
+        user: json['user'],
+        shop: json['shop'],
+        products: (json['products'] as List<dynamic>?)?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList(),
+        deliveryOptions: json['deliveryOptions'],
         coupon: json['coupon'],
-        discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
-        deliveryCharge: (json['deliveryCharge'] as num?)?.toDouble() ?? 0.0,
-        status: json['status'] ?? '',
-        shippingAddress: json['shippingAddress'] ?? '',
-        paymentMethod: json['paymentMethod'] ?? '',
-        paymentStatus: json['paymentStatus'] ?? '',
-        payment: json['payment'] ?? '',
-        isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'] ?? false,
-        isNeedRefund: json['isNeedRefund'] ?? false,
-        totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
-        finalAmount: (json['finalAmount'] as num?)?.toDouble() ?? 0.0,
-        createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-        updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
-        deliveryDate: DateTime.tryParse(json['deliveryDate'] ?? '') ?? DateTime.now(),
-        v: json['__v'] ?? 0,
+        discount: (json['discount'] as num?)?.toDouble(),
+        deliveryCharge: (json['deliveryCharge'] as num?)?.toDouble(),
+        status: json['status'],
+        shippingAddress: json['shippingAddress'],
+        paymentMethod: json['paymentMethod'],
+        paymentStatus: json['paymentStatus'],
+        payment: json['payment'],
+        isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'],
+        isNeedRefund: json['isNeedRefund'],
+        totalAmount: (json['totalAmount'] as num?)?.toDouble(),
+        finalAmount: (json['finalAmount'] as num?)?.toDouble(),
+        createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+        updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+        deliveryDate: json['deliveryDate'] != null ? DateTime.tryParse(json['deliveryDate']) : null,
+        v: json['__v'],
+        url: json['url'],
       );
 
   Map<String, dynamic> toJson() => {
         '_id': id,
         'user': user,
         'shop': shop,
-        'products': products.map((e) => e.toJson()).toList(),
+        'products': products?.map((e) => e.toJson()).toList(),
         'deliveryOptions': deliveryOptions,
         'coupon': coupon,
         'discount': discount,
@@ -177,10 +180,11 @@ class OrderData {
         'isNeedRefund': isNeedRefund,
         'totalAmount': totalAmount,
         'finalAmount': finalAmount,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-        'deliveryDate': deliveryDate.toIso8601String(),
+        'createdAt': createdAt?.toIso8601String(),
+        'updatedAt': updatedAt?.toIso8601String(),
+        'deliveryDate': deliveryDate?.toIso8601String(),
         '__v': v,
+        'url': url,
       };
 }
 

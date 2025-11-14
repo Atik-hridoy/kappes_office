@@ -32,21 +32,67 @@ class OrderService {
 
   Future<OrderResponse> createOrder(OrderRequest request) async {
     try {
+      final Map<String, dynamic> payload = {
+        'shop': request.shop,
+        'products': request.products
+            .map(
+              (p) => {
+                'product': p.product,
+                'variant': p.variant,
+                'quantity': p.quantity,
+              },
+            )
+            .toList(),
+        'deliveryOptions': request.deliveryOptions,
+        'shippingAddress': request.shippingAddress,
+        'paymentMethod': request.paymentMethod,
+      };
+
+      if (request.coupon != null && request.coupon!.isNotEmpty) {
+        payload['coupon'] = request.coupon;
+      }
+
       AppLogger.debug(
-        'OrderService: Sending order request: ${request.toJson()}', tag: 'OrderService', error: 'OrderService: Sending order request: ${request.toJson()}',
+        '🚀 [OrderService] REQUEST PAYLOAD: $payload', 
+        tag: 'OrderService', 
+        error: 'REQUEST PAYLOAD: $payload',
       );
       AppLogger.debug(
-        'OrderService: Posting to URL: ${_dio.options.baseUrl}${AppUrls.createOrder}', tag: 'OrderService', error: 'OrderService: Posting to URL: ${_dio.options.baseUrl}${AppUrls.createOrder}',
+        '🌐 [OrderService] POST URL: ${_dio.options.baseUrl}${AppUrls.createOrder}', 
+        tag: 'OrderService', 
+        error: 'POST URL: ${_dio.options.baseUrl}${AppUrls.createOrder}',
       );
+      AppLogger.debug(
+        '🔑 [OrderService] HEADERS: ${_dio.options.headers}', 
+        tag: 'OrderService', 
+        error: 'HEADERS: ${_dio.options.headers}',
+      );
+      
       final response = await _dio.post(
         AppUrls.createOrder,
-        data: request.toJson(),
+        data: payload,
+      );
+
+      AppLogger.debug(
+        '📥 [OrderService] RAW RESPONSE STATUS: ${response.statusCode}', 
+        tag: 'OrderService', 
+        error: 'RAW RESPONSE STATUS: ${response.statusCode}',
+      );
+      AppLogger.debug(
+        '📥 [OrderService] RAW RESPONSE DATA: ${response.data}', 
+        tag: 'OrderService', 
+        error: 'RAW RESPONSE DATA: ${response.data}',
       );
 
       // Check for a successful status code (201 indicates resource creation)
       if (response.statusCode == 201 || response.statusCode == 200) {
-        AppLogger.debug("==================>> create order success $response.statusCode", tag: 'OrderService', error: '==================>> create order success $response.statusCode');
-        return OrderResponse.fromJson(response.data);
+        final orderResponse = OrderResponse.fromJson(response.data);
+        AppLogger.debug(
+          '✅ [OrderService] PARSED RESPONSE: success=${orderResponse.success}, message=${orderResponse.message}, data.url=${orderResponse.data?.url}', 
+          tag: 'OrderService', 
+          error: 'PARSED RESPONSE: success=${orderResponse.success}, message=${orderResponse.message}, data.url=${orderResponse.data?.url}',
+        );
+        return orderResponse;
       } else {
         throw _handleError(response);
       }
