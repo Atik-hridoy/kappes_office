@@ -51,7 +51,11 @@ class MyCartController extends GetxController {
       if (cartData.value == null) {
         isLoading(false);
       }
-      if (e.toString().contains("connectionTimeout")) {
+      
+      // Don't show error for empty cart scenarios
+      if (e.toString().contains("Cart not found") || e.toString().contains("Cart is empty")) {
+        AppLogger.debug("📭 Cart is empty - this is normal after order completion", tag: 'MY_CART', error: 'Cart is empty');
+      } else if (e.toString().contains("connectionTimeout")) {
         Get.snackbar('Network Error', 'Request timed out. Please try again.');
       } else {
         Get.snackbar('Error', 'Something went wrong. Please try again.');
@@ -122,8 +126,8 @@ class MyCartController extends GetxController {
     }
 
     final products = items.map((item) => {
-      'productId': item.productId?.id,
-      'variantId': item.variantId?.id,
+      'product': item.productId?.id,  // Changed from 'productId' to 'product'
+      'variant': item.variantId?.id,  // Changed from 'variantId' to 'variant'
       'name': item.productId?.name,
       'variantName': item.variantId?.storage,
       'quantity': item.variantQuantity,

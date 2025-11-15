@@ -64,6 +64,24 @@ class CartService extends GetConnect {
         throw Exception('Server responded with status: ${response.statusCode}');
       }
     } on DioException catch (dioError) {
+      // Handle 404 "Cart not found" as empty cart (normal after order completion)
+      if (dioError.response?.statusCode == 404) {
+        final responseData = dioError.response?.data;
+        if (responseData != null && 
+            responseData['message'] != null && 
+            responseData['message'].toString().toLowerCase().contains('cart not found')) {
+          
+          AppLogger.debug('📭 [CartService] Cart not found (empty cart) - returning empty cart model', tag: 'CartService', error: 'Cart not found (empty cart)');
+          
+          // Return empty cart model instead of throwing error
+          return GetCartModel(
+            success: true,
+            message: 'Cart is empty',
+            data: null,
+          );
+        }
+      }
+      
       AppLogger.error('❌ [CartService] Dio Error: ${dioError.type}', tag: 'CartService', error: 'Dio Error: ${dioError.type}');
       AppLogger.error('❌ [CartService] Error message: ${dioError.message}', tag: 'CartService', error: 'Error message: ${dioError.message}');
       AppLogger.error('❌ [CartService] Error response: ${dioError.response?.data}', tag: 'CartService', error: 'Error response: ${dioError.response?.data}');

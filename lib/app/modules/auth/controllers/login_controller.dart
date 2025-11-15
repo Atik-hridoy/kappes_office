@@ -121,11 +121,28 @@ class LoginController extends GetxController {
         return false;
       }
 
+      // Extract user ID from JWT token as fallback
+      String? userIdFromToken;
+      try {
+        final parts = token.split('.');
+        if (parts.length == 3) {
+          final payload = parts[1];
+          final normalizedPayload = base64Url.normalize(payload);
+          final decoded = utf8.decode(base64Url.decode(normalizedPayload));
+          final tokenData = jsonDecode(decoded);
+          userIdFromToken = tokenData['id'];
+          AppLogger.debug('🔑 [AUTH] Extracted user ID from token: $userIdFromToken', tag: 'AUTH', error: 'Extracted user ID from token: $userIdFromToken');
+        }
+      } catch (e) {
+        AppLogger.warning('Could not extract user ID from token: $e', tag: 'AUTH');
+      }
+
       // Save tokens and update login state
       await Future.wait([
         LocalStorage.setString(LocalStorageKeys.token, token),
         LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken),
         LocalStorage.setBool(LocalStorageKeys.isLogIn, true),
+        if (userIdFromToken != null) LocalStorage.setString(LocalStorageKeys.userId, userIdFromToken),
       ]);
       
       // Force reload the storage values
@@ -133,6 +150,7 @@ class LoginController extends GetxController {
       
       AppLogger.storage('Login tokens saved to storage', context: {
         'token': token,
+        'userId': userIdFromToken,
         'isLoggedIn': LocalStorage.isLogIn
       });
       
@@ -168,9 +186,11 @@ class LoginController extends GetxController {
     final profileJson = jsonEncode(profile);
     await LocalStorage.setString('user_profile', profileJson);
     await Future.wait([
-      LocalStorage.setString(LocalStorageKeys.myName, profile['full_name'] ?? ''),
+      LocalStorage.setString(LocalStorageKeys.userId, profile['_id'] ?? profile['id'] ?? ''),
+      LocalStorage.setString(LocalStorageKeys.myName, profile['full_name'] ?? profile['name'] ?? ''),
       LocalStorage.setString(LocalStorageKeys.myEmail, profile['email'] ?? ''),
-      // Other fields to save...
+      LocalStorage.setString(LocalStorageKeys.phone, profile['phone'] ?? profile['phoneNumber'] ?? ''),
+      LocalStorage.setString(LocalStorageKeys.myAddress, profile['address'] ?? profile['shippingAddress'] ?? ''),
     ]);
   }
 

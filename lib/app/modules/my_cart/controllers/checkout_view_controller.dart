@@ -142,12 +142,18 @@ class CheckoutViewController extends GetxController {
 
   void loadUserData() {
     userName.value = LocalStorage.myName;
-    userPhone.value = LocalStorage.phone;
+    userPhone.value = LocalStorage.phone.isNotEmpty ? LocalStorage.phone : LocalStorage.myPhone;
     userAddress.value = LocalStorage.myAddress;
 
     name.value = userName.value;
     phone.value = userPhone.value;
     address.value = userAddress.value;
+    
+    AppLogger.debug(
+      '📱 [LoadUserData] Phone numbers: LocalStorage.phone="${LocalStorage.phone}", LocalStorage.myPhone="${LocalStorage.myPhone}", final phone.value="${phone.value}"',
+      tag: 'CHECKOUT',
+      error: 'Phone numbers: LocalStorage.phone="${LocalStorage.phone}", LocalStorage.myPhone="${LocalStorage.myPhone}", final phone.value="${phone.value}"',
+    );
   }
 
   Future<void> saveUserData() async {
@@ -271,7 +277,7 @@ class CheckoutViewController extends GetxController {
       if (kDebugMode) {
         AppLogger.success('Order creation success!');
       }
-      Get.toNamed(Routes.checkoutSuccessfulView);
+      // Navigation is handled inside createOrder() method
     } catch (e) {
       isLoading.value = false;
       if (kDebugMode) {
@@ -382,6 +388,13 @@ class CheckoutViewController extends GetxController {
       error: 'Validating form fields: name="${name.value}" (${name.value.length} chars), phone="${phone.value}" (${phone.value.length} chars), address="${address.value}" (${address.value.length} chars)',
     );
 
+    // Check if phone is still empty and try to reload from storage
+    if (phone.value.isEmpty) {
+      await LocalStorage.getAllPrefData();
+      phone.value = LocalStorage.phone.isNotEmpty ? LocalStorage.phone : LocalStorage.myPhone;
+      AppLogger.debug('🔄 [CreateOrder] Reloaded phone from storage: "${phone.value}"', tag: 'CHECKOUT', error: 'Reloaded phone from storage: "${phone.value}"');
+    }
+    
     if (name.value.isEmpty || phone.value.isEmpty || address.value.isEmpty) {
       AppLogger.debug('❌ [CreateOrder] Name, phone, and shipping address are required', tag: 'CHECKOUT', error: 'Name, phone, and shipping address are required');
       Get.snackbar('Error', 'Name, phone, and shipping address are required');
@@ -515,6 +528,7 @@ class CheckoutViewController extends GetxController {
     } catch (e, stack) {
       AppLogger.error('[Checkout] Exception while creating order: $e\n$stack', error: 'Exception while creating order: $e\n$stack');
       Get.snackbar('Order Error', 'Failed to create order: ${e.toString()}');
+      rethrow; // Re-throw the exception so handleCheckout can catch it
     } finally {
       isLoading(false);
     }
