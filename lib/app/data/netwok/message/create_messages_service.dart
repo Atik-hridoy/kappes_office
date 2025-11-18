@@ -1,9 +1,13 @@
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/utils/app_utils.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/model/message_and_chat/create_messages.dart';
+import 'package:path/path.dart' as p;
 
 class CreateMessageService {
   final Dio dio;
@@ -11,25 +15,35 @@ class CreateMessageService {
   CreateMessageService() : dio = Dio();
 
   // Method to send the message
-  Future<SendMessageResponse> sendMessage(
-      String chatId, String messageText, List<String> participantIds) async {
+  Future<SendMessageResponse> sendMessage({
+    required String chatId,
+    required String text,
+    File? image,
+  }) async {
     try {
-      // Prepare the data to send
-      final data = {
+      final payload = jsonEncode({
         'chatId': chatId,
-        'sender': LocalStorage.userId,  // Use the current user's ID
-        'text': messageText,
-        'participantIds': participantIds, // Adding multiple participants
-      };
+        'text': text,
+      });
+
+      final formData = FormData.fromMap({
+        'data': payload,
+        if (image != null)
+          'image': await MultipartFile.fromFile(
+            image.path,
+            filename: p.basename(image.path),
+          ),
+      });
 
       final response = await dio.post(
-        AppUrls.createMessage,  // Your API URL for creating messages
-        data: data,
+        '${AppUrls.baseUrl}${AppUrls.createMessage}',
+        data: formData,
         options: Options(
           headers: {
             'Authorization': 'Bearer ${LocalStorage.token}',
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
+          contentType: 'multipart/form-data',
         ),
       );
 
@@ -50,7 +64,7 @@ class CreateMessageService {
           ),
         );
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       AppUtils.showError('DioError: ${e.message}');
       return SendMessageResponse(
         success: false,

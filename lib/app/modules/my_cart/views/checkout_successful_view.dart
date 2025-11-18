@@ -78,7 +78,8 @@ class CheckoutSuccessfulView extends StatelessWidget {
             SizedBox(height: AppSize.height(height: 2.0)),
             AppCommonButton(
               onPressed: () {
-                Get.until((route) => route.isFirst);
+                // Navigate to bottom navigation (main home screen)
+                Get.offAllNamed(Routes.bottomNav);
               },
               title: AppStaticKey.home,
               backgroundColor: AppColors.white,

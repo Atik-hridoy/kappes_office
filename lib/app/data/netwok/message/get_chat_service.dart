@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
-import 'package:canuck_mall/app/data/local/storage_service.dart'; // Import the LocalStorage
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart';
 
@@ -15,38 +15,41 @@ class ChatService {
     try {
       AppLogger.info('Fetching chats...', tag: 'ChatService');
 
-      // Retrieve the token from LocalStorage
-      String token = LocalStorage.token; // Get the token from local storage
+      if (LocalStorage.token.isEmpty) {
+        await LocalStorage.getAllPrefData();
+      }
+      final token = LocalStorage.token;
       if (token.isEmpty) {
         throw Exception('No token found, please login.');
       }
 
-      // Make a GET request to fetch chats
       final response = await _dio.get(
-        '${AppUrls.baseUrl}${AppUrls.getChatForUser}',  // Use the dynamic URL here
+        '${AppUrls.baseUrl}${AppUrls.getChatForUser}',
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',  // Add Bearer token in headers
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
           },
+          validateStatus: (status) => status != null && status < 500,
         ),
       );
 
-      // If the response is successful (status code 200)
-      if (response.statusCode == 200) {
-        AppLogger.info('Chats fetched successfully.', tag: 'ChatService', context: response.data);
-        return ChatResponse.fromJson(response.data);  // Parse the response into the ChatResponse model
-      } else {
-        throw Exception('Failed to load chat data');
+      AppLogger.info('Chat API status: ${response.statusCode}', tag: 'ChatService');
+      AppLogger.info('Chat API data: ${response.data}', tag: 'ChatService');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data is Map<String, dynamic>
+            ? response.data as Map<String, dynamic>
+            : jsonDecode(response.data as String) as Map<String, dynamic>;
+        return ChatResponse.fromJson(data);
       }
+
+      throw Exception('Failed to load chat data (${response.statusCode})');
     } on DioException catch (e) {
-      if (e.response != null) {
-        AppLogger.error('Dio Error: ${e.response?.data}', tag: 'ChatService', error: 'Dio Error: ${e.response?.data}');
-        throw Exception('Dio Error: ${e.response?.data}');
-      } else {
-        AppLogger.error('Error: ${e.message}', tag: 'ChatService', error: 'Error: ${e.message}');
-        throw Exception('Failed to load chat data: ${e.message}');
-      }
+      final errorData = e.response?.data;
+      AppLogger.error('Dio Error: ${e.message}', tag: 'ChatService', context: {'response': errorData}, error: 'Dio Error');
+      throw Exception('Failed to load chat data: ${errorData ?? e.message}');
     }
   }
 

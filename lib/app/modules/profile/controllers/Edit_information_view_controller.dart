@@ -10,7 +10,7 @@ import 'package:canuck_mall/app/data/local/storage_keys.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 
 class EditInformationViewController extends GetxController {
-  // ✅ Add this to fix the isLoading error
+  // Add this to fix the isLoading error
   final isLoading = false.obs;
   final isFetching = false.obs; // for initial load/skeleton
 
@@ -22,6 +22,8 @@ class EditInformationViewController extends GetxController {
   final profileImageUrl = ''.obs; // network image path or url
 
   final EditInformationViewService _service = EditInformationViewService();
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isPickingImage = false;
 
   @override
   void onInit() {
@@ -31,7 +33,7 @@ class EditInformationViewController extends GetxController {
     // Store the full phone number but don't include it in the display
     phone.value = LocalStorage.myPhone;
     address.value = LocalStorage.myAddress;
-    AppLogger.info('✅ Loaded user from LocalStorage: $fullName | $email | $phone');
+    AppLogger.info(' Loaded user from LocalStorage: $fullName | $email | $phone');
   }
 
   @override
@@ -75,18 +77,29 @@ class EditInformationViewController extends GetxController {
         await LocalStorage.getAllPrefData();
       }
     } catch (e) {
-      AppLogger.error('❌ fetchLatestProfile error: $e', error: 'fetchLatestProfile error: $e');
+      AppLogger.error(' fetchLatestProfile error: $e', error: 'fetchLatestProfile error: $e');
     } finally {
       isFetching.value = false;
     }
   }
 
-  void pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      imageFile.value = File(picked.path);
-      AppLogger.info('🖼️ Image selected: ${picked.path}');
+  Future<void> pickImage() async {
+    if (_isPickingImage) {
+      AppLogger.info(' pickImage ignored because another picker is active');
+      return;
+    }
+
+    _isPickingImage = true;
+    try {
+      final XFile? picked = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        imageFile.value = File(picked.path);
+        AppLogger.info(' Image selected: ${picked.path}');
+      }
+    } catch (e) {
+      AppLogger.error(' pickImage error: $e', error: 'pickImage error: $e');
+    } finally {
+      _isPickingImage = false;
     }
   }
 

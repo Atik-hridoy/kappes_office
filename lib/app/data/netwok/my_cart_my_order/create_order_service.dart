@@ -40,6 +40,7 @@ class OrderService {
                 'product': p.product,
                 'variant': p.variant,
                 'quantity': p.quantity,
+                'totalPrice': p.totalPrice,
               },
             )
             .toList(),

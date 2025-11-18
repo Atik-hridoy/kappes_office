@@ -19,12 +19,15 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchProfile();
+    _initializeProfile();
   }
 
-  
+  Future<void> _initializeProfile() async {
+    await LocalStorage.getAllPrefData();
+    await fetchProfile();
+  }
 
-  void fetchProfile() async {
+  Future<void> fetchProfile() async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
