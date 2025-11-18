@@ -30,6 +30,7 @@ class MessageData {
   final String chatId;
   final String sender;
   final String text;
+  final String? image;
   final String id;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -38,6 +39,7 @@ class MessageData {
     required this.chatId,
     required this.sender,
     required this.text,
+    this.image,
     required this.id,
     required this.createdAt,
     required this.updatedAt,
@@ -48,6 +50,7 @@ class MessageData {
       chatId: json['chatId'] ?? '',
       sender: json['sender'] ?? '',
       text: json['text'] ?? '',
+      image: json['image'] as String?,
       id: json['_id'] ?? '',
       createdAt: DateTime.parse(json['createdAt'] ?? '1970-01-01T00:00:00Z'),
       updatedAt: DateTime.parse(json['updatedAt'] ?? '1970-01-01T00:00:00Z'),
@@ -59,6 +62,7 @@ class MessageData {
       'chatId': chatId,
       'sender': sender,
       'text': text,
+      if (image != null) 'image': image,
       '_id': id,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),

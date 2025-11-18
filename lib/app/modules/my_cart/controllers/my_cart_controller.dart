@@ -126,8 +126,8 @@ class MyCartController extends GetxController {
     }
 
     final products = items.map((item) => {
-      'product': item.productId?.id,  // Changed from 'productId' to 'product'
-      'variant': item.variantId?.id,  // Changed from 'variantId' to 'variant'
+      'product': item.productId?.id, 
+      'variant': item.variantId?.id, 
       'name': item.productId?.name,
       'variantName': item.variantId?.storage,
       'quantity': item.variantQuantity,

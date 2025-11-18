@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:canuck_mall/app/data/netwok/message/get_chat_service.dart'; // Import ChatService
-import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart'; // Import ChatResponse model
+import 'package:canuck_mall/app/data/netwok/message/get_chat_service.dart';
+import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 
 class MessagesController extends GetxController {
   final ChatService _chatService = ChatService();  // Instance of ChatService
@@ -17,6 +18,11 @@ class MessagesController extends GetxController {
     try {
       isLoading.value = true;  // Start loading
       ChatResponse chatResponse = await _chatService.getChatsForUser();
+      AppLogger.info(
+        'Fetched ${chatResponse.data.chats.length} chats',
+        tag: 'MESSAGES_VIEW',
+        context: {'message': chatResponse.message},
+      );
 
       if (chatResponse.success) {
         messages.assignAll(chatResponse.data.chats);  // Add the fetched messages

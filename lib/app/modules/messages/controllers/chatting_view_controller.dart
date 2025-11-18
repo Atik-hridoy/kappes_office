@@ -6,6 +6,7 @@ import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart' as g
 import 'package:canuck_mall/app/model/message_and_chat/get_message.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_utils.dart';
+import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +56,26 @@ class ChattingViewController extends GetxController {
 
   // Initialize chatId, shopId, and shopName based on passed arguments
   void _initializeChatData() {
-    final args = Get.arguments;
+    _applyArguments(Get.arguments);
+  }
+
+  void syncWithArguments(dynamic args) {
+    final changed = _applyArguments(args);
+    if (!changed) return;
+
+    if (chatId.isNotEmpty) {
+      fetchMessages(isRefresh: true);
+    } else if (shopId?.isNotEmpty ?? false) {
+      createChat();
+    }
+  }
+
+  bool _applyArguments(dynamic args) {
+    if (args == null) return false;
+
+    final prevChatId = chatId;
+    final prevShopId = shopId;
+    final prevShopName = shopName;
 
     if (args is Map<String, dynamic>) {
       chatId = args['chatId']?.toString() ?? '';
@@ -71,7 +91,11 @@ class ChattingViewController extends GetxController {
         shopId = shopParticipant.id;
         shopName = shopParticipant.participantId?.fullName ?? 'Shop';
       }
+    } else {
+      return false;
     }
+
+    return chatId != prevChatId || shopId != prevShopId || shopName != prevShopName;
   }
 
   // Setup scroll listener for infinite scroll
@@ -159,6 +183,12 @@ class ChattingViewController extends GetxController {
     if (isLoading.value) return;
 
     try {
+      if (chatId.isEmpty) {
+        AppLogger.error('Cannot fetch messages: chatId is empty', tag: 'CHAT_FETCH', error: 'chatId is empty');
+        AppUtils.showError('Chat reference missing. Please reopen the chat.');
+        return;
+      }
+
       if (isRefresh) {
         currentPage.value = 1;
         hasMore.value = true;
@@ -173,6 +203,16 @@ class ChattingViewController extends GetxController {
       );
 
       if (response != null && response.success) {
+        AppLogger.info(
+          'Fetched ${response.data.messages.length} messages (page ${currentPage.value})',
+          tag: 'CHAT_FETCH',
+          context: {
+            'chatId': chatId,
+            'hasMore': hasMore.value,
+            'total': response.data.meta.total,
+          },
+        );
+
         final meta = response.data.meta;
         final totalPages = (meta.total / messagesPerPage).ceil();
 
