@@ -10,7 +10,6 @@ import 'package:canuck_mall/app/data/netwok/message/create_chat_serveice.dart';
 import 'package:canuck_mall/app/model/create_order_model.dart';
 import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart';
 import 'package:canuck_mall/app/model/recomended_product_model.dart';
-import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';

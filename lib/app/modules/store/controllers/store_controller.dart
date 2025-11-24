@@ -258,7 +258,7 @@ class StoreController extends GetxController {
         );
         Get.back(); // Go back to previous screen if no shopId
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Handle any other errors
       AppLogger.error(
         'Error initializing StoreController',

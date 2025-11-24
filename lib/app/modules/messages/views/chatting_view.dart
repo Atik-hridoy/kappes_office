@@ -16,77 +16,90 @@ class ChattingView extends GetView<ChattingViewController> {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       appBar: AppBar(
-        title: const Text('Peak', style: TextStyle(fontSize: 18.0)),
+        title: GetBuilder<ChattingViewController>(
+          builder: (_) => Text(
+            controller.shopName?.value?.isNotEmpty == true ? controller.shopName!.value : 'Chat',
+            style: const TextStyle(fontSize: 18.0),
+          )),
       ),
       body: Column(
         children: [
           Expanded(
-            child: GetBuilder<ChattingViewController>(
-              builder:
-                  (_) => GroupedListView(
-                    reverse: true,
-                    order: GroupedListOrder.DESC,
-                    elements: controller.messages,
-                    groupBy:
-                        (message) => DateTime(
-                          message.createdAt.year,
-                          message.createdAt.month,
-                          message.createdAt.day,
-                        ),
-                    groupHeaderBuilder:
-                        (Message message) => Padding(
-                          padding: EdgeInsets.all(AppSize.height(height: 1.0)),
-                          child: Center(
-                            child: AppText(
-                              title: DateFormat.yMMMd().format(message.createdAt),
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall!.copyWith(
-                                color: AppColors.gray,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                    itemBuilder:
-                        (context,   Message message) => Align(
-                          alignment:
-                              message.isSentByMe
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: AppSize.height(height: 2.0),
-                              horizontal: AppSize.height(height: 3.0),
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.all(
-                                AppSize.height(height: 2.0),
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    message.isSentByMe
-                                        ? AppColors.primary
-                                        : AppColors.lightGray,
-                                borderRadius: BorderRadius.circular(
-                                  AppSize.height(height: 1.0),
-                                ),
-                              ),
-                              child: AppText(
-                                title: message.text,
-                                style: TextStyle(
-                                  color:
-                                      message.isSentByMe
-                                          ? AppColors.white
-                                          : AppColors.black,
-                                ),
-                                maxLine: 1000,
-                              ),
-                            ),
-                          ),
-                        ),
+            child: Obx(() {
+              if (controller.isLoading.value && controller.messages.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              
+              if (controller.messages.isEmpty) {
+                return const Center(child: Text('No messages yet'));
+              }
+              
+              return GroupedListView(
+              reverse: false,
+              order: GroupedListOrder.ASC,
+              elements: controller.messages,
+              scrollDirection: Axis.vertical,
+              controller: controller.scrollController,
+              groupBy:
+                  (message) => DateTime(
+                message.createdAt.year,
+                message.createdAt.month,
+                message.createdAt.day,
+              ),
+              groupHeaderBuilder:
+                  (Message message) => Padding(
+                padding: EdgeInsets.all(AppSize.height(height: 1.0)),
+                child: Center(
+                  child: AppText(
+                    title: DateFormat.yMMMd().format(message.createdAt),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall!.copyWith(
+                      color: AppColors.gray,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-            ),
+                ),
+              ),
+              itemBuilder:
+                  (context, Message message) => Align(
+                alignment:
+                    message.isSentByMe
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: AppSize.height(height: 2.0),
+                    horizontal: AppSize.height(height: 3.0),
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(
+                      AppSize.height(height: 2.0),
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          message.isSentByMe
+                              ? AppColors.primary
+                              : AppColors.lightGray,
+                      borderRadius: BorderRadius.circular(
+                        AppSize.height(height: 1.0),
+                      ),
+                    ),
+                    child: AppText(
+                      title: message.text,
+                      style: TextStyle(
+                        color:
+                            message.isSentByMe
+                                ? AppColors.white
+                                : AppColors.black,
+                      ),
+                      maxLine: 1000,
+                    ),
+                  ),
+                ),
+              ),
+              );
+            }),
           ),
           Container(
             height: AppSize.height(height: 12.0),

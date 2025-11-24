@@ -82,6 +82,11 @@ abstract class AppUrls {
   static const String createChat = '/chat';
   static const String getMessages = 'message/chat';
   static const String createMessage = '/message';
+
+  // socket 
+
+  static const String socketUrl = 'https://10.10.7.103:6002';
+  
 }
 class GoogleSignInUrl {
   static const String googleSignInUrl = 'https://localhost:7000/v1/auth/google';

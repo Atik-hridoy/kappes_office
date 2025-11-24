@@ -1,6 +1,7 @@
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/message/create_chat_serveice.dart';
 import 'package:canuck_mall/app/data/netwok/message/get_message_service.dart';
+import 'package:canuck_mall/app/data/netwok/message/create_messages_service.dart' as create_msg;
 import 'package:canuck_mall/app/model/message_and_chat/create_chat_model.dart' as create_chat;
 import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart' as get_chat;
 import 'package:canuck_mall/app/model/message_and_chat/get_message.dart';
@@ -8,6 +9,7 @@ import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_utils.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
+import 'package:canuck_mall/app/socket/message_socket_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -17,6 +19,9 @@ class ChattingViewController extends GetxController {
   final messageTextEditingController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   final RefreshController refreshController = RefreshController(initialRefresh: false);
+  
+  // Socket controller for real-time messaging
+  final MessageSocketController socketController = Get.put(MessageSocketController());
 
   RxBool isBoxOpen = false.obs;
   RxList<Message> messages = <Message>[].obs;
@@ -27,15 +32,20 @@ class ChattingViewController extends GetxController {
   static const int messagesPerPage = 20;
   late final CreateChatToSellerService chatService;
   late final GetMessageService messageService;
+  late final create_msg.CreateMessageService createMessageService;
   
   String chatId = '';
   String? shopId;
-  String? shopName;
+  RxString? shopName;
 
   String get currentUserId => LocalStorage.userId;
 
   // Constructor to initialize services
-  ChattingViewController({required this.chatService, required this.messageService});
+  ChattingViewController({
+    required this.chatService,
+    required this.messageService,
+    create_msg.CreateMessageService? createMessageService,
+  }) : createMessageService = createMessageService ?? create_msg.CreateMessageService();
 
   @override
   void onInit() {
@@ -43,10 +53,12 @@ class ChattingViewController extends GetxController {
     _initializeChatData();
     _setupScrollListener();
     _setUIOverlayStyle();
+    _setupSocketListeners();
 
     // Fetch initial messages or create a new chat
     if (chatId.isNotEmpty) {
       fetchMessages(isRefresh: true);
+      _joinSocketRoom();
     } else if (shopId?.isNotEmpty ?? false) {
       createChat();
     } else {
@@ -80,7 +92,8 @@ class ChattingViewController extends GetxController {
     if (args is Map<String, dynamic>) {
       chatId = args['chatId']?.toString() ?? '';
       shopId = args['shopId']?.toString();
-      shopName = args['shopName']?.toString();
+      shopName = RxString(args['shopName']?.toString() ?? '');
+      update(); // Trigger UI update for shopName
     } else if (args is get_chat.Chat) {
       final chat = args;
       chatId = chat.id;
@@ -91,18 +104,19 @@ class ChattingViewController extends GetxController {
         shopId = shopParticipant.id;
         // Handle both Shop and User types
         if (shopParticipant.participantId is get_chat.Shop) {
-          shopName = (shopParticipant.participantId as get_chat.Shop).name;
+          shopName = RxString((shopParticipant.participantId as get_chat.Shop).name);
         } else if (shopParticipant.participantId is get_chat.User) {
-          shopName = (shopParticipant.participantId as get_chat.User).fullName;
+          shopName = RxString((shopParticipant.participantId as get_chat.User).fullName);
         } else {
-          shopName = 'Shop';
+          shopName = RxString('Shop');
         }
+        update(); // Trigger UI update for shopName
       }
     } else {
       return false;
     }
 
-    return chatId != prevChatId || shopId != prevShopId || shopName != prevShopName;
+    return chatId != prevChatId || shopId != prevShopId || shopName?.value != prevShopName?.value;
   }
 
   // Setup scroll listener for infinite scroll
@@ -111,6 +125,19 @@ class ChattingViewController extends GetxController {
       if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200 &&
           !isLoading.value && hasMore.value) {
         fetchMessages();
+      }
+    });
+  }
+
+  // Scroll to bottom of the list (newest messages)
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -158,7 +185,7 @@ class ChattingViewController extends GetxController {
             id: shopId!,
             participantId: create_chat.ParticipantId(
               id: shopId!,
-              fullName: shopName ?? 'Shop',
+              fullName: shopName?.value ?? 'Shop',
               role: 'Shop',
               email: '',
               phone: '',
@@ -177,6 +204,7 @@ class ChattingViewController extends GetxController {
         chatId = chatResponse.data.id;
         AppUtils.showSuccess("Chat created successfully!");
         fetchMessages();
+        _joinSocketRoom(); // Join socket room after chat creation
       } else {
         AppUtils.showError("Failed to create chat: ${chatResponse.message}");
       }
@@ -231,6 +259,10 @@ class ChattingViewController extends GetxController {
 
         hasMore.value = currentPage.value < totalPages;
         if (hasMore.value) currentPage.value++;
+        // Scroll to bottom after loading messages
+        if (isRefresh) {
+          _scrollToBottom();
+        }
       } else {
         AppUtils.showError(response?.message ?? 'Failed to load messages');
         hasMore.value = false;
@@ -270,7 +302,44 @@ class ChattingViewController extends GetxController {
     }
   }
 
-  // Send a message to the chat
+  
+  @override
+  void onClose() {
+    _leaveSocketRoom();
+    messageTextEditingController.dispose();
+    scrollController.dispose();
+    refreshController.dispose();
+    super.onClose();
+  }
+
+  // Socket methods
+  void _setupSocketListeners() {
+    // Listen for new messages from socket
+    socketController.newMessages.listen((newMessages) {
+      for (final message in newMessages) {
+        if (message.chatId == chatId) {
+          messages.add(message);
+          _scrollToBottom();
+        }
+      }
+      socketController.clearNewMessages();
+    });
+  }
+
+  void _joinSocketRoom() {
+    if (chatId.isNotEmpty) {
+      socketController.joinChatRoom(chatId);
+      socketController.setCurrentChatId(chatId);
+    }
+  }
+
+  void _leaveSocketRoom() {
+    if (chatId.isNotEmpty) {
+      socketController.leaveChatRoom(chatId);
+    }
+  }
+
+  // Enhanced sendMessage with socket support
   Future<void> sendMessage() async {
     if (messageTextEditingController.text.trim().isEmpty) return;
 
@@ -281,8 +350,17 @@ class ChattingViewController extends GetxController {
         return;
       }
 
+      final messageText = messageTextEditingController.text;
+      
+      // Send via socket first for real-time feel
+      socketController.sendMessage(
+        chatId: chatId,
+        text: messageText,
+        senderId: currentUserId,
+      );
+      
       final message = Message(
-        text: messageTextEditingController.text,
+        text: messageText,
         sender: currentUserId,
         chatId: chatId,
         createdAt: DateTime.now(),
@@ -293,25 +371,29 @@ class ChattingViewController extends GetxController {
 
       messages.add(message);  // Optimistic UI update
       messageTextEditingController.clear();
+      update();  // Update UI immediately
 
-      final response = await messageService.sendMessage(chatId, message);
+      // Also send via HTTP for persistence
+      final response = await createMessageService.sendMessage(
+        chatId: chatId,
+        text: messageText,
+      );
       
       if (response.success) {
         AppUtils.showSuccess("Message sent successfully");
-        fetchMessages();
+        // Refresh messages to get the server response with proper ID
+        await fetchMessages(isRefresh: true);
+        // Scroll to bottom to show the latest message
+        _scrollToBottom();
       } else {
+        // Remove the optimistic message if sending failed
+        messages.remove(message);
         AppUtils.showError("Failed to send message: ${response.message}");
+        update();
       }
     } catch (e, stackTrace) {
-      AppUtils.showError("Error in sendMessage method: $e\n$stackTrace");
+      ErrorLogger.logCaughtError(e, stackTrace, tag: 'SEND_MESSAGE_ERROR');
+      AppUtils.showError("Error sending message: $e");
     }
-  }
-
-  @override
-  void onClose() {
-    messageTextEditingController.dispose();
-    scrollController.dispose();
-    refreshController.dispose();
-    super.onClose();
   }
 }

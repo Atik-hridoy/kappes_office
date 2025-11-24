@@ -633,7 +633,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           (v) => v.variantId.id == variantId,
                          
                         );
-                        final unitPrice = variant != null ? variant.variantPrice : prod.basePrice;
+                        final unitPrice = variant.variantPrice;
                         final qty = controller.selectedQuantity.value;
                         final totalPrice = unitPrice * qty;
                         final productsArg = [

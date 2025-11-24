@@ -91,10 +91,23 @@ abstract class AppUtils {
   /// Safe snackbar that checks if overlay context exists before showing
   static void _safeShowSnackbar(GetSnackBar snackbar) {
     try {
-      if (Get.context != null && Get.context!.mounted) {
+      // Check if context exists and is mounted
+      if (Get.context == null || !Get.context!.mounted) {
+        return;
+      }
+
+      // Check if we can find an overlay in the widget tree
+      try {
+        Overlay.of(Get.context!);
+        // If we get here, overlay exists, so show the snackbar
         Get.showSnackbar(snackbar);
+      } on FlutterError {
+        // Overlay not found - silently skip showing snackbar
+        // This happens during navigation when overlay is being destroyed
+        return;
       }
     } catch (e) {
+      // Silently ignore any other errors
       log('Snackbar error: $e');
     }
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
-import 'package:canuck_mall/app/widgets/app_text.dart';
 
 class StoreCard extends StatelessWidget {
   final String shopLogo;

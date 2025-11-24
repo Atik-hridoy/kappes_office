@@ -87,7 +87,7 @@ class HomeController extends GetxController {
             p.locality,
             p.administrativeArea,
             p.country
-          ].where((s) => s != null && s!.isNotEmpty).map((s) => s!.trim()).toList();
+          ].where((s) => s != null && s.isNotEmpty).map((s) => s!.trim()).toList();
           final addr = addrParts.join(', ');
           print('Address: $addr');
           updateAddress(addr);

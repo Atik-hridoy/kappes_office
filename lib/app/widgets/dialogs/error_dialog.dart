@@ -8,12 +8,12 @@ class ErrorDialog extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const ErrorDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     this.buttonText,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   static void show({
     required String title,

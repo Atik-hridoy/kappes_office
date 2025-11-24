@@ -128,7 +128,6 @@ class ShopByStoreController extends GetxController {
   String address(Shop shop) {
     try {
       final addr = shop.address;
-      if (addr == null) return 'Address not available';
       
       return [
         if (addr.province.isNotEmpty) addr.province,
