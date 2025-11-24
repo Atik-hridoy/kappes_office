@@ -41,6 +41,7 @@ static Future<void> getAllPrefData() async {
   phone = localStorage.getString(LocalStorageKeys.phone) ?? "";
 
   AppLogger.info(userId, tag: "Local Storage");
+  AppLogger.info("Profile Image - myImage: $myImage, myProfileImage: $myProfileImage", tag: "Profile Debug");
 }
 
   /// Save String

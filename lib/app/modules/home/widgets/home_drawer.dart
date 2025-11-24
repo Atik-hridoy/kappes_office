@@ -1,5 +1,6 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_images.dart';
+import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
@@ -26,6 +27,7 @@ class HomeDrawer extends StatelessWidget {
             spacing: AppSize.height(height: 0.5),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Profile Image
               Container(
                 height: AppSize.height(height: 11.0),
                 width: AppSize.height(height: 11.0),
@@ -34,32 +36,87 @@ class HomeDrawer extends StatelessWidget {
                     AppSize.height(height: 100.0),
                   ),
                   border: Border.all(color: AppColors.primary, width: 2.0),
-                  image: DecorationImage(
-                    image: AssetImage(AppImages.profileImage),
-                    fit: BoxFit.cover,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    AppSize.height(height: 100.0),
+                  ),
+                  child: Builder(
+                    builder: (context) {
+                      // Debug: Check both image sources
+                      final myImage = LocalStorage.myImage;
+                      final myProfileImage = LocalStorage.myProfileImage;
+                      final imageUrl = myProfileImage.isNotEmpty ? myProfileImage : myImage;
+                      
+                      print('🖼️ Drawer Image Debug:');
+                      print('myImage: $myImage');
+                      print('myProfileImage: $myProfileImage');
+                      print('Final imageUrl: $imageUrl');
+                      
+                      if (imageUrl.isNotEmpty) {
+                        return AppImage(
+                          imagePath: imageUrl,
+                          width: AppSize.height(height: 11.0),
+                          height: AppSize.height(height: 11.0),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('❌ Image load error: $error');
+                            return Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(AppImages.profileImage),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        print('📷 Using default profile image');
+                        return Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(AppImages.profileImage),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
+              
+              // User Name
               AppText(
-                title: "Sarah Jones",
+                title: LocalStorage.myName.isNotEmpty ? LocalStorage.myName : "Guest User",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSize.height(height: 2.0),
-                  vertical: AppSize.height(height: 0.5),
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
-                  borderRadius: BorderRadius.circular(
-                    AppSize.height(height: 5.0),
+              
+              // View Profile Button
+              InkWell(
+                onTap: () {
+                  Get.toNamed(Routes.profile);
+                },
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSize.height(height: 2.0),
+                    vertical: AppSize.height(height: 0.5),
                   ),
-                ),
-                child: AppText(
-                  title: AppStaticKey.viewProfile,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.primary),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.height(height: 5.0),
+                    ),
+                  ),
+                  child: AppText(
+                    title: AppStaticKey.viewProfile,
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),

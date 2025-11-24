@@ -5,13 +5,30 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_button/app_common_button.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import '../controllers/company_details_controller.dart';
 
-class ContactUsView extends GetView {
+class ContactUsView extends GetView<CompanyDetailsController> {
   const ContactUsView({super.key});
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<CompanyDetailsController>();
+    
+    if (controller.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    
+    if (controller.errorMessage != null) {
+      return Center(
+        child: Text(
+          controller.errorMessage!,
+          style: TextStyle(color: Colors.red),
+        ),
+      );
+    }
+    
+    final business = controller.business;
+    
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -19,30 +36,39 @@ class ContactUsView extends GetView {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: AppSize.height(height: 1.5)),
-            Row(
-              spacing: AppSize.width(width: 1.0),
-              children: [
-                ImageIcon(
-                  AssetImage(AppIcons.phone),
-                  size: AppSize.height(height: 2.0),
-                ),
-                AppText(
-                  title: "+1 (416) 555-1234",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-            Row(
-              spacing: AppSize.width(width: 1.0),
-              children: [
-                Icon(Icons.email_outlined, size: AppSize.height(height: 2.0)),
-                // ImageIcon(AssetImage(AppIcons.), size: AppSize.height(height: 2.0),),
-                AppText(
-                  title: "contact@techgear.com",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
+            
+            // Phone
+            if (business.phone.isNotEmpty) ...[
+              Row(
+                spacing: AppSize.width(width: 1.0),
+                children: [
+                  ImageIcon(
+                    AssetImage(AppIcons.phone),
+                    size: AppSize.height(height: 2.0),
+                  ),
+                  AppText(
+                    title: business.phone,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+            
+            // Email
+            if (business.email.isNotEmpty) ...[
+              Row(
+                spacing: AppSize.width(width: 1.0),
+                children: [
+                  Icon(Icons.email_outlined, size: AppSize.height(height: 2.0)),
+                  AppText(
+                    title: business.email,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+            
+            // Address
             Row(
               spacing: AppSize.width(width: 1.0),
               children: [
@@ -50,12 +76,16 @@ class ContactUsView extends GetView {
                   AssetImage(AppIcons.marker),
                   size: AppSize.height(height: 2.0),
                 ),
-                AppText(
-                  title: "Toronto, Ontario, Canada",
-                  style: Theme.of(context).textTheme.bodySmall,
+                Expanded(
+                  child: AppText(
+                    title: business.location,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
               ],
             ),
+            
+            // Website (placeholder - could be added to Business model later)
             Row(
               spacing: AppSize.width(width: 1.0),
               children: [
@@ -64,7 +94,7 @@ class ContactUsView extends GetView {
                   size: AppSize.height(height: 2.0),
                 ),
                 AppText(
-                  title: "www.techgear.com",
+                  title: "Website not available",
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -77,16 +107,19 @@ class ContactUsView extends GetView {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             TextField(
+              controller: controller.nameController,
               decoration: InputDecoration(
                 hintText: AppStaticKey.enterYourFullName,
               ),
             ),
             TextField(
+              controller: controller.emailController,
               decoration: InputDecoration(
                 hintText: AppStaticKey.enterYourEmail,
               ),
             ),
             TextField(
+              controller: controller.messageController,
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: AppStaticKey.enterYourMessage,
@@ -96,7 +129,7 @@ class ContactUsView extends GetView {
             Align(
               alignment: Alignment.center,
               child: AppCommonButton(
-                onPressed: () {},
+                onPressed: controller.isSendingMessage ? () {} : () { controller.sendMessage(); },
                 width: AppSize.width(width: 24.0),
                 height: AppSize.height(height: 5.0),
                 padding: EdgeInsets.zero,
@@ -104,7 +137,7 @@ class ContactUsView extends GetView {
                 style: Theme.of(
                   context,
                 ).textTheme.titleSmall!.copyWith(color: AppColors.white),
-                title: AppStaticKey.send,
+                title: controller.isSendingMessage ? 'Sending...' : AppStaticKey.send,
               ),
             ),
           ],

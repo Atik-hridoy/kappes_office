@@ -83,7 +83,13 @@ abstract class AppUrls {
   static const String getMessages = 'message/chat';
   static const String createMessage = '/message';
 
-  // socket 
+
+  // trade and service 
+  static const String getAllVerifiedBusinesses = '/business/all';
+  static const String getBusinessById = '/business/';
+
+  static const String getBusinessMessage = '/business/message/';
+   // socket 
 
   static const String socketUrl = 'https://10.10.7.103:6002';
   

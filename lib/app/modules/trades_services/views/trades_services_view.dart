@@ -1,6 +1,5 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/constants/app_images.dart';
-import 'package:canuck_mall/app/dev_data/trades_dev_data.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/trades_services/widgets/search_box2.dart';
 import 'package:canuck_mall/app/modules/trades_services/widgets/trades_card.dart';
@@ -133,26 +132,80 @@ class TradesServicesView extends GetView<TradesServicesController> {
               SizedBox(height: AppSize.height(height: 1.0)),
 
               /// trades and services
-              ListView.separated(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: tradesList.length,
-                itemBuilder: (context, index) {
-                  return TradesCard(
-                    onPressed: (){
-                      Get.toNamed(Routes.companyDetails);
-                    },
-                    image: tradesList[index].image,
-                    name: tradesList[index].name,
-                    service: tradesList[index].service,
-                    address: tradesList[index].address,
-                    phone: tradesList[index].phone,
+              Obx(() {
+                if (controller.isLoading.value) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSize.height(height: 5.0)),
+                      child: CircularProgressIndicator(),
+                    ),
                   );
-                },
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: AppSize.height(height: 1.5));
-                },
-              ),
+                }
+
+                if (controller.errorMessage.value.isNotEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSize.height(height: 5.0)),
+                      child: Column(
+                        children: [
+                          Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                          SizedBox(height: AppSize.height(height: 1.0)),
+                          AppText(
+                            title: controller.errorMessage.value,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: AppSize.height(height: 2.0)),
+                          ElevatedButton(
+                            onPressed: controller.refreshBusinesses,
+                            child: AppText(title: 'Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (controller.businesses.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSize.height(height: 5.0)),
+                      child: Column(
+                        children: [
+                          Icon(Icons.business_center_outlined, size: 48, color: Colors.grey),
+                          SizedBox(height: AppSize.height(height: 1.0)),
+                          AppText(
+                            title: 'No verified businesses found',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: controller.businesses.length,
+                  itemBuilder: (context, index) {
+                    final business = controller.businesses[index];
+                    return TradesCard(
+                      onPressed: () {
+                        Get.toNamed(Routes.companyDetails, arguments: business);
+                      },
+                      image: business.logo,
+                      name: business.name,
+                      service: business.service,
+                      address: business.location,
+                      phone: business.phone,
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return SizedBox(height: AppSize.height(height: 1.5));
+                  },
+                );
+              }),
             ],
           ),
         ),
