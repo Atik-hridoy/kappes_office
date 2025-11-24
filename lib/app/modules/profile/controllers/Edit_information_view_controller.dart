@@ -138,7 +138,6 @@ class EditInformationViewController extends GetxController {
 
         AppLogger.info('✅ Profile updated & LocalStorage synced');
         Get.back(result: true); // return to Profile and trigger refresh
-        Get.snackbar('Success', 'Profile updated successfully!');
       } else {
         AppLogger.error('❌ Update failed on server side', error: 'Update failed on server side');
         Get.snackbar('Error', 'Failed to update profile. Try again later.');

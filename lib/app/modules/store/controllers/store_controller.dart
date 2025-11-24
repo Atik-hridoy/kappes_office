@@ -7,6 +7,7 @@ import '../../../routes/app_pages.dart';
 import '../../../utils/log/error_log.dart';
 import 'package:canuck_mall/app/constants/app_urls.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:canuck_mall/app/modules/messages/controllers/messages_controller.dart';
 
 class StoreController extends GetxController {
   final StoreService _storeService = StoreService();
@@ -57,6 +58,19 @@ class StoreController extends GetxController {
     }
     
     return 0;
+  }
+
+  /// Safe snackbar that checks if overlay context exists before showing
+  void _safeSnackbar(String title, String message) {
+    try {
+      if (Get.context != null && Get.context!.mounted) {
+        Get.snackbar(title, message);
+      } else {
+        AppLogger.info('Snackbar skipped - no overlay context: $title - $message');
+      }
+    } catch (e) {
+      AppLogger.error('Snackbar error: $e', error: e.toString());
+    }
   }
 
   // Fetch shop details using Shop ID
@@ -151,13 +165,13 @@ class StoreController extends GetxController {
   Future<void> handleCreateChat() async {
     try {
       if (!LocalStorage.isLogIn) {
-        Get.snackbar('Error', 'Please login to start a chat');
+        _safeSnackbar('Error', 'Please login to start a chat');
         return;
       }
 
       final shopId = store['_id']?.toString() ?? '';
       if (shopId.isEmpty) {
-        Get.snackbar('Error', 'Store information not available');
+        _safeSnackbar('Error', 'Store information not available');
         return;
       }
 
@@ -209,20 +223,19 @@ class StoreController extends GetxController {
       if (response.success) {
         final chatId = response.data.id;
         AppLogger.info('Chat created successfully with ID: $chatId');
-        Get.toNamed(
-          Routes.chattingView,
-          arguments: {
-            'chatId': chatId,
-            'shopId': correctedShopId,
-            'shopName': storeName.isNotEmpty ? storeName : 'Shop',
-          },
-        );
+        _safeSnackbar('Success', 'Chat created successfully!');
+        // Navigate to messages view to show all chats
+        // Add a small delay to ensure the chat is available on the server
+        await Future.delayed(const Duration(milliseconds: 500));
+        // Delete the old controller so it fetches fresh data
+        Get.delete<MessagesController>(force: true);
+        Get.toNamed(Routes.messages);
       } else {
-        Get.snackbar('Error', 'Failed to create chat: ${response.message}');
+        _safeSnackbar('Error', 'Failed to create chat: ${response.message}');
       }
     } catch (e) {
       ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'STORE_CHAT_ERROR');
-      Get.snackbar('Error', 'An error occurred while starting the chat: $e');
+      _safeSnackbar('Error', 'An error occurred while starting the chat: $e');
     }
   }
 

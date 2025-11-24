@@ -140,12 +140,7 @@ class ProductDetailsController extends GetxController {
       if (Get.isSnackbarOpen) {
         Get.back(); // Close any existing snackbar
       }
-      Get.snackbar(
-        'Error',
-        errorMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-      );
+      _safeSnackbar('Error', errorMessage);
       
       // Navigate back if we can't load the product
       if (product.value == null) {
@@ -229,7 +224,7 @@ class ProductDetailsController extends GetxController {
           'stackTrace': StackTrace.current.toString(),
         },
       );
-      Get.snackbar('Error', 'Failed to fetch product details');
+      _safeSnackbar('Error', 'Failed to fetch product details');
       rethrow;
     } finally {
       isLoading(false);
@@ -271,18 +266,31 @@ class ProductDetailsController extends GetxController {
     _updateSelectedVariantId();
   }
 
+  /// Safe snackbar that checks if overlay context exists before showing
+  void _safeSnackbar(String title, String message) {
+    try {
+      if (Get.context != null && Get.context!.mounted) {
+        Get.snackbar(title, message);
+      } else {
+        AppLogger.info('Snackbar skipped - no overlay context: $title - $message');
+      }
+    } catch (e) {
+      AppLogger.error('Snackbar error: $e', error: e.toString());
+    }
+  }
+
   Future<void> addProductToCart() async {
     final token = LocalStorage.token;
     final productId = product.value?.id ?? '';
     final variantId = selectedVariantId.value;
 
     if (token.isEmpty) {
-      Get.snackbar('Error', 'Please login to add items to cart');
+      _safeSnackbar('Error', 'Please login to add items to cart');
       return;
     }
 
     if (productId.isEmpty || variantId.isEmpty) {
-      Get.snackbar('Error', 'Please select product options');
+      _safeSnackbar('Error', 'Please select product options');
       return;
     }
 
@@ -295,10 +303,10 @@ class ProductDetailsController extends GetxController {
         quantity: selectedQuantity.value,
       );
       AppLogger.info('Add to cart response: ${response.data}');
-      Get.snackbar('Success', response.message);
+      _safeSnackbar('Success', response.message);
     } catch (e) {
       ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'ADD_TO_CART_ERROR');
-      Get.snackbar('Error', 'Failed to add to cart: ${e.toString()}');
+      _safeSnackbar('Error', 'Failed to add to cart: ${e.toString()}');
     } finally {
       isAddingToCart(false);
     }
@@ -307,10 +315,9 @@ class ProductDetailsController extends GetxController {
   void toggleFavorite() async {
     try {
       isFavourite.toggle();
-      Get.snackbar(
+      _safeSnackbar(
         isFavourite.value ? 'Added to favorites' : 'Removed from favorites',
         '',
-        duration: Duration(seconds: 1),
       );
     } catch (e) {
       isFavourite.toggle();
@@ -322,7 +329,7 @@ class ProductDetailsController extends GetxController {
   Future<void> handleCreateChat({required String shopId}) async {
     try {
       if (!LocalStorage.isLogIn) {
-        Get.snackbar('Error', 'Please login to start a chat');
+        _safeSnackbar('Error', 'Please login to start a chat');
         return;
       }
 
@@ -382,11 +389,11 @@ class ProductDetailsController extends GetxController {
           },
         );
       } else {
-        Get.snackbar('Error', 'Failed to create chat: ${response.message}');
+        _safeSnackbar('Error', 'Failed to create chat: ${response.message}');
       }
     } catch (e) {
       ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'CHAT_ERROR');
-      Get.snackbar('Error', 'An error occurred while starting the chat: $e');
+      _safeSnackbar('Error', 'An error occurred while starting the chat: $e');
     }
   }
 
@@ -406,12 +413,12 @@ class ProductDetailsController extends GetxController {
     final totalPrice = price * qty;
 
     if (token.isEmpty) {
-      Get.snackbar('Error', 'Please login to create order');
+      _safeSnackbar('Error', 'Please login to create order');
       return false;
     }
 
     if (productId.isEmpty || variantId.isEmpty) {
-      Get.snackbar('Error', 'Please select product options');
+      _safeSnackbar('Error', 'Please select product options');
       return false;
     }
 
@@ -447,18 +454,18 @@ class ProductDetailsController extends GetxController {
 
       if (response.success) {
         createdOrder.value = response.data;
-        Get.snackbar('Success', 'Order created successfully!');
+        _safeSnackbar('Success', 'Order created successfully!');
         AppLogger.info('Order created successfully: ${response.data?.id}');
         return true;
       } else {
         orderErrorMessage(response.message);
-        Get.snackbar('Error', response.message);
+        _safeSnackbar('Error', response.message);
         return false;
       }
     } catch (e) {
       ErrorLogger.logCaughtError(e, StackTrace.current, tag: 'UNEXPECTED_ERROR');
       orderErrorMessage('An unexpected error occurred');
-      Get.snackbar('Error', 'Failed to create order: ${e.toString()}');
+      _safeSnackbar('Error', 'Failed to create order: ${e.toString()}');
       return false;
     } finally {
       isCreatingOrder(false);
@@ -471,17 +478,17 @@ class ProductDetailsController extends GetxController {
     String deliveryOption,
   ) {
     if (shippingAddress.trim().isEmpty) {
-      Get.snackbar('Error', 'Shipping address is required');
+      _safeSnackbar('Error', 'Shipping address is required');
       return false;
     }
 
     if (paymentMethod.trim().isEmpty) {
-      Get.snackbar('Error', 'Please select a payment method');
+      _safeSnackbar('Error', 'Please select a payment method');
       return false;
     }
 
     if (deliveryOption.trim().isEmpty) {
-      Get.snackbar('Error', 'Please select a delivery option');
+      _safeSnackbar('Error', 'Please select a delivery option');
       return false;
     }
 

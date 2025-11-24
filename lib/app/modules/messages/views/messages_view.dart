@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; 
 import '../controllers/messages_controller.dart';
+import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart';
 
 class MessagesView extends GetView<MessagesController> {
   const MessagesView({super.key});
@@ -134,7 +135,9 @@ class MessagesView extends GetView<MessagesController> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         AppText(
-                                          title: message.participants[1].participantId.name,
+                                          title: message.participants[1].participantId is Shop
+                                              ? (message.participants[1].participantId as Shop).name
+                                              : (message.participants[1].participantId as User).fullName,
                                           style: Theme.of(context).textTheme.titleSmall,
                                         ),
                                         AppText(

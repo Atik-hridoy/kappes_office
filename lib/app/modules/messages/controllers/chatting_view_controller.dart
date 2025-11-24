@@ -89,7 +89,14 @@ class ChattingViewController extends GetxController {
       );
       if (shopParticipant != null) {
         shopId = shopParticipant.id;
-        shopName = shopParticipant.participantId?.fullName ?? 'Shop';
+        // Handle both Shop and User types
+        if (shopParticipant.participantId is get_chat.Shop) {
+          shopName = (shopParticipant.participantId as get_chat.Shop).name;
+        } else if (shopParticipant.participantId is get_chat.User) {
+          shopName = (shopParticipant.participantId as get_chat.User).fullName;
+        } else {
+          shopName = 'Shop';
+        }
       }
     } else {
       return false;

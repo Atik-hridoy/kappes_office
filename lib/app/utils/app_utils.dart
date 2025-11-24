@@ -12,11 +12,9 @@ abstract class AppUtils {
   // >>>>>>>>>>>>>>>>>>>>>> error message snack bar  <<<<<<<<<<<<<<<<<<<<<<
 
   static showError(String parameterValue) {
-
     // Use addPostFrameCallback to avoid calling showSnackbar during build
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.showSnackbar(
+      _safeShowSnackbar(
         GetSnackBar(
           backgroundColor: Colors.red,
           animationDuration: const Duration(seconds: 2),
@@ -55,7 +53,7 @@ abstract class AppUtils {
 
   static showSuccess(String parameterValue) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.showSnackbar(
+      _safeShowSnackbar(
         GetSnackBar(
           backgroundColor: Colors.green,
           snackPosition: SnackPosition.TOP,
@@ -86,10 +84,20 @@ abstract class AppUtils {
           ),
         ),
       );
-    }
-    );
+    });
   }
 
+
+  /// Safe snackbar that checks if overlay context exists before showing
+  static void _safeShowSnackbar(GetSnackBar snackbar) {
+    try {
+      if (Get.context != null && Get.context!.mounted) {
+        Get.showSnackbar(snackbar);
+      }
+    } catch (e) {
+      log('Snackbar error: $e');
+    }
+  }
 
   static void appError(dynamic value, {String title = "error from"}) {
     try {

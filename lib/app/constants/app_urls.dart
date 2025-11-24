@@ -1,6 +1,6 @@
 abstract class AppUrls {
-  static const String baseUrl = 'http://10.10.7.77:7002/api/v1';
-    static const String imageUrl = 'http://10.10.7.77:7002';
+  static const String baseUrl = 'http://10.10.7.103:7001/api/v1';
+    static const String imageUrl = 'http://10.10.7.103:7001';
 
   //static const String baseUrl = 'https://asif7001.binarybards.online/api/v1';
   //static const String imageUrl = 'https://asif7001.binarybards.online';
