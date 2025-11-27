@@ -1,7 +1,6 @@
 // File: lib/app/modules/auth/controllers/verify_otp_view_controller.dart
 import 'dart:async';
 import 'package:canuck_mall/app/data/netwok/auth/forget_password_service.dart';
-import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/log/error_log.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/data/netwok/auth/verify_signup_service.dart';
@@ -142,7 +141,6 @@ class VerifyOtpViewController extends GetxController {
         } else {
           // For signup verification flow
           print('✅ Email verified successfully!');
-          Get.snackbar('Success', 'Your email is now verified.');
           Get.offAllNamed(Routes.login);
         }
         return true;
@@ -189,7 +187,12 @@ class VerifyOtpViewController extends GetxController {
       if (args != null && args is Map<String, dynamic>) {
         if (args['email'] == null || args['email'].toString().isEmpty) {
           errorMessage.value = 'Email is required for OTP verification';
-          Get.back(); // Go back if no email is provided
+          // Delay navigation to avoid initialization issues
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (Get.context != null) {
+              Get.back(); // Go back if no email is provided
+            }
+          });
           return;
         }
         
@@ -204,7 +207,12 @@ class VerifyOtpViewController extends GetxController {
         
       } else {
         errorMessage.value = 'Invalid arguments passed to VerifyOtpView';
-        Get.back(); // Go back if no arguments are provided
+        // Delay navigation to avoid initialization issues
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (Get.context != null) {
+            Get.back(); // Go back if no arguments are provided
+          }
+        });
       }
     } catch (e, s) {
       ErrorLogger.logCaughtError(e, s, tag: 'VerifyOtpViewController');
@@ -250,13 +258,6 @@ class VerifyOtpViewController extends GetxController {
         _timer?.cancel();
         startTimer();
         
-        Get.snackbar(
-          'Success',
-          'A new OTP has been sent to your email',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.primary.withOpacity(0.8),
-          colorText: AppColors.white,
-        );
         print('✅ OTP resent successfully');
       } else {
         errorMessage.value = result['message']?.toString() ?? 'Failed to resend OTP';

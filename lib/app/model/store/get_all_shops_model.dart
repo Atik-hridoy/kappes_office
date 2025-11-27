@@ -151,9 +151,9 @@ class Shop {
               ?.map((item) => WorkingHour.fromJson(item))
               .toList() ??
           [],
-      logo: json['logo'],
-      coverPhoto: json['coverPhoto'],
-      banner: json['banner'],
+      logo: _normalizeMediaValue(json['logo']),
+      coverPhoto: _normalizeMediaValue(json['coverPhoto']),
+      banner: _normalizeMediaValue(json['banner']),
       website: json['website'] ?? '',
       rating: json['rating']?.toDouble() ?? 0.0,
       totalReviews: json['totalReviews'] ?? 0,
@@ -190,6 +190,16 @@ class Shop {
         'updatedAt': updatedAt,
         'revenue': revenue,
       };
+
+  static String? _normalizeMediaValue(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is List && value.isNotEmpty) {
+      final first = value.first;
+      if (first is String) return first;
+    }
+    return null;
+  }
 }
 
 class Address {

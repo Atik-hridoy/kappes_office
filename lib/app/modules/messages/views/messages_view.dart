@@ -13,11 +13,13 @@ import 'package:intl/intl.dart';
 import '../controllers/messages_controller.dart';
 import 'package:canuck_mall/app/model/message_and_chat/get_chat_model.dart';
 
-class MessagesView extends GetView<MessagesController> {
+class MessagesView extends StatelessWidget {
   const MessagesView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final MessagesController controller = Get.put(MessagesController(), permanent: false);
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
@@ -117,10 +119,12 @@ class MessagesView extends GetView<MessagesController> {
                                   AppSize.height(height: 0.5),
                                 ),
                                 child: AppImage(
-                                  // Using a default shop logo since the Shop model doesn't have an image property
-                                  imagePath: AppImages.shopLogo,
+                                  imagePath: message.participants[1].participantId is Shop
+                                      ? (message.participants[1].participantId as Shop).image ?? AppImages.shopLogo
+                                      : (message.participants[1].participantId as User).image ?? AppImages.shopLogo,
                                   height: AppSize.height(height: 5.0),
                                   width: AppSize.height(height: 5.0),
+                                  fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Icon(Icons.error, color: AppColors.error);
                                   },

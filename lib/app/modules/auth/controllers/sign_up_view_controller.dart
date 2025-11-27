@@ -30,13 +30,11 @@ class SignUpViewController extends GetxController {
         password.isEmpty ||
         confirmPassword.isEmpty) {
       errorMessage.value = 'All fields are required';
-      Get.snackbar('Error', errorMessage.value);
       return;
     }
 
     if (password != confirmPassword) {
       errorMessage.value = 'Passwords do not match';
-      Get.snackbar('Error', errorMessage.value);
       return;
     }
 
@@ -51,18 +49,15 @@ class SignUpViewController extends GetxController {
       );
 
       if (result['success'] == true) {
-        Get.snackbar('Success', 'Account created. OTP sent.');
         Get.toNamed(
           Routes.verifyOtp,
           arguments: {'email': email, 'phone': phoneController.text},
         );
       } else {
         errorMessage.value = result['message'] ?? 'Signup failed';
-        Get.snackbar('Signup Failed', errorMessage.value);
       }
     } catch (e) {
       errorMessage.value = 'An error occurred: $e';
-      Get.snackbar('Error', errorMessage.value);
     } finally {
       isLoading.value = false;
     }

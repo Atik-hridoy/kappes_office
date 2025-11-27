@@ -1,6 +1,7 @@
 import 'package:canuck_mall/app/constants/app_icons.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/home/controllers/search_product_view_controller.dart';
+import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
@@ -100,7 +101,7 @@ class SearchProductView extends GetView<SearchProductViewController> {
                     return InkWell(
                       onTap: () {
                         // Navigate to the product details page when clicked
-                        // Get.toNamed(AppRoutes.productDetailsScreen, arguments: product);
+                        Get.toNamed(Routes.productDetails, arguments: product.id);
                       },
                       child: ProductCard(
                         imageUrl: product.images.isNotEmpty ? product.images[0] : '',

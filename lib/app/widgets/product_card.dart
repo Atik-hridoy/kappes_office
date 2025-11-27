@@ -31,115 +31,66 @@ class _ProductCardState extends State<ProductCard> {
   bool _isHovered = false;  // For hover effect
   double _scale = 1.0;  // For elevation effect
 
-  // Function to handle dismiss action
-  void _handleDismiss() {
-    // You can add your logic here for when the card is dismissed
-    // For example, remove from saved items or show a snackbar
-    Get.snackbar(
-      'Removed',
-      '${widget.title} has been removed',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: Duration(seconds: 2),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final isSaved = savedController.isProductSaved(widget.productId);
       
-      return Dismissible(
-        key: Key(widget.productId),
-        direction: DismissDirection.endToStart,
-        background: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          padding: const EdgeInsets.only(right: 20.0),
-          alignment: Alignment.centerRight,
-          decoration: BoxDecoration(
-            color: Colors.red,
+      return GestureDetector(
+        onTap: () {
+          Get.toNamed(Routes.productDetails, arguments: widget.productId);
+        },
+        onTapDown: (_) {
+          setState(() {
+            _scale = 0.95;  // Shrink the card on tap
+          });
+        },
+        onTapUp: (_) {
+          setState(() {
+            _scale = 1.0;  // Restore the card to original size
+          });
+        },
+        onTapCancel: () {
+          setState(() {
+            _scale = 1.0;
+          });
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+          transform: Matrix4.identity()..scale(_scale),
+          child: InkWell(
+            onHover: (isHovered) {
+              setState(() {
+                _isHovered = isHovered;
+              });
+            },
             borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-          ),
-          child: const Icon(Icons.delete, color: Colors.white, size: 30),
-        ),
-        confirmDismiss: (direction) async {
-          // Show confirmation dialog before dismissing
-          bool confirm = await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Remove Item'),
-              content: Text('Are you sure you want to remove this item?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('CANCEL'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('REMOVE', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
-          );
-          return confirm;
-        },
-        onDismissed: (direction) {
-          _handleDismiss();
-        },
-        child: GestureDetector(
-          onTap: () {
-            Get.toNamed(Routes.productDetails, arguments: widget.productId);
-          },
-          onTapDown: (_) {
-            setState(() {
-              _scale = 0.95;  // Shrink the card on tap
-            });
-          },
-          onTapUp: (_) {
-            setState(() {
-              _scale = 1.0;  // Restore the card to original size
-            });
-          },
-          onTapCancel: () {
-            setState(() {
-              _scale = 1.0;
-            });
-          },
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 150),
-            curve: Curves.easeInOut,
-            transform: Matrix4.identity()..scale(_scale),
-            child: InkWell(
-              onHover: (isHovered) {
-                setState(() {
-                  _isHovered = isHovered;
-                });
-              },
-              borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-              child: Container(
-                width: AppSize.width(width: 42.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
-                  border: Border.all(color: AppColors.lightGray),
-                  boxShadow: _isHovered
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          )
-                        ]
-                      : [],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Image + Heart Icon
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(AppSize.height(height: 2.0)),
-                            topRight: Radius.circular(AppSize.height(height: 2.0)),
+            child: Container(
+              width: AppSize.width(width: 42.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppSize.height(height: 2.0)),
+                border: Border.all(color: AppColors.lightGray),
+                boxShadow: _isHovered
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        )
+                      ]
+                    : [],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image + Heart Icon
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(AppSize.height(height: 2.0)),
+                          topRight: Radius.circular(AppSize.height(height: 2.0)),
                         ),
                         child: SizedBox(
                           height: AppSize.height(height: 15.0),
@@ -157,15 +108,14 @@ class _ProductCardState extends State<ProductCard> {
                         right: AppSize.width(width: 1.0),
                         child: InkWell(
                           onTap: () async {
-                            if (isSaved) {
-                              await savedController.deleteProduct(widget.productId);
-                              Get.snackbar(
-                                'Removed',
-                                'Product removed from wishlist',
-                              );
-                            } else {
-                              await savedController.saveProduct(widget.productId);
-                              Get.snackbar('Saved', 'Product added to wishlist');
+                            try {
+                              if (isSaved) {
+                                await savedController.deleteProduct(widget.productId);
+                              } else {
+                                await savedController.saveProduct(widget.productId);
+                              }
+                            } catch (e) {
+                              // Silently handle errors - no snackbar needed
                             }
                           },
                           child: Container(
@@ -216,12 +166,10 @@ class _ProductCardState extends State<ProductCard> {
                             SizedBox(height: AppSize.height(height: 0.5)),
                             Text(
                               '\$${widget.price}',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleMedium?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ],
                         ),
@@ -232,7 +180,6 @@ class _ProductCardState extends State<ProductCard> {
               ),
             ),
           ),
-        ),
         ),
       );
     });

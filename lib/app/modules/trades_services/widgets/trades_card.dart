@@ -38,10 +38,12 @@ class TradesCard extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) =>
                   Icon(Icons.error, color: AppColors.error),
             ),
-            Column(
-              spacing: AppSize.height(height: 0.5),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            SizedBox(width: AppSize.width(width: 2.0)),
+            Expanded(
+              child: Column(
+                spacing: AppSize.height(height: 0.5),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 AppText(
                   title: name,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -72,9 +74,12 @@ class TradesCard extends StatelessWidget {
                       AssetImage(AppIcons.marker),
                       size: AppSize.height(height: 2.0),
                     ),
-                    AppText(
-                      title: address,
-                      style: Theme.of(context).textTheme.bodySmall,
+                    Expanded(
+                      child: AppText(
+                        title: address,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLine: 2,
+                      ),
                     ),
                   ],
                 ),
@@ -85,13 +90,17 @@ class TradesCard extends StatelessWidget {
                       AssetImage(AppIcons.phone),
                       size: AppSize.height(height: 2.0),
                     ),
-                    AppText(
-                      title: phone,
-                      style: Theme.of(context).textTheme.bodySmall,
+                    Expanded(
+                      child: AppText(
+                        title: phone,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLine: 1,
+                      ),
                     ),
                   ],
                 ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

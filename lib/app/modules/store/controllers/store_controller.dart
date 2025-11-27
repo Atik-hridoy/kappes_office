@@ -60,17 +60,9 @@ class StoreController extends GetxController {
     return 0;
   }
 
-  /// Safe snackbar that checks if overlay context exists before showing
+  /// Replace snackbar usage with logging to avoid overlay dependency
   void _safeSnackbar(String title, String message) {
-    try {
-      if (Get.context != null && Get.context!.mounted) {
-        Get.snackbar(title, message);
-      } else {
-        AppLogger.info('Snackbar skipped - no overlay context: $title - $message');
-      }
-    } catch (e) {
-      AppLogger.error('Snackbar error: $e', error: e.toString());
-    }
+    AppLogger.info('$title :: $message');
   }
 
   // Fetch shop details using Shop ID

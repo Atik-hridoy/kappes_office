@@ -12,8 +12,9 @@ class OnboardingPageTwoView extends GetView {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
           AppImage(
             imagePath: AppImages.onboard2,
             width: double.maxFinite,
@@ -49,6 +50,6 @@ class OnboardingPageTwoView extends GetView {
           ),
         ],
       ),
-    );
+    ));
   }
 }

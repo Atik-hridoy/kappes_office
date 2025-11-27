@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/model/message_and_chat/get_message.dart';
 import 'package:canuck_mall/app/modules/messages/controllers/chatting_view_controller.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
+import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,8 +36,8 @@ class ChattingView extends GetView<ChattingViewController> {
               }
               
               return GroupedListView(
-              reverse: false,
-              order: GroupedListOrder.ASC,
+              reverse: true,
+              order: GroupedListOrder.DESC,
               elements: controller.messages,
               scrollDirection: Axis.vertical,
               controller: controller.scrollController,
@@ -85,15 +86,37 @@ class ChattingView extends GetView<ChattingViewController> {
                         AppSize.height(height: 1.0),
                       ),
                     ),
-                    child: AppText(
-                      title: message.text,
-                      style: TextStyle(
-                        color:
-                            message.isSentByMe
-                                ? AppColors.white
-                                : AppColors.black,
-                      ),
-                      maxLine: 1000,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (message.image != null && message.image!.isNotEmpty) ...[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              AppSize.height(height: 0.5),
+                            ),
+                            child: AppImage(
+                              imagePath: message.image,
+                              width: AppSize.width(width: 40.0),
+                              height: AppSize.height(height: 18.0),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.broken_image, color: AppColors.error),
+                            ),
+                          ),
+                          SizedBox(height: AppSize.height(height: 1.0)),
+                        ],
+                        if (message.text.isNotEmpty)
+                          AppText(
+                            title: message.text,
+                            style: TextStyle(
+                              color:
+                                  message.isSentByMe
+                                      ? AppColors.white
+                                      : AppColors.black,
+                            ),
+                            maxLine: 1000,
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -116,10 +139,7 @@ class ChattingView extends GetView<ChattingViewController> {
                     height: AppSize.height(height: 4.0),
                     width: AppSize.height(height: 4.0),
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Refresh action here
-                        debugPrint('Refresh button pressed');
-                      },
+                      onPressed: controller.pickAndSendImage,
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
                         padding: EdgeInsets.zero,
@@ -184,11 +204,9 @@ class ChattingView extends GetView<ChattingViewController> {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      controller.sendMessage();
-
+                    onTap: () async {
+                      await controller.sendMessage();
                       controller.messageTextEditingController.clear();
-                      controller.update();
                     },
                     child: Container(
                       padding: EdgeInsets.all(AppSize.height(height: 1.1)),

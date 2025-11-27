@@ -51,7 +51,7 @@ abstract class AppUrls {
   static const String getProduct = '/product';
   static const String getProductByShopId = '/shop/products';
   static const String getReviews = '/review/product';
-  static const String searchProduct ='/products';
+  static const String searchProduct ='/product';
   static const String review = 'review/product/6858dafad21add59c265e18e';
 
   // shopssssssssssssssssssssssssssss

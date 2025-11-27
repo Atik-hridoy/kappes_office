@@ -19,11 +19,20 @@ class HomeViewService {
       ); // Debugging print for the API response
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        List<Item> items = [];
-        for (var product in response.data['data']) {
-          items.add(Item.fromJson(product)); // Use the new Item model
+        final rawData = response.data['data'];
+        final iterable = rawData is List
+            ? rawData
+            : (rawData is Map<String, dynamic> && rawData['result'] is Iterable
+                ? rawData['result'] as Iterable
+                : const []);
+
+        if (iterable.isEmpty) {
+          throw Exception('Recommended products response missing result list');
         }
-        return items;
+
+        return iterable
+            .map((product) => Item.fromJson(Map<String, dynamic>.from(product)))
+            .toList();
       } else {
         final errorMsg = response.data['message'] ?? 'Unknown error';
         print('⚠️ API Error: $errorMsg'); // Debugging print for errors

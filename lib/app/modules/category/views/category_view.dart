@@ -59,6 +59,7 @@ class CategoryView extends StatelessWidget {
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
+                child: Expanded(
                 child: Column(
                   children: [
                     Container(
@@ -92,6 +93,7 @@ class CategoryView extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
                 ),
               );
             },

@@ -265,17 +265,9 @@ class ProductDetailsController extends GetxController {
     _updateSelectedVariantId();
   }
 
-  /// Safe snackbar that checks if overlay context exists before showing
+  /// Replaces previous snackbar usage with simple logging to avoid overlay dependency
   void _safeSnackbar(String title, String message) {
-    try {
-      if (Get.context != null && Get.context!.mounted) {
-        Get.snackbar(title, message);
-      } else {
-        AppLogger.info('Snackbar skipped - no overlay context: $title - $message');
-      }
-    } catch (e) {
-      AppLogger.error('Snackbar error: $e', error: e.toString());
-    }
+    AppLogger.info('$title :: $message');
   }
 
   Future<void> addProductToCart() async {

@@ -198,6 +198,7 @@ class Shop {
   final String? email;
   final String? phone;
   final bool isActive;
+  final String? image;
   // Add other fields as needed
 
   Shop({
@@ -206,6 +207,7 @@ class Shop {
     this.email,
     this.phone,
     required this.isActive,
+    this.image,
   });
 
   factory Shop.fromJson(Map<String, dynamic> json) {
@@ -215,6 +217,7 @@ class Shop {
       email: json['email'],
       phone: json['phone'],
       isActive: json['isActive'] ?? false,
+      image: json['image'] ?? json['logo'] ?? json['profileImage'] ?? json['avatar'],
     );
   }
 
@@ -224,6 +227,7 @@ class Shop {
     'email': email,
     'phone': phone,
     'isActive': isActive,
+    'image': image,
   };
 }
 

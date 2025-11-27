@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/data/netwok/message/create_chat_serveice.dart';
 import 'package:canuck_mall/app/data/netwok/message/get_message_service.dart';
@@ -13,12 +15,15 @@ import 'package:canuck_mall/app/socket/message_socket_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ChattingViewController extends GetxController {
   final messageTextEditingController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   final RefreshController refreshController = RefreshController(initialRefresh: false);
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isPickingImage = false;
   
   // Socket controller for real-time messaging
   final MessageSocketController socketController = Get.put(MessageSocketController());
@@ -339,9 +344,38 @@ class ChattingViewController extends GetxController {
     }
   }
 
+  Future<void> pickAndSendImage() async {
+    if (_isPickingImage) return;
+    if (chatId.isEmpty) {
+      AppUtils.showError('Chat is not ready yet');
+      return;
+    }
+
+    _isPickingImage = true;
+    try {
+      final XFile? picked = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (picked != null) {
+        await sendMessage(imageFile: File(picked.path));
+      }
+    } catch (e, stackTrace) {
+      ErrorLogger.logCaughtError(e, stackTrace, tag: 'PICK_IMAGE_ERROR');
+      AppUtils.showError('Failed to pick image');
+    } finally {
+      _isPickingImage = false;
+    }
+  }
+
   // Enhanced sendMessage with socket support
-  Future<void> sendMessage() async {
-    if (messageTextEditingController.text.trim().isEmpty) return;
+  Future<void> sendMessage({File? imageFile}) async {
+    final trimmedText = messageTextEditingController.text.trim();
+    final hasText = trimmedText.isNotEmpty;
+    final hasImage = imageFile != null;
+
+    if (!hasText && !hasImage) return;
 
     try {
       final currentUserId = LocalStorage.userId;
@@ -350,33 +384,33 @@ class ChattingViewController extends GetxController {
         return;
       }
 
-      final messageText = messageTextEditingController.text;
-      
-      // Send via socket first for real-time feel
-      socketController.sendMessage(
-        chatId: chatId,
-        text: messageText,
-        senderId: currentUserId,
-      );
-      
-      final message = Message(
-        text: messageText,
-        sender: currentUserId,
-        chatId: chatId,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        id: '',
-        v: 0,
-      );
+      Message? optimisticMessage;
+      if (hasText) {
+        socketController.sendMessage(
+          chatId: chatId,
+          text: trimmedText,
+          senderId: currentUserId,
+        );
 
-      messages.add(message);  // Optimistic UI update
-      messageTextEditingController.clear();
-      update();  // Update UI immediately
+        optimisticMessage = Message(
+          text: trimmedText,
+          sender: currentUserId,
+          chatId: chatId,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          id: '',
+          v: 0,
+        );
 
-      // Also send via HTTP for persistence
+        messages.add(optimisticMessage);
+        messageTextEditingController.clear();
+        update();
+      }
+
       final response = await createMessageService.sendMessage(
         chatId: chatId,
-        text: messageText,
+        text: trimmedText,
+        image: imageFile,
       );
       
       if (response.success) {
@@ -387,7 +421,9 @@ class ChattingViewController extends GetxController {
         _scrollToBottom();
       } else {
         // Remove the optimistic message if sending failed
-        messages.remove(message);
+        if (optimisticMessage != null) {
+          messages.remove(optimisticMessage);
+        }
         AppUtils.showError("Failed to send message: ${response.message}");
         update();
       }

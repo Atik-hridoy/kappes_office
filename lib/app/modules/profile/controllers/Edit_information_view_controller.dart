@@ -111,7 +111,7 @@ class EditInformationViewController extends GetxController {
     final addr = address.value.trim();
 
     if ([name, mail, mobile, addr].any((v) => v.isEmpty)) {
-      Get.snackbar('Error', 'All fields must be filled');
+      // All fields must be filled - validation error
       return;
     }
 
@@ -137,14 +137,19 @@ class EditInformationViewController extends GetxController {
         await LocalStorage.getAllPrefData();
 
         AppLogger.info('✅ Profile updated & LocalStorage synced');
-        Get.back(result: true); // return to Profile and trigger refresh
+        // Delay navigation to avoid snackbar controller issues
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (Get.context != null) {
+            Get.back(result: true); // return to Profile and trigger refresh
+          }
+        });
       } else {
         AppLogger.error('❌ Update failed on server side', error: 'Update failed on server side');
-        Get.snackbar('Error', 'Failed to update profile. Try again later.');
+        // Removed snackbar to avoid controller issues
       }
     } catch (e) {
       AppLogger.error('❗ Exception: $e', error: 'Exception: $e');
-      Get.snackbar('Error', 'Something went wrong: $e');
+      // Silently handle exception - no snackbar needed
     } finally {
       isLoading.value = false;
     }

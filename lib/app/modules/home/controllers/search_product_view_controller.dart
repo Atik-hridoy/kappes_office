@@ -81,13 +81,13 @@ class SearchProductViewController extends GetxController {
     List<String>? tags,
   }) async {
     try {
-      print('🟢 Search started for: name=$name, description=$description, tags=$tags');
+      print('🟢 Search started for: searchTerm=$name, description=$description, tags=$tags');
 
       Map<String, dynamic> requestBody = {};
       // Add category filter if present
       if (categoryId != null) requestBody['categoryId'] = categoryId;
       // Add all non-null and non-empty fields to requestBody
-      if (name != null && name.isNotEmpty) requestBody['name'] = name;
+      if (name != null && name.isNotEmpty) requestBody['searchTerm'] = name;
       if (description != null && description.isNotEmpty) requestBody['description'] = description;
       if (tags != null && tags.isNotEmpty) requestBody['tags'] = tags;
       
