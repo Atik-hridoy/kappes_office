@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:canuck_mall/app/data/local/storage_service.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';

@@ -82,7 +82,7 @@ class CompanyAboutUsView extends GetView<CompanyDetailsController> {
                     ),
                   ],
                 ),
-              )).toList(),
+              )),
               SizedBox(height: AppSize.height(height: 2.0)),
             ],
             

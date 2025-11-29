@@ -54,7 +54,7 @@ class CompanyDetailsHeader extends StatelessWidget {
     }
     
     if (controller.errorMessage != null) {
-      return Container(
+      return SizedBox(
         height: AppSize.height(height: 13.0),
         child: Center(
           child: Text(

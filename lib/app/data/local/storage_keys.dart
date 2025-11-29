@@ -10,5 +10,5 @@ class LocalStorageKeys {
   static const String myEmail = "myEmail";
   static const String myAddress = "myAddress";
   static const String phone = "phone";
-  static const String language = "language"; // For storing user language preference
+  static const String language = "language"; 
 }

@@ -19,7 +19,7 @@ class ChattingView extends GetView<ChattingViewController> {
       appBar: AppBar(
         title: GetBuilder<ChattingViewController>(
           builder: (_) => Text(
-            controller.shopName?.value?.isNotEmpty == true ? controller.shopName!.value : 'Chat',
+            controller.shopName?.value.isNotEmpty == true ? controller.shopName!.value : 'Chat',
             style: const TextStyle(fontSize: 18.0),
           )),
       ),

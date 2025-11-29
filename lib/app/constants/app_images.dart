@@ -8,7 +8,6 @@ abstract class AppImages {
   static const String tradesAndServices = "assets/images/tradesAndServices-min.png";
   static const String coupon = "assets/images/Coupon-min.png";
 
-  /// dev images
   static const String profileImage = "assets/dev_images/profile_image-min.jpg";
   static const String banner1 = "assets/dev_images/bannar1-min.png";
   static const String banner2 = "assets/dev_images/bannar2-min.jpeg";

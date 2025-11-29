@@ -11,11 +11,6 @@ class SocketService extends GetxService {
     initSocket();
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    // Socket is already initialized in constructor
-  }
 
   void initSocket() {
     socket = IO.io(AppUrls.socketUrl, <String, dynamic>{
