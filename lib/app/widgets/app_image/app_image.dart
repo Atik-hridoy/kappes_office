@@ -101,10 +101,39 @@ class AppImage extends StatelessWidget {
   }
 
   Widget _buildFallbackIcon() {
-    return Icon(
-      fallbackIcon,
-      size: width < height ? width * 0.5 : height * 0.5,
-      color: Colors.grey,
+    final fallbackSize = _resolveFallbackSize();
+    final extent = fallbackSize * 1.6;
+
+    final resolvedWidth = (width.isFinite && width > 0) ? width : extent;
+    final resolvedHeight = (height.isFinite && height > 0) ? height : extent;
+
+    return SizedBox(
+      width: resolvedWidth,
+      height: resolvedHeight,
+      child: Center(
+        child: Icon(
+          fallbackIcon,
+          size: fallbackSize,
+          color: Colors.grey,
+        ),
+      ),
     );
+  }
+
+  double _resolveFallbackSize() {
+    final candidates = <double>[];
+    if (width.isFinite && width > 0) {
+      candidates.add(width);
+    }
+    if (height.isFinite && height > 0) {
+      candidates.add(height);
+    }
+
+    final base = candidates.isNotEmpty
+        ? candidates.reduce((value, element) => value < element ? value : element)
+        : 48.0;
+
+    final clamped = base.clamp(24.0, 128.0).toDouble();
+    return clamped * 0.6;
   }
 }
