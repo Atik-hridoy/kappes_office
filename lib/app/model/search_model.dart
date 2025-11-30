@@ -51,33 +51,35 @@ class SearchProduct {
 
   factory SearchProduct.fromJson(Map<String, dynamic> json) {
     return SearchProduct(
-      id: json['_id'],
-      name: json['name'],
-      description: json['description'],
-      basePrice: json['basePrice'].toDouble(),
-      totalStock: json['totalStock'],
-      images: List<String>.from(json['images']),
-      isFeatured: json['isFeatured'],
-      tags: List<String>.from(json['tags']),
-      avgRating: json['avg_rating'].toDouble(),
-      purchaseCount: json['purchaseCount'],
-      viewCount: json['viewCount'],
-      categoryId: Category.fromJson(json['categoryId']),
-      subcategoryId: Subcategory.fromJson(json['subcategoryId']),
-      shopId: Shop.fromJson(json['shopId']),
-      brandId: Brand.fromJson(json['brandId']),
-      createdBy: json['createdBy'],
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      basePrice: (json['basePrice'] ?? 0).toDouble(),
+      totalStock: json['totalStock'] ?? 0,
+      images: List<String>.from(json['images'] ?? []),
+      isFeatured: json['isFeatured'] ?? false,
+      tags: List<String>.from(json['tags'] ?? []),
+      avgRating: (json['avg_rating'] ?? 0).toDouble(),
+      purchaseCount: json['purchaseCount'] ?? 0,
+      viewCount: json['viewCount'] ?? 0,
+      categoryId: Category.fromJson(json['categoryId'] ?? {}),
+      subcategoryId: json['subcategoryId'] != null ? Subcategory.fromJson(json['subcategoryId']) : Subcategory(id: '', name: ''),
+      shopId: Shop.fromJson(json['shopId'] ?? {}),
+      brandId: json['brandId'] != null ? Brand.fromJson(json['brandId']) : Brand(id: '', name: ''),
+      createdBy: json['createdBy'] ?? '',
       reviews: json['reviews'] ?? [],
-      totalReviews: json['totalReviews'],
-      productVariantDetails: List<ProductVariantDetail>.from(
-        json['product_variant_Details'].map(
-          (x) => ProductVariantDetail.fromJson(x),
-        ),
-      ),
-      isDeleted: json['isDeleted'],
-      isRecommended: json['isRecommended'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      totalReviews: json['totalReviews'] ?? 0,
+      productVariantDetails: json['product_variant_Details'] != null 
+          ? List<ProductVariantDetail>.from(
+              json['product_variant_Details'].map(
+                (x) => ProductVariantDetail.fromJson(x),
+              ),
+            )
+          : [],
+      isDeleted: json['isDeleted'] ?? false,
+      isRecommended: json['isRecommended'] ?? false,
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
     );
   }
 
@@ -124,9 +126,9 @@ class ProductVariantDetail {
 
   factory ProductVariantDetail.fromJson(Map<String, dynamic> json) {
     return ProductVariantDetail(
-      variantId: ProductVariant.fromJson(json['variantId']),
-      variantQuantity: json['variantQuantity'],
-      variantPrice: json['variantPrice'].toDouble(),
+      variantId: ProductVariant.fromJson(json['variantId'] ?? {}),
+      variantQuantity: json['variantQuantity'] ?? 0,
+      variantPrice: (json['variantPrice'] ?? 0).toDouble(),
     );
   }
 
@@ -152,9 +154,9 @@ class ProductVariant {
 
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     return ProductVariant(
-      id: json['_id'],
-      slug: json['slug'],
-      variantId: json['id'],
+      id: json['_id'] ?? '',
+      slug: json['slug'] ?? '',
+      variantId: json['id'] ?? '',
     );
   }
 
@@ -170,7 +172,7 @@ class Category {
   Category({required this.id, required this.name});
 
   factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(id: json['_id'], name: json['name']);
+    return Category(id: json['_id'] ?? '', name: json['name'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -185,7 +187,7 @@ class Subcategory {
   Subcategory({required this.id, required this.name});
 
   factory Subcategory.fromJson(Map<String, dynamic> json) {
-    return Subcategory(id: json['_id'], name: json['name']);
+    return Subcategory(id: json['_id'] ?? '', name: json['name'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -200,7 +202,7 @@ class Shop {
   Shop({required this.id, required this.name});
 
   factory Shop.fromJson(Map<String, dynamic> json) {
-    return Shop(id: json['_id'], name: json['name']);
+    return Shop(id: json['_id'] ?? '', name: json['name'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -215,7 +217,7 @@ class Brand {
   Brand({required this.id, required this.name});
 
   factory Brand.fromJson(Map<String, dynamic> json) {
-    return Brand(id: json['_id'], name: json['name']);
+    return Brand(id: json['_id'] ?? '', name: json['name'] ?? '');
   }
 
   Map<String, dynamic> toJson() {

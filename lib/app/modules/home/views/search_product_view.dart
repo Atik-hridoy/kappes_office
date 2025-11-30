@@ -19,7 +19,7 @@ class SearchProductView extends GetView<SearchProductViewController> {
       appBar: AppBar(
         surfaceTintColor: AppColors.white,
         title: AppText(
-          title: controller.categoryName ?? AppStaticKey.searchProduct,
+          title: controller.categoryName ?? "All Products",
           style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,

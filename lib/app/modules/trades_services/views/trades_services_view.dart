@@ -3,6 +3,7 @@ import 'package:canuck_mall/app/constants/app_images.dart';
 import 'package:canuck_mall/app/localization/app_static_key.dart';
 import 'package:canuck_mall/app/modules/trades_services/widgets/search_box2.dart';
 import 'package:canuck_mall/app/modules/trades_services/widgets/trades_card.dart';
+import 'package:canuck_mall/app/modules/trades_services/models/sort_filter_options.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:canuck_mall/app/themes/app_colors.dart';
 import 'package:canuck_mall/app/utils/app_size.dart';
@@ -99,30 +100,52 @@ class TradesServicesView extends GetView<TradesServicesController> {
               Row(
                 children: [
                   // Filter icon
-                  ImageIcon(
-                    AssetImage(AppIcons.filter2),
-                    size: AppSize.height(height: 2.0),
-                  ),
-                  SizedBox(width: AppSize.width(width: 2.0)),
-                  AppText(
-                    title: AppStaticKey.filter,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.w500,
+                  InkWell(
+                    onTap: () => controller.showFilterDialog.value = true,
+                    child: Row(
+                      children: [
+                        ImageIcon(
+                          AssetImage(AppIcons.filter2),
+                          size: AppSize.height(height: 2.0),
+                          color: controller.currentFilter.value != FilterOption.all 
+                              ? AppColors.primary 
+                              : Colors.grey,
+                        ),
+                        SizedBox(width: AppSize.width(width: 2.0)),
+                        AppText(
+                          title: AppStaticKey.filter,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: controller.currentFilter.value != FilterOption.all 
+                                ? AppColors.primary 
+                                : null,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   Spacer(),
 
                   // Sort icon
-                  ImageIcon(
-                    AssetImage(AppIcons.sort),
-                    size: AppSize.height(height: 2.0),
-                  ),
-                  SizedBox(width: AppSize.width(width: 2.0)),
-                  AppText(
-                    title: AppStaticKey.sort,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.w500,
+                  InkWell(
+                    onTap: () => controller.showSortDialog.value = true,
+                    child: Row(
+                      children: [
+                        ImageIcon(
+                          AssetImage(AppIcons.sort),
+                          size: AppSize.height(height: 2.0),
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(width: AppSize.width(width: 2.0)),
+                        AppText(
+                          title: AppStaticKey.sort,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -166,7 +189,7 @@ class TradesServicesView extends GetView<TradesServicesController> {
                   );
                 }
 
-                if (controller.businesses.isEmpty) {
+                if (controller.filteredBusinesses.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.all(AppSize.height(height: 5.0)),
@@ -175,7 +198,7 @@ class TradesServicesView extends GetView<TradesServicesController> {
                           Icon(Icons.business_center_outlined, size: 48, color: Colors.grey),
                           SizedBox(height: AppSize.height(height: 1.0)),
                           AppText(
-                            title: 'No verified businesses found',
+                            title: 'No businesses found with current filter',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -187,9 +210,9 @@ class TradesServicesView extends GetView<TradesServicesController> {
                 return ListView.separated(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: controller.businesses.length,
+                  itemCount: controller.filteredBusinesses.length,
                   itemBuilder: (context, index) {
-                    final business = controller.businesses[index];
+                    final business = controller.filteredBusinesses[index];
                     return TradesCard(
                       onPressed: () {
                         Get.toNamed(Routes.companyDetails, arguments: business);
@@ -206,8 +229,122 @@ class TradesServicesView extends GetView<TradesServicesController> {
                   },
                 );
               }),
+              
+              // Filter Dialog
+              Obx(() {
+                if (controller.showFilterDialog.value) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => _showFilterDialog(context),
+                    ).then((_) => controller.showFilterDialog.value = false);
+                  });
+                }
+                return SizedBox.shrink();
+              }),
+              
+              // Sort Dialog  
+              Obx(() {
+                if (controller.showSortDialog.value) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => _showSortDialog(context),
+                    ).then((_) => controller.showSortDialog.value = false);
+                  });
+                }
+                return SizedBox.shrink();
+              }),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showFilterDialog(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Filter Businesses',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: AppSize.height(height: 1.5)),
+            
+            ...FilterOption.values.map((filter) => RadioListTile<FilterOption>(
+              title: Text(controller.getFilterDisplayName(filter)),
+              value: filter,
+              groupValue: controller.currentFilter.value,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.updateFilter(value);
+                }
+              },
+            )),
+            
+            SizedBox(height: AppSize.height(height: 1.0)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => controller.showFilterDialog.value = false,
+                  child: Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _showSortDialog(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(AppSize.height(height: 2.0)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sort Businesses',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: AppSize.height(height: 1.5)),
+            
+            ...SortOption.values.map((sort) => RadioListTile<SortOption>(
+              title: Text(controller.getSortDisplayName(sort)),
+              value: sort,
+              groupValue: controller.currentSort.value,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.updateSort(value);
+                }
+              },
+            )),
+            
+            SizedBox(height: AppSize.height(height: 1.0)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => controller.showSortDialog.value = false,
+                  child: Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

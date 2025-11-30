@@ -259,4 +259,77 @@ class TradeService {
       return false;
     }
   }
+
+  // Search businesses with search term
+  static Future<TradeServiceResponse> searchBusinesses(String searchTerm) async {
+    final dio = Dio();
+    
+    try {
+      AppLogger.info('🔍 Searching businesses with term: $searchTerm', tag: 'TRADE_SERVICE');
+      
+      final response = await dio.get(
+        '${AppUrls.baseUrl}${AppUrls.businessSearch}',
+        queryParameters: {'searchTerm': searchTerm},
+      );
+      
+      AppLogger.info('🔍 Business search response received: ${response.statusCode}', tag: 'TRADE_SERVICE');
+      AppLogger.info('🔍 Business search response body: ${response.data}', tag: 'TRADE_SERVICE');
+      
+      if (response.statusCode == 200) {
+        final responseData = TradeServiceResponse.fromJson(response.data);
+        AppLogger.info('🟢 Successfully searched businesses: ${responseData.data.length} results', tag: 'TRADE_SERVICE');
+        return responseData;
+      } else {
+        AppLogger.error('🔴 Failed to search businesses: ${response.statusCode}', tag: 'TRADE_SERVICE', error: 'HTTP Error ${response.statusCode}');
+        return TradeServiceResponse(
+          success: false,
+          message: 'Failed to search businesses: ${response.statusCode}',
+          data: [],
+        );
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('🔴 Error searching businesses: $e', tag: 'TRADE_SERVICE', error: e);
+      AppLogger.error(stackTrace.toString(), tag: 'TRADE_SERVICE', error: stackTrace);
+      return TradeServiceResponse(
+        success: false,
+        message: 'Error searching businesses: $e',
+        data: [],
+      );
+    }
+  }
+
+  // Get all businesses (without search term)
+  static Future<TradeServiceResponse> getAllBusinesses() async {
+    final dio = Dio();
+    
+    try {
+      AppLogger.info('🟢 Fetching all businesses', tag: 'TRADE_SERVICE');
+      
+      final response = await dio.get('${AppUrls.baseUrl}${AppUrls.businessSearch}');
+      
+      AppLogger.info('🟢 All businesses response received: ${response.statusCode}', tag: 'TRADE_SERVICE');
+      AppLogger.info('🟢 All businesses response body: ${response.data}', tag: 'TRADE_SERVICE');
+      
+      if (response.statusCode == 200) {
+        final responseData = TradeServiceResponse.fromJson(response.data);
+        AppLogger.info('🟢 Successfully fetched all businesses: ${responseData.data.length} results', tag: 'TRADE_SERVICE');
+        return responseData;
+      } else {
+        AppLogger.error('🔴 Failed to fetch all businesses: ${response.statusCode}', tag: 'TRADE_SERVICE', error: 'HTTP Error ${response.statusCode}');
+        return TradeServiceResponse(
+          success: false,
+          message: 'Failed to fetch all businesses: ${response.statusCode}',
+          data: [],
+        );
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('🔴 Error fetching all businesses: $e', tag: 'TRADE_SERVICE', error: e);
+      AppLogger.error(stackTrace.toString(), tag: 'TRADE_SERVICE', error: stackTrace);
+      return TradeServiceResponse(
+        success: false,
+        message: 'Error fetching all businesses: $e',
+        data: [],
+      );
+    }
+  }
 }

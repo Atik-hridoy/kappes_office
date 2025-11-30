@@ -5,6 +5,7 @@ import 'package:canuck_mall/app/model/get_cart_model.dart';
 import 'package:canuck_mall/app/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:canuck_mall/app/utils/log/app_log.dart';
+import 'package:flutter/material.dart';
 
 class MyCartController extends GetxController {
   var isLoading = true.obs;
@@ -56,9 +57,9 @@ class MyCartController extends GetxController {
       if (e.toString().contains("Cart not found") || e.toString().contains("Cart is empty")) {
         AppLogger.debug("📭 Cart is empty - this is normal after order completion", tag: 'MY_CART', error: 'Cart is empty');
       } else if (e.toString().contains("connectionTimeout")) {
-        Get.snackbar('Network Error', 'Request timed out. Please try again.');
+        _showErrorDialog('Network Error', 'Request timed out. Please try again.');
       } else {
-        Get.snackbar('Error', 'Something went wrong. Please try again.');
+        _showErrorDialog('Error', 'Something went wrong. Please try again.');
       }
     } finally {
       isLoading(false);
@@ -103,24 +104,14 @@ class MyCartController extends GetxController {
   void goToCheckout() {
     final items = cartData.value?.data?.items ?? [];
     if (items.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Cart is empty',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
+      _showErrorDialog('Error', 'Cart is empty');
       return;
     }
 
     // Validate that all items have required data
     for (var item in items) {
       if (item.productId?.id == null || item.variantId?.id == null) {
-        Get.snackbar(
-          'Error',
-          'Some cart items are missing required information',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
+        _showErrorDialog('Error', 'Some cart items are missing required information');
         return;
       }
     }
@@ -138,12 +129,7 @@ class MyCartController extends GetxController {
     final shopId = items.first.productId?.shopId ?? '';
     
     if (shopId.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Shop information is missing',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
+      _showErrorDialog('Error', 'Shop information is missing');
       return;
     }
 
@@ -157,5 +143,22 @@ class MyCartController extends GetxController {
         'shopId': shopId,
       },
     );
+  }
+
+  void _showErrorDialog(String title, String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.dialog(
+        AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

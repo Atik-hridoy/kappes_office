@@ -26,6 +26,27 @@ class SearchProductViewController extends GetxController {
       if (categoryId != null) {
         searchProductsByCategory(categoryId!);
       }
+    } else {
+      // Load all products when no category is specified
+      fetchAllProducts();
+    }
+  }
+
+  // Fetch all products
+  Future<void> fetchAllProducts() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+    try {
+      print('🟢 Fetching all products');
+      final results = await _service.fetchSearchResults({});
+      searchResults.value = results;
+      print('🟢 All products fetched: ${results.length} items');
+    } catch (e) {
+      errorMessage.value = 'Failed to load products: ${e.toString()}';
+      print('🔴 Error fetching all products: $e');
+      searchResults.clear();
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -57,10 +78,9 @@ class SearchProductViewController extends GetxController {
     // Cancel previous timer if user is still typing
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     
-    // If search query is empty, clear results
+    // If search query is empty, show all products
     if (name == null || name.trim().isEmpty) {
-      searchResults.clear();
-      errorMessage.value = '';
+      fetchAllProducts();
       return;
     }
     

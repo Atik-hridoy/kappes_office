@@ -1,9 +1,7 @@
 abstract class AppUrls {
-  //static const String baseUrl = 'http://10.10.7.103:7001/api/v1';
-  //static const String imageUrl = 'http://10.10.7.103:7001';
 
-   static const String baseUrl = 'https://asif7001.binarybards.online/api/v1';
-   static const String imageUrl = 'https://asif7001.binarybards.online';
+   static const String baseUrl = 'http://35.183.138.114:7001/api/v1';
+   static const String imageUrl = 'http://35.183.138.114:7001';
 
 
 
@@ -60,6 +58,7 @@ abstract class AppUrls {
  
   static const String shopByTerritory = '/shop/territory';
   static const String tradeNService = '/business/all';
+  static const String businessSearch = '/business/all';
   static const String offered = '/offered';
   static const String shopLocation = '/shop/location';
 
@@ -67,7 +66,7 @@ abstract class AppUrls {
 
 
   static const String getAllShops = '/shop';
-  static const String getAllProductsByShopId = '/shop/products'; // +shopid 
+  static const String getAllProductsByShopId = '/shop/products'; 
 
 
   static const String getCoupon = '/coupon';

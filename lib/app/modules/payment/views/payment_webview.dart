@@ -59,7 +59,11 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                 print('✅ [PaymentWebView] Payment completed, redirecting to success page');
                 
                 // Navigate to success page with payment completion
-                Get.offAllNamed(Routes.checkoutSuccessfulView);
+                if (mounted) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Get.offAllNamed(Routes.checkoutSuccessfulView);
+                  });
+                }
                 return NavigationDecision.prevent;
               }
               
@@ -71,12 +75,18 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                 print('❌ [PaymentWebView] Payment cancelled/failed');
                 
                 // Go back to checkout with error message
-                Get.back();
-                Get.snackbar(
-                  'Payment Failed', 
-                  'Payment was cancelled or failed. Please try again.',
-                  snackPosition: SnackPosition.BOTTOM,
-                );
+                if (mounted) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Get.back();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Payment was cancelled or failed. Please try again.'),
+                        ),
+                      );
+                    }
+                  });
+                }
                 return NavigationDecision.prevent;
               }
               
@@ -91,7 +101,11 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     } catch (e) {
       print('Error initializing WebView: $e');
       // Fallback: close the WebView if initialization fails
-      Get.back();
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.back();
+        });
+      }
     }
   }
 
@@ -115,30 +129,35 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           icon: const Icon(Icons.close),
           onPressed: () {
             // Show confirmation dialog before closing payment
-            Get.dialog(
-              AlertDialog(
-                title: const Text('Cancel Payment'),
-                content: const Text('Are you sure you want to cancel the payment?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Get.back(), // Close dialog
-                    child: const Text('No'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Get.back(); // Close dialog
-                      Get.back(); // Close payment webview
-                      Get.snackbar(
-                        'Payment Cancelled',
-                        'Payment was cancelled by user.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
-                    child: const Text('Yes'),
-                  ),
-                ],
-              ),
-            );
+            if (mounted && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Cancel Payment'),
+                    content: const Text('Are you sure you want to cancel the payment?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(), // Close dialog
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                          Navigator.of(context).pop(); // Close payment webview
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Payment was cancelled by user.'),
+                            ),
+                          );
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           },
         ),
       ),

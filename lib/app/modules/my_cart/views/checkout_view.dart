@@ -258,10 +258,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                                       .couponResponse!
                                       .message
                                       .isNotEmpty) {
-                                    Get.snackbar(
-                                      'Coupon',
-                                      couponController.couponResponse!.message,
-                                    );
+                                    _showCouponMessage('Coupon', couponController.couponResponse!.message);
                                   }
                                 } else if (couponController.errorMessage !=
                                     null) {
@@ -269,10 +266,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                                     discount = 0.0;
                                     _calculateTotal();
                                   });
-                                  Get.snackbar(
-                                    'Coupon Error',
-                                    couponController.errorMessage!,
-                                  );
+                                  _showCouponMessage('Coupon Error', couponController.errorMessage!);
                                 }
                               },
                             ),
@@ -473,5 +467,24 @@ class _CheckoutViewState extends State<CheckoutView> {
         ),
       ),
     );
+  }
+
+  void _showCouponMessage(String title, String message) {
+    if (mounted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(message),
+            ],
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }
