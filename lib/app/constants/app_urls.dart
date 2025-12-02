@@ -88,9 +88,6 @@ abstract class AppUrls {
 
   static const String getBusinessMessage = '/business/message/';
 
-  static const String socketUrl = 'https://10.10.7.103:6002';
+  static const String socketUrl = 'http://35.183.138.114:7001';
   
 }
-class GoogleSignInUrl {
-  static const String googleSignInUrl = 'https://localhost:7000/v1/auth/google';
-} 

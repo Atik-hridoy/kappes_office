@@ -10,9 +10,7 @@ import 'package:canuck_mall/app/utils/app_size.dart';
 import 'package:canuck_mall/app/widgets/app_image/app_image.dart';
 import 'package:canuck_mall/app/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import '../controllers/trades_services_controller.dart';
 
 class TradesServicesView extends GetView<TradesServicesController> {

@@ -36,7 +36,7 @@ class ChattingView extends GetView<ChattingViewController> {
               }
               
               return GroupedListView(
-              reverse: true,
+              reverse: false,
               order: GroupedListOrder.DESC,
               elements: controller.messages,
               scrollDirection: Axis.vertical,

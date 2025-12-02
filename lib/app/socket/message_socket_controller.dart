@@ -51,48 +51,64 @@ class MessageSocketController extends GetxController {
 
   void _handleNewMessage(dynamic data) {
     try {
-      // Convert socket data to Message object
+      print('🔍 Raw newMessage data: $data');
+
+      // Normalize to Map<String, dynamic>
+      final Map<String, dynamic> json =
+          data is Map<String, dynamic> ? data : Map<String, dynamic>.from(data);
+
       final message = Message(
-        id: data['_id'] ?? '',
-        text: data['text'] ?? '',
-        sender: data['sender'] ?? '',
-        chatId: data['chatId'] ?? '',
-        createdAt: DateTime.parse(data['createdAt'] ?? DateTime.now().toIso8601String()),
-        updatedAt: DateTime.parse(data['updatedAt'] ?? DateTime.now().toIso8601String()),
-        v: data['__v'] ?? 0,
+        id: json['_id'] ?? '',
+        text: json['text'] ?? '',
+        sender: json['sender'] ?? '',
+        chatId: json['chatId'] ?? '',
+        createdAt: DateTime.parse(
+          json['createdAt'] ?? DateTime.now().toIso8601String(),
+        ),
+        updatedAt: DateTime.parse(
+          json['updatedAt'] ?? DateTime.now().toIso8601String(),
+        ),
+        v: json['__v'] ?? 0,
       );
 
-      // Add to new messages list
       newMessages.add(message);
-      
-      // Update UI
       update();
-      
+
       print('📨 New message received via socket: ${message.text}');
-    } catch (e) {
+    } catch (e, st) {
       print('❌ Error parsing socket message: $e');
+      print(st);
     }
   }
 
   void _handleChatMessage(dynamic data) {
     try {
-      // Handle specific chat messages (like getMessage::68)
+      print('🔍 Raw chatMessage data: $data');
+
+      final Map<String, dynamic> json =
+          data is Map<String, dynamic> ? data : Map<String, dynamic>.from(data);
+
       final message = Message(
-        id: data['_id'] ?? '',
-        text: data['text'] ?? '',
-        sender: data['sender'] ?? '',
-        chatId: data['chatId'] ?? '',
-        createdAt: DateTime.parse(data['createdAt'] ?? DateTime.now().toIso8601String()),
-        updatedAt: DateTime.parse(data['updatedAt'] ?? DateTime.now().toIso8601String()),
-        v: data['__v'] ?? 0,
+        id: json['_id'] ?? '',
+        text: json['text'] ?? '',
+        sender: json['sender'] ?? '',
+        chatId: json['chatId'] ?? '',
+        createdAt: DateTime.parse(
+          json['createdAt'] ?? DateTime.now().toIso8601String(),
+        ),
+        updatedAt: DateTime.parse(
+          json['updatedAt'] ?? DateTime.now().toIso8601String(),
+        ),
+        v: json['__v'] ?? 0,
       );
 
       newMessages.add(message);
       update();
-      
-      print('📨 Chat message received for ${data['chatId']}: ${message.text}');
-    } catch (e) {
+
+      print('📨 Chat message received for ${json['chatId']}: ${message.text}');
+    } catch (e, st) {
       print('❌ Error parsing chat message: $e');
+      print(st);
     }
   }
 
