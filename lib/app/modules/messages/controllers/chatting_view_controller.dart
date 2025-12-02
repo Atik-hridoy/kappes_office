@@ -323,11 +323,10 @@ class ChattingViewController extends GetxController {
     socketController.newMessages.listen((newMessages) {
       for (final message in newMessages) {
         if (message.chatId == chatId) {
-          messages.add(message);
+          messages.insert(messages.length, message);
           _scrollToBottom();
         }
       }
-      socketController.clearNewMessages();
     });
   }
 

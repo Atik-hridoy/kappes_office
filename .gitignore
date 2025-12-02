@@ -48,3 +48,6 @@ app.*.map.json
 .fvm/flutter_sdk
 .fvm/versions
 !.fvm/fvm_config.json
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat

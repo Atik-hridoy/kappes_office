@@ -10,12 +10,12 @@ class OrderResponseModel {
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
-    return OrderResponseModel(
-      success: json['success'],
-      message: json['message'],
-      data: OrderData.fromJson(json['data']),
-    );
-  }
+  return OrderResponseModel(
+    success: json['success'] ?? false,
+    message: json['message'] ?? '',
+    data: OrderData.fromJson(json['data'] ?? {}),
+  );
+}
 }
 
 class OrderData {
@@ -48,13 +48,13 @@ class Meta {
   });
 
   factory Meta.fromJson(Map<String, dynamic> json) {
-    return Meta(
-      total: json['total'],
-      limit: json['limit'],
-      page: json['page'],
-      totalPage: json['totalPage'],
-    );
-  }
+  return Meta(
+    total: (json['total'] as num?)?.toInt() ?? 0,
+    limit: (json['limit'] as num?)?.toInt() ?? 0,
+    page: (json['page'] as num?)?.toInt() ?? 1,
+    totalPage: (json['totalPage'] as num?)?.toInt() ?? 1,
+  );
+}
 }
 
 class OrderResult {
@@ -104,34 +104,35 @@ class OrderResult {
 
   factory OrderResult.fromJson(Map<String, dynamic> json) {
     return OrderResult(
-      id: json['_id'],
+      id: json['_id'] ?? '',
       user: User.fromJson(json['user']),
-      shop: json['shop'],
+      shop: json['shop'] ?? '',
       products: List<OrderedProduct>.from(
         json['products'].map((x) => OrderedProduct.fromJson(x)),
       ),
-      deliveryOptions: json['deliveryOptions'],
+      deliveryOptions: json['deliveryOptions'] ?? '',
       coupon: json['coupon'] != null ? Coupon.fromJson(json['coupon']) : null,
-      discount: (json['discount'] as num).toDouble(),
-      deliveryCharge: (json['deliveryCharge'] as num).toDouble(),
-      status: json['status'],
-      shippingAddress: json['shippingAddress'],
-      paymentMethod: json['paymentMethod'],
-      paymentStatus: json['paymentStatus'],
-      payment: json['payment'],
-      isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'],
-      isNeedRefund: json['isNeedRefund'],
-      totalAmount: (json['totalAmount'] as num).toDouble(),
-      finalAmount: (json['finalAmount'] as num).toDouble(),
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-      deliveryDate: json['deliveryDate'],
+      discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
+      deliveryCharge: (json['deliveryCharge'] as num?)?.toDouble() ?? 0.0,
+      status: json['status'] ?? '',
+      shippingAddress: json['shippingAddress'] ?? '',
+      paymentMethod: json['paymentMethod'] ?? '',
+      paymentStatus: json['paymentStatus'] ?? '',
+      payment: json['payment'] ?? '',
+      isPaymentTransferdToVendor: json['isPaymentTransferdToVendor'] ?? false,
+      isNeedRefund: json['isNeedRefund'] ?? false,
+      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      finalAmount: (json['finalAmount'] as num?)?.toDouble() ?? 0.0,
+      createdAt: json['createdAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? '',
+      deliveryDate: json['deliveryDate'] ?? '',
     );
   }
 }
 
 class OrderedProduct {
   final Product product;
+
   final String variant;
   final int quantity;
   final double unitPrice;
@@ -146,14 +147,14 @@ class OrderedProduct {
   });
 
   factory OrderedProduct.fromJson(Map<String, dynamic> json) {
-    return OrderedProduct(
-      product: Product.fromJson(json['product']),
-      variant: json['variant'],
-      quantity: json['quantity'],
-      unitPrice: (json['unitPrice'] as num).toDouble(),
-      id: json['_id'],
-    );
-  }
+  return OrderedProduct(
+    product: Product.fromJson(json['product'] ?? {}),
+    variant: json['variant'] ?? '',
+    quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+    unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
+    id: json['_id'] ?? '',
+  );
+}
 }
 
 class Product {
@@ -210,37 +211,42 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['_id'],
-      name: json['name'],
-      description: json['description'],
-      basePrice: (json['basePrice'] as num).toDouble(),
-      totalStock: json['totalStock'],
-      images: List<String>.from(json['images']),
-      isFeatured: json['isFeatured'],
-      tags: List<String>.from(json['tags']),
-      avgRating: (json['avg_rating'] as num).toDouble(),
-      purchaseCount: json['purchaseCount'],
-      viewCount: json['viewCount'],
-      categoryId: json['categoryId'],
-      subcategoryId: json['subcategoryId'],
-      shopId: json['shopId'],
-      brandId: json['brandId'],
-      createdBy: json['createdBy'],
-      reviews: List<String>.from(json['reviews']),
-      totalReviews: json['totalReviews'],
-      productVariantDetails: List<ProductVariantDetail>.from(
-        json['product_variant_Details'].map(
-          (x) => ProductVariantDetail.fromJson(x),
-        ),
-      ),
-      isDeleted: json['isDeleted'],
-      deletedAt: json['deletedAt'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-      isRecommended: json['isRecommended'],
-    );
-  }
+  final imagesJson = json['images'];
+  final reviewsJson = json['reviews'];
+  final variantsJson = json['product_variant_Details'];
+
+  return Product(
+    id: json['_id'] ?? '',
+    name: json['name'] ?? '',
+    description: json['description'] ?? '',
+    basePrice: (json['basePrice'] as num?)?.toDouble() ?? 0.0,
+    totalStock: (json['totalStock'] as num?)?.toInt() ?? 0,
+    images: imagesJson is List ? List<String>.from(imagesJson) : <String>[],
+    isFeatured: json['isFeatured'] ?? false,
+    tags: json['tags'] is List ? List<String>.from(json['tags']) : <String>[],
+    avgRating: (json['avg_rating'] as num?)?.toDouble() ?? 0.0,
+    purchaseCount: (json['purchaseCount'] as num?)?.toInt() ?? 0,
+    viewCount: (json['viewCount'] as num?)?.toInt() ?? 0,
+    categoryId: json['categoryId'] ?? '',
+    subcategoryId: json['subcategoryId'] ?? '',
+    shopId: json['shopId'] ?? '',
+    brandId: json['brandId'] ?? '',
+    createdBy: json['createdBy'] ?? '',
+    reviews:
+        reviewsJson is List ? List<String>.from(reviewsJson) : <String>[],
+    totalReviews: (json['totalReviews'] as num?)?.toInt() ?? 0,
+    productVariantDetails: variantsJson is List
+        ? List<ProductVariantDetail>.from(
+            variantsJson.map((x) => ProductVariantDetail.fromJson(x)),
+          )
+        : <ProductVariantDetail>[],
+    isDeleted: json['isDeleted'] ?? false,
+    deletedAt: json['deletedAt'],
+    createdAt: json['createdAt'] ?? '',
+    updatedAt: json['updatedAt'] ?? '',
+    isRecommended: json['isRecommended'] ?? false,
+  );
+}
 }
 
 class ProductVariantDetail {
@@ -297,23 +303,23 @@ class Coupon {
   });
 
   factory Coupon.fromJson(Map<String, dynamic> json) {
-    return Coupon(
-      id: json['_id'],
-      code: json['code'],
-      shopId: json['shopId'],
-      createdBy: json['createdBy'],
-      discountType: json['discountType'],
-      discountValue: (json['discountValue'] as num).toDouble(),
-      minOrderAmount: (json['minOrderAmount'] as num).toDouble(),
-      maxDiscountAmount: (json['maxDiscountAmount'] as num).toDouble(),
-      startDate: json['startDate'],
-      endDate: json['endDate'],
-      isActive: json['isActive'],
-      isDeleted: json['isDeleted'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-    );
-  }
+  return Coupon(
+    id: json['_id'] ?? '',
+    code: json['code'] ?? '',
+    shopId: json['shopId'] ?? '',
+    createdBy: json['createdBy'] ?? '',
+    discountType: json['discountType'] ?? '',
+    discountValue: (json['discountValue'] as num?)?.toDouble() ?? 0.0,
+    minOrderAmount: (json['minOrderAmount'] as num?)?.toDouble() ?? 0.0,
+    maxDiscountAmount: (json['maxDiscountAmount'] as num?)?.toDouble() ?? 0.0,
+    startDate: json['startDate'] ?? '',
+    endDate: json['endDate'] ?? '',
+    isActive: json['isActive'] ?? false,
+    isDeleted: json['isDeleted'] ?? false,
+    createdAt: json['createdAt'] ?? '',
+    updatedAt: json['updatedAt'] ?? '',
+  );
+}
 }
 
 class User {
@@ -334,13 +340,13 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['_id'],
-      fullName: json['full_name'],
-      email: json['email'],
-      phone: json['phone'],
-      address: json['address'],
-      verified: json['verified'],
-    );
-  }
+  return User(
+    id: json['_id'] ?? '',
+    fullName: json['full_name'] ?? '',
+    email: json['email'] ?? '',
+    phone: json['phone'] ?? '',
+    address: json['address'] ?? '',
+    verified: json['verified'] ?? false,
+  );
+}
 }
